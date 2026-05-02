@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "appName": "Factory System",
+  "dashboard": "Dashboard",
+  "workers": "Workers",
+  "womenStaff": "Women Staff",
+  "threads": "Threads",
+  "clients": "Clients",
+  "setupReadyTitle": "Project setup is ready",
+  "setupReadyDescription": "Core architecture, routing, localization, and app foundations are now in place.",
+  "switchLanguage": "Switch language",
+  "switchTheme": "Switch theme",
+  "featureComingSoon": "{feature} is ready for implementation.",
+  "@featureComingSoon": {
+    "placeholders": {
+      "feature": {}
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "dahy-company",
+                    "appId": "1:274476647081:android:9a0aa66440dc970e199fb8",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "dahy-company",
+                    "configurations": {
+                        "android": "1:274476647081:android:9a0aa66440dc970e199fb8",
+                        "ios": "1:274476647081:ios:9527a0b2f0eb7107199fb8",
+                        "macos": "1:274476647081:ios:9527a0b2f0eb7107199fb8",
+                        "web": "1:274476647081:web:b104448a8b2b8065199fb8",
+                        "windows": "1:274476647081:web:3c2921768fd24496199fb8"
+                    }
+                }
+            }
+        }
+    }
+}

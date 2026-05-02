@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "274476647081",
+    "project_id": "dahy-company",
+    "storage_bucket": "dahy-company.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274476647081:android:9a0aa66440dc970e199fb8",
+        "android_client_info": {
+          "package_name": "com.example.company"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHlDPcgqkd0ypvSdDBeXJKOxQW3NJG4DQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

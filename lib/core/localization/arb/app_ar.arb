@@ -1,0 +1,19 @@
+{
+  "@@locale": "ar",
+  "appName": "نظام المصنع",
+  "dashboard": "لوحة التحكم",
+  "workers": "العمال",
+  "womenStaff": "الحريم",
+  "threads": "الخيوط",
+  "clients": "الزبايين",
+  "setupReadyTitle": "تم تجهيز إعداد المشروع",
+  "setupReadyDescription": "أصبحت البنية الأساسية والتنقل والترجمة وتجهيز التطبيق جاهزة.",
+  "switchLanguage": "تغيير اللغة",
+  "switchTheme": "تغيير الثيم",
+  "featureComingSoon": "{feature} جاهز للتنفيذ.",
+  "@featureComingSoon": {
+    "placeholders": {
+      "feature": {}
+    }
+  }
+}
