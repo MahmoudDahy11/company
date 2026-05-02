@@ -1,4 +1,6 @@
 import 'package:injectable/injectable.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../database/app_database.dart';
 import '../firebase/firebase_initializer.dart';
@@ -18,4 +20,10 @@ abstract class RegisterModule {
 
   @lazySingleton
   AppRouter get appRouter => AppRouter();
+
+  @lazySingleton
+  Connectivity get connectivity => Connectivity();
+
+  @lazySingleton
+  FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
 }

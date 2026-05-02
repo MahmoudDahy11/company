@@ -40,6 +40,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get switchTheme => 'تغيير الثيم';
 
   @override
+  String get syncSynced => 'كل البيانات متزامنة';
+
+  @override
+  String get syncInProgress => 'المزامنة قيد التنفيذ';
+
+  @override
+  String get syncPending => 'هناك عناصر تنتظر المزامنة';
+
+  @override
+  String get syncFailed => 'هناك عناصر فشل تزامنها';
+
+  @override
+  String get syncStatusTitle => 'حالة المزامنة';
+
+  @override
+  String get pendingItems => 'العناصر المعلقة';
+
+  @override
+  String get failedItems => 'العناصر الفاشلة';
+
+  @override
+  String get retrySync => 'إعادة المحاولة';
+
+  @override
+  String get noSyncItems => 'لا توجد عناصر معلقة أو فاشلة للمزامنة.';
+
+  @override
   String featureComingSoon(Object feature) {
     return '$feature جاهز للتنفيذ.';
   }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../localization/app_locale_controller.dart';
 import '../localization/generated/app_localizations.dart';
+import '../sync/sync_status_button.dart';
 import '../utils/app_breakpoints.dart';
 
 class AppShell extends StatelessWidget {
@@ -70,6 +71,11 @@ class AppShell extends StatelessWidget {
             title: Text(l10n.appName),
             actions: [
               _ShellActionButton(
+                iconWidget: const SyncStatusButton(),
+                tooltip: '',
+                onPressed: null,
+              ),
+              _ShellActionButton(
                 icon: Icons.translate,
                 tooltip: l10n.switchLanguage,
                 onPressed: localeController.toggleLocale,
@@ -114,6 +120,8 @@ class _ShellActions extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SyncStatusButton(),
+          const SizedBox(height: 8),
           _ShellActionButton(
             icon: Icons.translate,
             tooltip: l10n.switchLanguage,
@@ -133,17 +141,23 @@ class _ShellActions extends StatelessWidget {
 
 class _ShellActionButton extends StatelessWidget {
   const _ShellActionButton({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
+    this.icon,
+    this.tooltip,
+    this.onPressed,
+    this.iconWidget,
   });
 
-  final IconData icon;
-  final String tooltip;
-  final VoidCallback onPressed;
+  final IconData? icon;
+  final String? tooltip;
+  final VoidCallback? onPressed;
+  final Widget? iconWidget;
 
   @override
   Widget build(BuildContext context) {
+    if (iconWidget != null) {
+      return iconWidget!;
+    }
+
     return IconButton(onPressed: onPressed, tooltip: tooltip, icon: Icon(icon));
   }
 }

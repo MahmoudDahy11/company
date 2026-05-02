@@ -10,6 +10,15 @@
   "setupReadyDescription": "Core architecture, routing, localization, and app foundations are now in place.",
   "switchLanguage": "Switch language",
   "switchTheme": "Switch theme",
+  "syncSynced": "All data is synced",
+  "syncInProgress": "Sync in progress",
+  "syncPending": "Pending sync items",
+  "syncFailed": "Failed sync items",
+  "syncStatusTitle": "Sync status",
+  "pendingItems": "Pending items",
+  "failedItems": "Failed items",
+  "retrySync": "Retry sync",
+  "noSyncItems": "There are no pending or failed sync items.",
   "featureComingSoon": "{feature} is ready for implementation.",
   "@featureComingSoon": {
     "placeholders": {

@@ -4,6 +4,7 @@ import '../../features/clients/presentation/pages/clients_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/threads/presentation/pages/threads_page.dart';
 import '../../features/women_staff/presentation/pages/women_staff_page.dart';
+import '../../features/workers/presentation/pages/worker_details_page.dart';
 import '../../features/workers/presentation/pages/workers_page.dart';
 import 'app_shell.dart';
 
@@ -31,6 +32,18 @@ class AppRouter {
                     path: WorkersPage.routePath,
                     name: WorkersPage.routeName,
                     builder: (context, state) => const WorkersPage(),
+                    routes: [
+                      GoRoute(
+                        path: WorkerDetailsPage.routePath,
+                        name: WorkerDetailsPage.routeName,
+                        builder: (context, state) {
+                          final workerId = int.parse(
+                            state.pathParameters['workerId']!,
+                          );
+                          return WorkerDetailsPage(workerId: workerId);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -5,14 +5,86 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../../features/workers/data/models/workers_tables.dart';
+import '../sync/sync_queue_table.dart';
+
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [])
+@DriftDatabase(
+  tables: [
+    SyncQueue,
+    Workers,
+    WorkerProductionEntries,
+    WorkerAdvances,
+    StitchRates,
+    WorkerAbsentDays,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        await m.createTable(workers);
+        await m.createTable(workerProductionEntries);
+        await m.createTable(workerAdvances);
+        await m.createTable(stitchRates);
+        await m.createTable(workerAbsentDays);
+      }
+    },
+  );
+
+  Stream<List<SyncQueueData>> watchSyncQueue() {
+    return (select(
+      syncQueue,
+    )..orderBy([(table) => OrderingTerm(expression: table.createdAt)])).watch();
+  }
+
+  Future<List<SyncQueueData>> getPendingSyncEntries() {
+    return (select(syncQueue)
+          ..where(
+            (table) =>
+                table.status.equalsValue(SyncQueueStatus.pending) |
+                ((table.status.equalsValue(SyncQueueStatus.failed)) &
+                    table.retryCount.isSmallerThanValue(3)),
+          )
+          ..orderBy([(table) => OrderingTerm(expression: table.createdAt)]))
+        .get();
+  }
+
+  Future<List<SyncQueueData>> getPendingOrFailedSyncEntries() {
+    return (select(syncQueue)
+          ..where(
+            (table) =>
+                table.status.equalsValue(SyncQueueStatus.pending) |
+                table.status.equalsValue(SyncQueueStatus.failed),
+          )
+          ..orderBy([(table) => OrderingTerm(expression: table.createdAt)]))
+        .get();
+  }
+
+  Future<void> markSyncEntryStatus({
+    required int id,
+    required SyncQueueStatus status,
+    int? retryCount,
+  }) {
+    return (update(syncQueue)..where((table) => table.id.equals(id))).write(
+      SyncQueueCompanion(
+        status: Value(status),
+        retryCount: retryCount == null
+            ? const Value.absent()
+            : Value(retryCount),
+      ),
+    );
+  }
 }
 
 LazyDatabase _openConnection() {

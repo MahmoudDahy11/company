@@ -40,6 +40,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get switchTheme => 'Switch theme';
 
   @override
+  String get syncSynced => 'All data is synced';
+
+  @override
+  String get syncInProgress => 'Sync in progress';
+
+  @override
+  String get syncPending => 'Pending sync items';
+
+  @override
+  String get syncFailed => 'Failed sync items';
+
+  @override
+  String get syncStatusTitle => 'Sync status';
+
+  @override
+  String get pendingItems => 'Pending items';
+
+  @override
+  String get failedItems => 'Failed items';
+
+  @override
+  String get retrySync => 'Retry sync';
+
+  @override
+  String get noSyncItems => 'There are no pending or failed sync items.';
+
+  @override
   String featureComingSoon(Object feature) {
     return '$feature is ready for implementation.';
   }

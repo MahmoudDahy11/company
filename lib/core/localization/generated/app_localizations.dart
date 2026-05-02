@@ -158,6 +158,60 @@ abstract class AppLocalizations {
   /// **'Switch theme'**
   String get switchTheme;
 
+  /// No description provided for @syncSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'All data is synced'**
+  String get syncSynced;
+
+  /// No description provided for @syncInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync in progress'**
+  String get syncInProgress;
+
+  /// No description provided for @syncPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending sync items'**
+  String get syncPending;
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed sync items'**
+  String get syncFailed;
+
+  /// No description provided for @syncStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync status'**
+  String get syncStatusTitle;
+
+  /// No description provided for @pendingItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending items'**
+  String get pendingItems;
+
+  /// No description provided for @failedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed items'**
+  String get failedItems;
+
+  /// No description provided for @retrySync.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry sync'**
+  String get retrySync;
+
+  /// No description provided for @noSyncItems.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no pending or failed sync items.'**
+  String get noSyncItems;
+
   /// No description provided for @featureComingSoon.
   ///
   /// In en, this message translates to:

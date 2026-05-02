@@ -10,6 +10,15 @@
   "setupReadyDescription": "أصبحت البنية الأساسية والتنقل والترجمة وتجهيز التطبيق جاهزة.",
   "switchLanguage": "تغيير اللغة",
   "switchTheme": "تغيير الثيم",
+  "syncSynced": "كل البيانات متزامنة",
+  "syncInProgress": "المزامنة قيد التنفيذ",
+  "syncPending": "هناك عناصر تنتظر المزامنة",
+  "syncFailed": "هناك عناصر فشل تزامنها",
+  "syncStatusTitle": "حالة المزامنة",
+  "pendingItems": "العناصر المعلقة",
+  "failedItems": "العناصر الفاشلة",
+  "retrySync": "إعادة المحاولة",
+  "noSyncItems": "لا توجد عناصر معلقة أو فاشلة للمزامنة.",
   "featureComingSoon": "{feature} جاهز للتنفيذ.",
   "@featureComingSoon": {
     "placeholders": {
