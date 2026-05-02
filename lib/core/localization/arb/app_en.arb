@@ -219,5 +219,11 @@
     "placeholders": {
       "feature": {}
     }
-  }
+  },
+  "exportExcel": "Export Excel",
+  "exportPayroll": "Export payroll",
+  "exportThreads": "Export threads",
+  "exportClients": "Export clients",
+  "exportSuccess": "File exported successfully",
+  "exportError": "Failed to export file"
 }

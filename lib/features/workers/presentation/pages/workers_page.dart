@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/export/excel_export_service.dart';
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../bloc/workers_cubit.dart';
@@ -80,6 +81,31 @@ class _WorkersView extends StatelessWidget {
                         },
                         icon: const Icon(Icons.price_change_outlined),
                         label: Text(l10n.stitchRate),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          try {
+                            await GetIt.I<ExcelExportService>().exportPayroll(
+                              workers: state.items,
+                              staff: const [],
+                              month: state.selectedMonth,
+                              isArabic: Localizations.localeOf(context).languageCode == 'ar',
+                            );
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.exportSuccess)),
+                              );
+                            }
+                          } catch (_) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(l10n.exportError)),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(Icons.table_chart_outlined),
+                        label: Text(l10n.exportExcel),
                       ),
                     ],
                   ),

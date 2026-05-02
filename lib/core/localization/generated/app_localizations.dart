@@ -901,6 +901,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{feature} is ready for implementation.'**
   String featureComingSoon(Object feature);
+
+  /// No description provided for @exportExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Export Excel'**
+  String get exportExcel;
+
+  /// No description provided for @exportPayroll.
+  ///
+  /// In en, this message translates to:
+  /// **'Export payroll'**
+  String get exportPayroll;
+
+  /// No description provided for @exportThreads.
+  ///
+  /// In en, this message translates to:
+  /// **'Export threads'**
+  String get exportThreads;
+
+  /// No description provided for @exportClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Export clients'**
+  String get exportClients;
+
+  /// No description provided for @exportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'File exported successfully'**
+  String get exportSuccess;
+
+  /// No description provided for @exportError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to export file'**
+  String get exportError;
 }
 
 class _AppLocalizationsDelegate

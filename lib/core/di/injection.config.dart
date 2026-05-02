@@ -13,6 +13,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:company/core/auth/auth_controller.dart' as _i875;
 import 'package:company/core/database/app_database.dart' as _i549;
 import 'package:company/core/di/register_module.dart' as _i673;
+import 'package:company/core/export/excel_export_service.dart' as _i211;
 import 'package:company/core/firebase/firebase_initializer.dart' as _i221;
 import 'package:company/core/localization/app_locale_controller.dart' as _i707;
 import 'package:company/core/router/app_router.dart' as _i512;
@@ -170,6 +171,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.firebaseFirestore,
     );
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
+    gh.lazySingleton<_i211.ExcelExportService>(
+      () => _i211.ExcelExportService(),
+    );
     gh.lazySingleton<_i875.AuthController>(
       () => _i875.AuthController(
         gh<_i59.FirebaseAuth>(),

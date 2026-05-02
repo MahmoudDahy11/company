@@ -446,4 +446,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String featureComingSoon(Object feature) {
     return '$feature is ready for implementation.';
   }
+
+  @override
+  String get exportExcel => 'Export Excel';
+
+  @override
+  String get exportPayroll => 'Export payroll';
+
+  @override
+  String get exportThreads => 'Export threads';
+
+  @override
+  String get exportClients => 'Export clients';
+
+  @override
+  String get exportSuccess => 'File exported successfully';
+
+  @override
+  String get exportError => 'Failed to export file';
 }

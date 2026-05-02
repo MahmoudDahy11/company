@@ -444,4 +444,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String featureComingSoon(Object feature) {
     return '$feature جاهز للتنفيذ.';
   }
+
+  @override
+  String get exportExcel => 'تصدير إكسيل';
+
+  @override
+  String get exportPayroll => 'تصدير كشف المرتبات';
+
+  @override
+  String get exportThreads => 'تصدير الخيوط';
+
+  @override
+  String get exportClients => 'تصدير الزباين';
+
+  @override
+  String get exportSuccess => 'تم تصدير الملف بنجاح';
+
+  @override
+  String get exportError => 'فشل تصدير الملف';
 }

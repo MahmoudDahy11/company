@@ -219,5 +219,11 @@
     "placeholders": {
       "feature": {}
     }
-  }
+  },
+  "exportExcel": "تصدير إكسيل",
+  "exportPayroll": "تصدير كشف المرتبات",
+  "exportThreads": "تصدير الخيوط",
+  "exportClients": "تصدير الزباين",
+  "exportSuccess": "تم تصدير الملف بنجاح",
+  "exportError": "فشل تصدير الملف"
 }
