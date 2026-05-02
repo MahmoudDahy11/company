@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
+import 'package:company/core/auth/auth_controller.dart' as _i875;
 import 'package:company/core/database/app_database.dart' as _i549;
 import 'package:company/core/di/register_module.dart' as _i673;
 import 'package:company/core/firebase/firebase_initializer.dart' as _i221;
@@ -19,6 +20,8 @@ import 'package:company/core/sync/connectivity_service.dart' as _i447;
 import 'package:company/core/sync/sync_remote_data_source.dart' as _i671;
 import 'package:company/core/sync/sync_service.dart' as _i807;
 import 'package:company/core/sync/sync_status_cubit.dart' as _i359;
+import 'package:company/features/auth/presentation/bloc/login_cubit.dart'
+    as _i47;
 import 'package:company/features/clients/data/datasources/clients_local_data_source.dart'
     as _i788;
 import 'package:company/features/clients/data/repositories/clients_repository_impl.dart'
@@ -138,17 +141,23 @@ import 'package:company/features/workers/presentation/bloc/worker_details_cubit.
 import 'package:company/features/workers/presentation/bloc/workers_cubit.dart'
     as _i109;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
+import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
+import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 extension GetItInjectableX on _i174.GetIt {
   // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt $initGetIt({
+  Future<_i174.GetIt> $initGetIt({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) {
+  }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    await gh.factoryAsync<_i460.SharedPreferences>(
+      () => registerModule.sharedPreferences,
+      preResolve: true,
+    );
     gh.lazySingleton<_i707.AppLocaleController>(
       () => registerModule.localeController,
     );
@@ -156,10 +165,19 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i221.FirebaseInitializer>(
       () => registerModule.firebaseInitializer,
     );
-    gh.lazySingleton<_i512.AppRouter>(() => registerModule.appRouter);
     gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);
     gh.lazySingleton<_i974.FirebaseFirestore>(
       () => registerModule.firebaseFirestore,
+    );
+    gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
+    gh.lazySingleton<_i875.AuthController>(
+      () => _i875.AuthController(
+        gh<_i59.FirebaseAuth>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
+    gh.lazySingleton<_i512.AppRouter>(
+      () => _i512.AppRouter(gh<_i875.AuthController>()),
     );
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
@@ -194,6 +212,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i640.WomenStaffRepository>(
       () =>
           _i74.WomenStaffRepositoryImpl(gh<_i387.WomenStaffLocalDataSource>()),
+    );
+    gh.factory<_i47.LoginCubit>(
+      () => _i47.LoginCubit(gh<_i875.AuthController>()),
     );
     gh.lazySingleton<_i671.SyncRemoteDataSource>(
       () => _i671.SyncRemoteDataSource(gh<_i974.FirebaseFirestore>()),

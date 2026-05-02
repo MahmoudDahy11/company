@@ -67,6 +67,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noSyncItems => 'لا توجد عناصر معلقة أو فاشلة للمزامنة.';
 
   @override
+  String get email => 'البريد الإلكتروني';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get rememberMe => 'تذكرني';
+
+  @override
+  String get requiredField => 'هذا الحقل مطلوب';
+
+  @override
+  String get loginTitle => 'دخول المدير';
+
+  @override
+  String get loginSubtitle => 'سجّل الدخول بحساب المدير لفتح نظام المصنع.';
+
+  @override
+  String get loginButton => 'تسجيل الدخول';
+
+  @override
+  String get signOut => 'تسجيل الخروج';
+
+  @override
   String get save => 'حفظ';
 
   @override

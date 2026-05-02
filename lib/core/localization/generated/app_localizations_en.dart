@@ -67,6 +67,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSyncItems => 'There are no pending or failed sync items.';
 
   @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get rememberMe => 'Remember me';
+
+  @override
+  String get requiredField => 'This field is required';
+
+  @override
+  String get loginTitle => 'Admin login';
+
+  @override
+  String get loginSubtitle =>
+      'Sign in with the admin account to open the factory system.';
+
+  @override
+  String get loginButton => 'Sign in';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
   String get save => 'Save';
 
   @override

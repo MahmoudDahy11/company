@@ -67,14 +67,12 @@ class ThreadsLocalDataSource {
 
   Future<void> deleteSupplier(int supplierId) async {
     await _database.transaction(() async {
-      final purchaseRows =
-          await (_database.select(_database.threadPurchases)
-                ..where((t) => t.supplierId.equals(supplierId)))
-              .get();
-      final paymentRows =
-          await (_database.select(_database.supplierPayments)
-                ..where((t) => t.supplierId.equals(supplierId)))
-              .get();
+      final purchaseRows = await (_database.select(
+        _database.threadPurchases,
+      )..where((t) => t.supplierId.equals(supplierId))).get();
+      final paymentRows = await (_database.select(
+        _database.supplierPayments,
+      )..where((t) => t.supplierId.equals(supplierId))).get();
 
       for (final purchase in purchaseRows) {
         await (_database.delete(

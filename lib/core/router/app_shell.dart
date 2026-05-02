@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../auth/auth_controller.dart';
 import '../localization/app_locale_controller.dart';
 import '../localization/generated/app_localizations.dart';
 import '../sync/sync_status_button.dart';
@@ -16,6 +17,7 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final localeController = GetIt.I<AppLocaleController>();
+    final authController = GetIt.I<AuthController>();
     final destinations = <NavigationDestination>[
       NavigationDestination(
         icon: const Icon(Icons.dashboard_outlined),
@@ -85,6 +87,11 @@ class AppShell extends StatelessWidget {
                 tooltip: l10n.switchTheme,
                 onPressed: localeController.toggleTheme,
               ),
+              _ShellActionButton(
+                icon: Icons.logout,
+                tooltip: l10n.signOut,
+                onPressed: () => authController.signOut(),
+              ),
             ],
           ),
           body: navigationShell,
@@ -114,6 +121,7 @@ class _ShellActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final authController = GetIt.I<AuthController>();
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 24),
@@ -132,6 +140,12 @@ class _ShellActions extends StatelessWidget {
             icon: Icons.dark_mode_outlined,
             tooltip: l10n.switchTheme,
             onPressed: localeController.toggleTheme,
+          ),
+          const SizedBox(height: 8),
+          _ShellActionButton(
+            icon: Icons.logout,
+            tooltip: l10n.signOut,
+            onPressed: () => authController.signOut(),
           ),
         ],
       ),

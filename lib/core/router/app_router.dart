@@ -1,5 +1,7 @@
+import 'package:injectable/injectable.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/clients/presentation/pages/client_details_page.dart';
 import '../../features/clients/presentation/pages/clients_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
@@ -9,13 +11,35 @@ import '../../features/women_staff/presentation/pages/staff_details_page.dart';
 import '../../features/women_staff/presentation/pages/women_staff_page.dart';
 import '../../features/workers/presentation/pages/worker_details_page.dart';
 import '../../features/workers/presentation/pages/workers_page.dart';
+import '../auth/auth_controller.dart';
 import 'app_shell.dart';
 
+@lazySingleton
 class AppRouter {
-  AppRouter()
+  AppRouter(AuthController authController)
     : router = GoRouter(
+        refreshListenable: authController,
+        redirect: (context, state) {
+          final isAuthenticated = authController.isAuthenticated;
+          final isLoginRoute = state.matchedLocation == LoginPage.routePath;
+
+          if (!isAuthenticated && !isLoginRoute) {
+            return LoginPage.routePath;
+          }
+
+          if (isAuthenticated && isLoginRoute) {
+            return DashboardPage.routePath;
+          }
+
+          return null;
+        },
         initialLocation: DashboardPage.routePath,
         routes: [
+          GoRoute(
+            path: LoginPage.routePath,
+            name: LoginPage.routeName,
+            builder: (context, state) => const LoginPage(),
+          ),
           StatefulShellRoute.indexedStack(
             builder: (context, state, navigationShell) =>
                 AppShell(navigationShell: navigationShell),
