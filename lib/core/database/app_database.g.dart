@@ -2144,6 +2144,765 @@ class WorkerAbsentDaysCompanion extends UpdateCompanion<WorkerAbsentDay> {
   }
 }
 
+class $WomenStaffMembersTable extends WomenStaffMembers
+    with TableInfo<$WomenStaffMembersTable, WomenStaffMember> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WomenStaffMembersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _monthlySalaryMeta = const VerificationMeta(
+    'monthlySalary',
+  );
+  @override
+  late final GeneratedColumn<double> monthlySalary = GeneratedColumn<double>(
+    'monthly_salary',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _isActiveMeta = const VerificationMeta(
+    'isActive',
+  );
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+    'is_active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_active" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    monthlySalary,
+    createdAt,
+    isActive,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'women_staff_members';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WomenStaffMember> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('monthly_salary')) {
+      context.handle(
+        _monthlySalaryMeta,
+        monthlySalary.isAcceptableOrUnknown(
+          data['monthly_salary']!,
+          _monthlySalaryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_monthlySalaryMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(
+        _isActiveMeta,
+        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  WomenStaffMember map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WomenStaffMember(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      monthlySalary: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}monthly_salary'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      isActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_active'],
+      )!,
+    );
+  }
+
+  @override
+  $WomenStaffMembersTable createAlias(String alias) {
+    return $WomenStaffMembersTable(attachedDatabase, alias);
+  }
+}
+
+class WomenStaffMember extends DataClass
+    implements Insertable<WomenStaffMember> {
+  final int id;
+  final String name;
+  final double monthlySalary;
+  final DateTime createdAt;
+  final bool isActive;
+  const WomenStaffMember({
+    required this.id,
+    required this.name,
+    required this.monthlySalary,
+    required this.createdAt,
+    required this.isActive,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['monthly_salary'] = Variable<double>(monthlySalary);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_active'] = Variable<bool>(isActive);
+    return map;
+  }
+
+  WomenStaffMembersCompanion toCompanion(bool nullToAbsent) {
+    return WomenStaffMembersCompanion(
+      id: Value(id),
+      name: Value(name),
+      monthlySalary: Value(monthlySalary),
+      createdAt: Value(createdAt),
+      isActive: Value(isActive),
+    );
+  }
+
+  factory WomenStaffMember.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WomenStaffMember(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      monthlySalary: serializer.fromJson<double>(json['monthlySalary']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'monthlySalary': serializer.toJson<double>(monthlySalary),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isActive': serializer.toJson<bool>(isActive),
+    };
+  }
+
+  WomenStaffMember copyWith({
+    int? id,
+    String? name,
+    double? monthlySalary,
+    DateTime? createdAt,
+    bool? isActive,
+  }) => WomenStaffMember(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    monthlySalary: monthlySalary ?? this.monthlySalary,
+    createdAt: createdAt ?? this.createdAt,
+    isActive: isActive ?? this.isActive,
+  );
+  WomenStaffMember copyWithCompanion(WomenStaffMembersCompanion data) {
+    return WomenStaffMember(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      monthlySalary: data.monthlySalary.present
+          ? data.monthlySalary.value
+          : this.monthlySalary,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WomenStaffMember(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('monthlySalary: $monthlySalary, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isActive: $isActive')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, monthlySalary, createdAt, isActive);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WomenStaffMember &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.monthlySalary == this.monthlySalary &&
+          other.createdAt == this.createdAt &&
+          other.isActive == this.isActive);
+}
+
+class WomenStaffMembersCompanion extends UpdateCompanion<WomenStaffMember> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<double> monthlySalary;
+  final Value<DateTime> createdAt;
+  final Value<bool> isActive;
+  const WomenStaffMembersCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.monthlySalary = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.isActive = const Value.absent(),
+  });
+  WomenStaffMembersCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required double monthlySalary,
+    this.createdAt = const Value.absent(),
+    this.isActive = const Value.absent(),
+  }) : name = Value(name),
+       monthlySalary = Value(monthlySalary);
+  static Insertable<WomenStaffMember> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<double>? monthlySalary,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? isActive,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (monthlySalary != null) 'monthly_salary': monthlySalary,
+      if (createdAt != null) 'created_at': createdAt,
+      if (isActive != null) 'is_active': isActive,
+    });
+  }
+
+  WomenStaffMembersCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<double>? monthlySalary,
+    Value<DateTime>? createdAt,
+    Value<bool>? isActive,
+  }) {
+    return WomenStaffMembersCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      monthlySalary: monthlySalary ?? this.monthlySalary,
+      createdAt: createdAt ?? this.createdAt,
+      isActive: isActive ?? this.isActive,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (monthlySalary.present) {
+      map['monthly_salary'] = Variable<double>(monthlySalary.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WomenStaffMembersCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('monthlySalary: $monthlySalary, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isActive: $isActive')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StaffAdvancesTable extends StaffAdvances
+    with TableInfo<$StaffAdvancesTable, StaffAdvance> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StaffAdvancesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _staffIdMeta = const VerificationMeta(
+    'staffId',
+  );
+  @override
+  late final GeneratedColumn<int> staffId = GeneratedColumn<int>(
+    'staff_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES women_staff_members (id)',
+    ),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _carriedOverMeta = const VerificationMeta(
+    'carriedOver',
+  );
+  @override
+  late final GeneratedColumn<bool> carriedOver = GeneratedColumn<bool>(
+    'carried_over',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("carried_over" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    staffId,
+    amount,
+    date,
+    notes,
+    carriedOver,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'staff_advances';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StaffAdvance> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('staff_id')) {
+      context.handle(
+        _staffIdMeta,
+        staffId.isAcceptableOrUnknown(data['staff_id']!, _staffIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_staffIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('carried_over')) {
+      context.handle(
+        _carriedOverMeta,
+        carriedOver.isAcceptableOrUnknown(
+          data['carried_over']!,
+          _carriedOverMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StaffAdvance map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StaffAdvance(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      staffId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}staff_id'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      carriedOver: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}carried_over'],
+      )!,
+    );
+  }
+
+  @override
+  $StaffAdvancesTable createAlias(String alias) {
+    return $StaffAdvancesTable(attachedDatabase, alias);
+  }
+}
+
+class StaffAdvance extends DataClass implements Insertable<StaffAdvance> {
+  final int id;
+  final int staffId;
+  final double amount;
+  final DateTime date;
+  final String? notes;
+  final bool carriedOver;
+  const StaffAdvance({
+    required this.id,
+    required this.staffId,
+    required this.amount,
+    required this.date,
+    this.notes,
+    required this.carriedOver,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['staff_id'] = Variable<int>(staffId);
+    map['amount'] = Variable<double>(amount);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['carried_over'] = Variable<bool>(carriedOver);
+    return map;
+  }
+
+  StaffAdvancesCompanion toCompanion(bool nullToAbsent) {
+    return StaffAdvancesCompanion(
+      id: Value(id),
+      staffId: Value(staffId),
+      amount: Value(amount),
+      date: Value(date),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      carriedOver: Value(carriedOver),
+    );
+  }
+
+  factory StaffAdvance.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StaffAdvance(
+      id: serializer.fromJson<int>(json['id']),
+      staffId: serializer.fromJson<int>(json['staffId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      carriedOver: serializer.fromJson<bool>(json['carriedOver']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'staffId': serializer.toJson<int>(staffId),
+      'amount': serializer.toJson<double>(amount),
+      'date': serializer.toJson<DateTime>(date),
+      'notes': serializer.toJson<String?>(notes),
+      'carriedOver': serializer.toJson<bool>(carriedOver),
+    };
+  }
+
+  StaffAdvance copyWith({
+    int? id,
+    int? staffId,
+    double? amount,
+    DateTime? date,
+    Value<String?> notes = const Value.absent(),
+    bool? carriedOver,
+  }) => StaffAdvance(
+    id: id ?? this.id,
+    staffId: staffId ?? this.staffId,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+    notes: notes.present ? notes.value : this.notes,
+    carriedOver: carriedOver ?? this.carriedOver,
+  );
+  StaffAdvance copyWithCompanion(StaffAdvancesCompanion data) {
+    return StaffAdvance(
+      id: data.id.present ? data.id.value : this.id,
+      staffId: data.staffId.present ? data.staffId.value : this.staffId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      carriedOver: data.carriedOver.present
+          ? data.carriedOver.value
+          : this.carriedOver,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StaffAdvance(')
+          ..write('id: $id, ')
+          ..write('staffId: $staffId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes, ')
+          ..write('carriedOver: $carriedOver')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, staffId, amount, date, notes, carriedOver);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StaffAdvance &&
+          other.id == this.id &&
+          other.staffId == this.staffId &&
+          other.amount == this.amount &&
+          other.date == this.date &&
+          other.notes == this.notes &&
+          other.carriedOver == this.carriedOver);
+}
+
+class StaffAdvancesCompanion extends UpdateCompanion<StaffAdvance> {
+  final Value<int> id;
+  final Value<int> staffId;
+  final Value<double> amount;
+  final Value<DateTime> date;
+  final Value<String?> notes;
+  final Value<bool> carriedOver;
+  const StaffAdvancesCompanion({
+    this.id = const Value.absent(),
+    this.staffId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.carriedOver = const Value.absent(),
+  });
+  StaffAdvancesCompanion.insert({
+    this.id = const Value.absent(),
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    this.notes = const Value.absent(),
+    this.carriedOver = const Value.absent(),
+  }) : staffId = Value(staffId),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<StaffAdvance> custom({
+    Expression<int>? id,
+    Expression<int>? staffId,
+    Expression<double>? amount,
+    Expression<DateTime>? date,
+    Expression<String>? notes,
+    Expression<bool>? carriedOver,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (staffId != null) 'staff_id': staffId,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (notes != null) 'notes': notes,
+      if (carriedOver != null) 'carried_over': carriedOver,
+    });
+  }
+
+  StaffAdvancesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? staffId,
+    Value<double>? amount,
+    Value<DateTime>? date,
+    Value<String?>? notes,
+    Value<bool>? carriedOver,
+  }) {
+    return StaffAdvancesCompanion(
+      id: id ?? this.id,
+      staffId: staffId ?? this.staffId,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      notes: notes ?? this.notes,
+      carriedOver: carriedOver ?? this.carriedOver,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (staffId.present) {
+      map['staff_id'] = Variable<int>(staffId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (carriedOver.present) {
+      map['carried_over'] = Variable<bool>(carriedOver.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StaffAdvancesCompanion(')
+          ..write('id: $id, ')
+          ..write('staffId: $staffId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes, ')
+          ..write('carriedOver: $carriedOver')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2156,6 +2915,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WorkerAbsentDaysTable workerAbsentDays = $WorkerAbsentDaysTable(
     this,
   );
+  late final $WomenStaffMembersTable womenStaffMembers =
+      $WomenStaffMembersTable(this);
+  late final $StaffAdvancesTable staffAdvances = $StaffAdvancesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2167,6 +2929,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     workerAdvances,
     stitchRates,
     workerAbsentDays,
+    womenStaffMembers,
+    staffAdvances,
   ];
 }
 
@@ -4064,6 +4828,661 @@ typedef $$WorkerAbsentDaysTableProcessedTableManager =
       WorkerAbsentDay,
       PrefetchHooks Function({bool workerId})
     >;
+typedef $$WomenStaffMembersTableCreateCompanionBuilder =
+    WomenStaffMembersCompanion Function({
+      Value<int> id,
+      required String name,
+      required double monthlySalary,
+      Value<DateTime> createdAt,
+      Value<bool> isActive,
+    });
+typedef $$WomenStaffMembersTableUpdateCompanionBuilder =
+    WomenStaffMembersCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<double> monthlySalary,
+      Value<DateTime> createdAt,
+      Value<bool> isActive,
+    });
+
+final class $$WomenStaffMembersTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $WomenStaffMembersTable,
+          WomenStaffMember
+        > {
+  $$WomenStaffMembersTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<$StaffAdvancesTable, List<StaffAdvance>>
+  _staffAdvancesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.staffAdvances,
+    aliasName: $_aliasNameGenerator(
+      db.womenStaffMembers.id,
+      db.staffAdvances.staffId,
+    ),
+  );
+
+  $$StaffAdvancesTableProcessedTableManager get staffAdvancesRefs {
+    final manager = $$StaffAdvancesTableTableManager(
+      $_db,
+      $_db.staffAdvances,
+    ).filter((f) => f.staffId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_staffAdvancesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$WomenStaffMembersTableFilterComposer
+    extends Composer<_$AppDatabase, $WomenStaffMembersTable> {
+  $$WomenStaffMembersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get monthlySalary => $composableBuilder(
+    column: $table.monthlySalary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> staffAdvancesRefs(
+    Expression<bool> Function($$StaffAdvancesTableFilterComposer f) f,
+  ) {
+    final $$StaffAdvancesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.staffAdvances,
+      getReferencedColumn: (t) => t.staffId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StaffAdvancesTableFilterComposer(
+            $db: $db,
+            $table: $db.staffAdvances,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$WomenStaffMembersTableOrderingComposer
+    extends Composer<_$AppDatabase, $WomenStaffMembersTable> {
+  $$WomenStaffMembersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get monthlySalary => $composableBuilder(
+    column: $table.monthlySalary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+    column: $table.isActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WomenStaffMembersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WomenStaffMembersTable> {
+  $$WomenStaffMembersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get monthlySalary => $composableBuilder(
+    column: $table.monthlySalary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  Expression<T> staffAdvancesRefs<T extends Object>(
+    Expression<T> Function($$StaffAdvancesTableAnnotationComposer a) f,
+  ) {
+    final $$StaffAdvancesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.staffAdvances,
+      getReferencedColumn: (t) => t.staffId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StaffAdvancesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.staffAdvances,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$WomenStaffMembersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WomenStaffMembersTable,
+          WomenStaffMember,
+          $$WomenStaffMembersTableFilterComposer,
+          $$WomenStaffMembersTableOrderingComposer,
+          $$WomenStaffMembersTableAnnotationComposer,
+          $$WomenStaffMembersTableCreateCompanionBuilder,
+          $$WomenStaffMembersTableUpdateCompanionBuilder,
+          (WomenStaffMember, $$WomenStaffMembersTableReferences),
+          WomenStaffMember,
+          PrefetchHooks Function({bool staffAdvancesRefs})
+        > {
+  $$WomenStaffMembersTableTableManager(
+    _$AppDatabase db,
+    $WomenStaffMembersTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WomenStaffMembersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$WomenStaffMembersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$WomenStaffMembersTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<double> monthlySalary = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+              }) => WomenStaffMembersCompanion(
+                id: id,
+                name: name,
+                monthlySalary: monthlySalary,
+                createdAt: createdAt,
+                isActive: isActive,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required double monthlySalary,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isActive = const Value.absent(),
+              }) => WomenStaffMembersCompanion.insert(
+                id: id,
+                name: name,
+                monthlySalary: monthlySalary,
+                createdAt: createdAt,
+                isActive: isActive,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$WomenStaffMembersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({staffAdvancesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (staffAdvancesRefs) db.staffAdvances,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (staffAdvancesRefs)
+                    await $_getPrefetchedData<
+                      WomenStaffMember,
+                      $WomenStaffMembersTable,
+                      StaffAdvance
+                    >(
+                      currentTable: table,
+                      referencedTable: $$WomenStaffMembersTableReferences
+                          ._staffAdvancesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$WomenStaffMembersTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).staffAdvancesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.staffId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$WomenStaffMembersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WomenStaffMembersTable,
+      WomenStaffMember,
+      $$WomenStaffMembersTableFilterComposer,
+      $$WomenStaffMembersTableOrderingComposer,
+      $$WomenStaffMembersTableAnnotationComposer,
+      $$WomenStaffMembersTableCreateCompanionBuilder,
+      $$WomenStaffMembersTableUpdateCompanionBuilder,
+      (WomenStaffMember, $$WomenStaffMembersTableReferences),
+      WomenStaffMember,
+      PrefetchHooks Function({bool staffAdvancesRefs})
+    >;
+typedef $$StaffAdvancesTableCreateCompanionBuilder =
+    StaffAdvancesCompanion Function({
+      Value<int> id,
+      required int staffId,
+      required double amount,
+      required DateTime date,
+      Value<String?> notes,
+      Value<bool> carriedOver,
+    });
+typedef $$StaffAdvancesTableUpdateCompanionBuilder =
+    StaffAdvancesCompanion Function({
+      Value<int> id,
+      Value<int> staffId,
+      Value<double> amount,
+      Value<DateTime> date,
+      Value<String?> notes,
+      Value<bool> carriedOver,
+    });
+
+final class $$StaffAdvancesTableReferences
+    extends BaseReferences<_$AppDatabase, $StaffAdvancesTable, StaffAdvance> {
+  $$StaffAdvancesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $WomenStaffMembersTable _staffIdTable(_$AppDatabase db) =>
+      db.womenStaffMembers.createAlias(
+        $_aliasNameGenerator(db.staffAdvances.staffId, db.womenStaffMembers.id),
+      );
+
+  $$WomenStaffMembersTableProcessedTableManager get staffId {
+    final $_column = $_itemColumn<int>('staff_id')!;
+
+    final manager = $$WomenStaffMembersTableTableManager(
+      $_db,
+      $_db.womenStaffMembers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_staffIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StaffAdvancesTableFilterComposer
+    extends Composer<_$AppDatabase, $StaffAdvancesTable> {
+  $$StaffAdvancesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get carriedOver => $composableBuilder(
+    column: $table.carriedOver,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$WomenStaffMembersTableFilterComposer get staffId {
+    final $$WomenStaffMembersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.staffId,
+      referencedTable: $db.womenStaffMembers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WomenStaffMembersTableFilterComposer(
+            $db: $db,
+            $table: $db.womenStaffMembers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StaffAdvancesTableOrderingComposer
+    extends Composer<_$AppDatabase, $StaffAdvancesTable> {
+  $$StaffAdvancesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get carriedOver => $composableBuilder(
+    column: $table.carriedOver,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$WomenStaffMembersTableOrderingComposer get staffId {
+    final $$WomenStaffMembersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.staffId,
+      referencedTable: $db.womenStaffMembers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WomenStaffMembersTableOrderingComposer(
+            $db: $db,
+            $table: $db.womenStaffMembers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StaffAdvancesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StaffAdvancesTable> {
+  $$StaffAdvancesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<bool> get carriedOver => $composableBuilder(
+    column: $table.carriedOver,
+    builder: (column) => column,
+  );
+
+  $$WomenStaffMembersTableAnnotationComposer get staffId {
+    final $$WomenStaffMembersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.staffId,
+          referencedTable: $db.womenStaffMembers,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WomenStaffMembersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.womenStaffMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$StaffAdvancesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StaffAdvancesTable,
+          StaffAdvance,
+          $$StaffAdvancesTableFilterComposer,
+          $$StaffAdvancesTableOrderingComposer,
+          $$StaffAdvancesTableAnnotationComposer,
+          $$StaffAdvancesTableCreateCompanionBuilder,
+          $$StaffAdvancesTableUpdateCompanionBuilder,
+          (StaffAdvance, $$StaffAdvancesTableReferences),
+          StaffAdvance,
+          PrefetchHooks Function({bool staffId})
+        > {
+  $$StaffAdvancesTableTableManager(_$AppDatabase db, $StaffAdvancesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StaffAdvancesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StaffAdvancesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StaffAdvancesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> staffId = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<bool> carriedOver = const Value.absent(),
+              }) => StaffAdvancesCompanion(
+                id: id,
+                staffId: staffId,
+                amount: amount,
+                date: date,
+                notes: notes,
+                carriedOver: carriedOver,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int staffId,
+                required double amount,
+                required DateTime date,
+                Value<String?> notes = const Value.absent(),
+                Value<bool> carriedOver = const Value.absent(),
+              }) => StaffAdvancesCompanion.insert(
+                id: id,
+                staffId: staffId,
+                amount: amount,
+                date: date,
+                notes: notes,
+                carriedOver: carriedOver,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StaffAdvancesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({staffId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (staffId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.staffId,
+                                referencedTable: $$StaffAdvancesTableReferences
+                                    ._staffIdTable(db),
+                                referencedColumn: $$StaffAdvancesTableReferences
+                                    ._staffIdTable(db)
+                                    .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StaffAdvancesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StaffAdvancesTable,
+      StaffAdvance,
+      $$StaffAdvancesTableFilterComposer,
+      $$StaffAdvancesTableOrderingComposer,
+      $$StaffAdvancesTableAnnotationComposer,
+      $$StaffAdvancesTableCreateCompanionBuilder,
+      $$StaffAdvancesTableUpdateCompanionBuilder,
+      (StaffAdvance, $$StaffAdvancesTableReferences),
+      StaffAdvance,
+      PrefetchHooks Function({bool staffId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4083,4 +5502,8 @@ class $AppDatabaseManager {
       $$StitchRatesTableTableManager(_db, _db.stitchRates);
   $$WorkerAbsentDaysTableTableManager get workerAbsentDays =>
       $$WorkerAbsentDaysTableTableManager(_db, _db.workerAbsentDays);
+  $$WomenStaffMembersTableTableManager get womenStaffMembers =>
+      $$WomenStaffMembersTableTableManager(_db, _db.womenStaffMembers);
+  $$StaffAdvancesTableTableManager get staffAdvances =>
+      $$StaffAdvancesTableTableManager(_db, _db.staffAdvances);
 }

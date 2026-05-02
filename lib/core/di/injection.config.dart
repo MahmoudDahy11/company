@@ -19,6 +19,30 @@ import 'package:company/core/sync/connectivity_service.dart' as _i447;
 import 'package:company/core/sync/sync_remote_data_source.dart' as _i671;
 import 'package:company/core/sync/sync_service.dart' as _i807;
 import 'package:company/core/sync/sync_status_cubit.dart' as _i359;
+import 'package:company/features/women_staff/data/datasources/women_staff_local_data_source.dart'
+    as _i387;
+import 'package:company/features/women_staff/data/repositories/women_staff_repository_impl.dart'
+    as _i74;
+import 'package:company/features/women_staff/domain/repositories/women_staff_repository.dart'
+    as _i640;
+import 'package:company/features/women_staff/domain/usecases/add_staff_advance_usecase.dart'
+    as _i478;
+import 'package:company/features/women_staff/domain/usecases/add_staff_usecase.dart'
+    as _i361;
+import 'package:company/features/women_staff/domain/usecases/delete_staff_advance_usecase.dart'
+    as _i732;
+import 'package:company/features/women_staff/domain/usecases/delete_staff_usecase.dart'
+    as _i166;
+import 'package:company/features/women_staff/domain/usecases/update_salary_usecase.dart'
+    as _i282;
+import 'package:company/features/women_staff/domain/usecases/watch_staff_details_usecase.dart'
+    as _i81;
+import 'package:company/features/women_staff/domain/usecases/watch_staff_usecase.dart'
+    as _i829;
+import 'package:company/features/women_staff/presentation/bloc/staff_details_cubit.dart'
+    as _i922;
+import 'package:company/features/women_staff/presentation/bloc/women_staff_cubit.dart'
+    as _i411;
 import 'package:company/features/workers/data/datasources/workers_local_data_source.dart'
     as _i493;
 import 'package:company/features/workers/data/repositories/workers_repository_impl.dart'
@@ -76,11 +100,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
+      () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i493.WorkersLocalDataSource>(
       () => _i493.WorkersLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
+    );
+    gh.lazySingleton<_i640.WomenStaffRepository>(
+      () =>
+          _i74.WomenStaffRepositoryImpl(gh<_i387.WomenStaffLocalDataSource>()),
     );
     gh.lazySingleton<_i671.SyncRemoteDataSource>(
       () => _i671.SyncRemoteDataSource(gh<_i974.FirebaseFirestore>()),
@@ -142,6 +173,42 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i447.ConnectivityService>(),
         gh<_i671.SyncRemoteDataSource>(),
         gh<_i359.SyncStatusCubit>(),
+      ),
+    );
+    gh.factory<_i478.AddStaffAdvanceUseCase>(
+      () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i361.AddStaffUseCase>(
+      () => _i361.AddStaffUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i732.DeleteStaffAdvanceUseCase>(
+      () => _i732.DeleteStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i166.DeleteStaffUseCase>(
+      () => _i166.DeleteStaffUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i282.UpdateSalaryUseCase>(
+      () => _i282.UpdateSalaryUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i81.WatchStaffDetailsUseCase>(
+      () => _i81.WatchStaffDetailsUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i829.WatchStaffUseCase>(
+      () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i411.WomenStaffCubit>(
+      () => _i411.WomenStaffCubit(
+        gh<_i829.WatchStaffUseCase>(),
+        gh<_i361.AddStaffUseCase>(),
+        gh<_i166.DeleteStaffUseCase>(),
+      ),
+    );
+    gh.factory<_i922.StaffDetailsCubit>(
+      () => _i922.StaffDetailsCubit(
+        gh<_i81.WatchStaffDetailsUseCase>(),
+        gh<_i478.AddStaffAdvanceUseCase>(),
+        gh<_i732.DeleteStaffAdvanceUseCase>(),
+        gh<_i282.UpdateSalaryUseCase>(),
       ),
     );
     return this;
