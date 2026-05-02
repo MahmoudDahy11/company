@@ -67,6 +67,45 @@ class ThreadsLocalDataSource {
 
   Future<void> deleteSupplier(int supplierId) async {
     await _database.transaction(() async {
+      final purchaseRows =
+          await (_database.select(_database.threadPurchases)
+                ..where((t) => t.supplierId.equals(supplierId)))
+              .get();
+      final paymentRows =
+          await (_database.select(_database.supplierPayments)
+                ..where((t) => t.supplierId.equals(supplierId)))
+              .get();
+
+      for (final purchase in purchaseRows) {
+        await (_database.delete(
+          _database.threadPurchases,
+        )..where((t) => t.id.equals(purchase.id))).go();
+        await _queueSync(
+          operation: SyncQueueOperation.delete,
+          tableName: 'thread_purchases',
+          recordId: purchase.id,
+          payload: <String, dynamic>{
+            'id': purchase.id,
+            'supplierId': purchase.supplierId,
+          },
+        );
+      }
+
+      for (final payment in paymentRows) {
+        await (_database.delete(
+          _database.supplierPayments,
+        )..where((t) => t.id.equals(payment.id))).go();
+        await _queueSync(
+          operation: SyncQueueOperation.delete,
+          tableName: 'supplier_payments',
+          recordId: payment.id,
+          payload: <String, dynamic>{
+            'id': payment.id,
+            'supplierId': payment.supplierId,
+          },
+        );
+      }
+
       await (_database.delete(
         _database.suppliers,
       )..where((t) => t.id.equals(supplierId))).go();
@@ -350,6 +389,9 @@ class ThreadsLocalDataSource {
     final monthRange = _monthRange(month);
     final yearStart = DateTime(month.year);
     final yearEnd = DateTime(month.year, 12, 31, 23, 59, 59, 999);
+    final supplierIds = (await _database.select(_database.suppliers).get())
+        .map((supplier) => supplier.id)
+        .toSet();
 
     final monthPurchases =
         await (_database.select(_database.threadPurchases)..where(
@@ -372,19 +414,38 @@ class ThreadsLocalDataSource {
         .select(_database.supplierPayments)
         .get();
 
+    final activeMonthPurchases = monthPurchases
+        .where((row) => supplierIds.contains(row.supplierId))
+        .toList();
+    final activeYearPurchases = yearPurchases
+        .where((row) => supplierIds.contains(row.supplierId))
+        .toList();
+    final activeYearPayments = yearPayments
+        .where((row) => supplierIds.contains(row.supplierId))
+        .toList();
+    final activeAllPurchases = allPurchases
+        .where((row) => supplierIds.contains(row.supplierId))
+        .toList();
+    final activeAllPayments = allPayments
+        .where((row) => supplierIds.contains(row.supplierId))
+        .toList();
+
     return ThreadsOverview(
-      monthlyPurchased: monthPurchases.fold<double>(
+      monthlyPurchased: activeMonthPurchases.fold<double>(
         0,
         (sum, row) => sum + row.price,
       ),
-      yearlyPurchased: yearPurchases.fold<double>(
+      yearlyPurchased: activeYearPurchases.fold<double>(
         0,
         (sum, row) => sum + row.price,
       ),
-      yearlyPaid: yearPayments.fold<double>(0, (sum, row) => sum + row.amount),
+      yearlyPaid: activeYearPayments.fold<double>(
+        0,
+        (sum, row) => sum + row.amount,
+      ),
       totalOutstanding:
-          allPurchases.fold<double>(0, (sum, row) => sum + row.price) -
-          allPayments.fold<double>(0, (sum, row) => sum + row.amount),
+          activeAllPurchases.fold<double>(0, (sum, row) => sum + row.price) -
+          activeAllPayments.fold<double>(0, (sum, row) => sum + row.amount),
     );
   }
 
