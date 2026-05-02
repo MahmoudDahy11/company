@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/clients/presentation/pages/client_details_page.dart';
 import '../../features/clients/presentation/pages/clients_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/threads/presentation/pages/supplier_details_page.dart';
@@ -97,6 +98,18 @@ class AppRouter {
                     path: ClientsPage.routePath,
                     name: ClientsPage.routeName,
                     builder: (context, state) => const ClientsPage(),
+                    routes: [
+                      GoRoute(
+                        path: ClientDetailsPage.routePath,
+                        name: ClientDetailsPage.routeName,
+                        builder: (context, state) {
+                          final clientId = int.parse(
+                            state.pathParameters['clientId']!,
+                          );
+                          return ClientDetailsPage(clientId: clientId);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

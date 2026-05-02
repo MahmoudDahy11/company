@@ -19,6 +19,32 @@ import 'package:company/core/sync/connectivity_service.dart' as _i447;
 import 'package:company/core/sync/sync_remote_data_source.dart' as _i671;
 import 'package:company/core/sync/sync_service.dart' as _i807;
 import 'package:company/core/sync/sync_status_cubit.dart' as _i359;
+import 'package:company/features/clients/data/datasources/clients_local_data_source.dart'
+    as _i788;
+import 'package:company/features/clients/data/repositories/clients_repository_impl.dart'
+    as _i598;
+import 'package:company/features/clients/domain/repositories/clients_repository.dart'
+    as _i836;
+import 'package:company/features/clients/domain/usecases/add_client_model_usecase.dart'
+    as _i238;
+import 'package:company/features/clients/domain/usecases/add_client_payment_usecase.dart'
+    as _i971;
+import 'package:company/features/clients/domain/usecases/add_client_usecase.dart'
+    as _i914;
+import 'package:company/features/clients/domain/usecases/delete_client_model_usecase.dart'
+    as _i686;
+import 'package:company/features/clients/domain/usecases/delete_client_payment_usecase.dart'
+    as _i740;
+import 'package:company/features/clients/domain/usecases/delete_client_usecase.dart'
+    as _i502;
+import 'package:company/features/clients/domain/usecases/watch_client_details_usecase.dart'
+    as _i222;
+import 'package:company/features/clients/domain/usecases/watch_clients_usecase.dart'
+    as _i615;
+import 'package:company/features/clients/presentation/bloc/client_details_cubit.dart'
+    as _i177;
+import 'package:company/features/clients/presentation/bloc/clients_cubit.dart'
+    as _i416;
 import 'package:company/features/threads/data/datasources/threads_local_data_source.dart'
     as _i906;
 import 'package:company/features/threads/data/repositories/threads_repository_impl.dart'
@@ -128,6 +154,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i788.ClientsLocalDataSource>(
+      () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i906.ThreadsLocalDataSource>(
       () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
     );
@@ -139,6 +168,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
+    );
+    gh.lazySingleton<_i836.ClientsRepository>(
+      () => _i598.ClientsRepositoryImpl(gh<_i788.ClientsLocalDataSource>()),
     );
     gh.lazySingleton<_i640.WomenStaffRepository>(
       () =>
@@ -209,6 +241,30 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i359.SyncStatusCubit>(),
       ),
     );
+    gh.factory<_i238.AddClientModelUseCase>(
+      () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i971.AddClientPaymentUseCase>(
+      () => _i971.AddClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i914.AddClientUseCase>(
+      () => _i914.AddClientUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i686.DeleteClientModelUseCase>(
+      () => _i686.DeleteClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i740.DeleteClientPaymentUseCase>(
+      () => _i740.DeleteClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i502.DeleteClientUseCase>(
+      () => _i502.DeleteClientUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i222.WatchClientDetailsUseCase>(
+      () => _i222.WatchClientDetailsUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i615.WatchClientsUseCase>(
+      () => _i615.WatchClientsUseCase(gh<_i836.ClientsRepository>()),
+    );
     gh.factory<_i212.AddPurchaseUseCase>(
       () => _i212.AddPurchaseUseCase(gh<_i552.ThreadsRepository>()),
     );
@@ -256,6 +312,22 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i177.ClientDetailsCubit>(
+      () => _i177.ClientDetailsCubit(
+        gh<_i222.WatchClientDetailsUseCase>(),
+        gh<_i238.AddClientModelUseCase>(),
+        gh<_i686.DeleteClientModelUseCase>(),
+        gh<_i971.AddClientPaymentUseCase>(),
+        gh<_i740.DeleteClientPaymentUseCase>(),
+      ),
+    );
+    gh.factory<_i416.ClientsCubit>(
+      () => _i416.ClientsCubit(
+        gh<_i615.WatchClientsUseCase>(),
+        gh<_i914.AddClientUseCase>(),
+        gh<_i502.DeleteClientUseCase>(),
+      ),
     );
     gh.factory<_i850.SupplierDetailsCubit>(
       () => _i850.SupplierDetailsCubit(

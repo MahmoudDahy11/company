@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../features/workers/data/models/workers_tables.dart';
 import '../../features/women_staff/data/models/women_staff_tables.dart';
 import '../../features/threads/data/models/threads_tables.dart';
+import '../../features/clients/data/models/clients_tables.dart';
 import '../sync/sync_queue_table.dart';
 
 part 'app_database.g.dart';
@@ -25,13 +26,16 @@ part 'app_database.g.dart';
     Suppliers,
     ThreadPurchases,
     SupplierPayments,
+    Clients,
+    ClientModels,
+    ClientPayments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,6 +58,11 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(suppliers);
         await m.createTable(threadPurchases);
         await m.createTable(supplierPayments);
+      }
+      if (from < 5) {
+        await m.createTable(clients);
+        await m.createTable(clientModels);
+        await m.createTable(clientPayments);
       }
     },
   );
