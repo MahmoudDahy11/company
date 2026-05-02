@@ -47,11 +47,27 @@ class ExcelExportService {
 
     // Headers
     final headers = isArabic
-        ? ['الاسم', 'النوع', 'إجمالي الغرز / الراتب', 'السلف', 'الترحيل', 'الصافي']
-        : ['Name', 'Type', 'Earnings / Salary', 'Advances', 'Carry-over', 'Net Salary'];
+        ? [
+            'الاسم',
+            'النوع',
+            'إجمالي الغرز / الراتب',
+            'السلف',
+            'الترحيل',
+            'الصافي',
+          ]
+        : [
+            'Name',
+            'Type',
+            'Earnings / Salary',
+            'Advances',
+            'Carry-over',
+            'Net Salary',
+          ];
 
     for (var col = 0; col < headers.length; col++) {
-      final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
+      final cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
       cell.value = TextCellValue(headers[col]);
       cell.cellStyle = _headerStyle;
     }
@@ -69,7 +85,9 @@ class ExcelExportService {
         DoubleCellValue(worker.netSalary),
       ];
       for (var col = 0; col < values.length; col++) {
-        final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
+        final cell = sheet.cell(
+          CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+        );
         cell.value = values[col];
         cell.cellStyle = _workerRowStyle;
       }
@@ -87,7 +105,9 @@ class ExcelExportService {
         DoubleCellValue(member.netSalary),
       ];
       for (var col = 0; col < values.length; col++) {
-        final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row));
+        final cell = sheet.cell(
+          CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+        );
         cell.value = values[col];
         cell.cellStyle = _staffRowStyle;
       }
@@ -117,11 +137,29 @@ class ExcelExportService {
     // Monthly detail sheet
     final detailSheet = excel[monthLabel];
     final detailHeaders = isArabic
-        ? ['الصنف', 'رقم اللون', 'المورد', 'التاريخ', 'السعر', 'الكمية', 'الوحدة']
-        : ['Item', 'Color No.', 'Supplier', 'Date', 'Price', 'Quantity', 'Unit'];
+        ? [
+            'الصنف',
+            'رقم اللون',
+            'المورد',
+            'التاريخ',
+            'السعر',
+            'الكمية',
+            'الوحدة',
+          ]
+        : [
+            'Item',
+            'Color No.',
+            'Supplier',
+            'Date',
+            'Price',
+            'Quantity',
+            'Unit',
+          ];
 
     for (var col = 0; col < detailHeaders.length; col++) {
-      final cell = detailSheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
+      final cell = detailSheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
       cell.value = TextCellValue(detailHeaders[col]);
       cell.cellStyle = _headerStyle;
     }
@@ -144,7 +182,12 @@ class ExcelExportService {
         TextCellValue(purchase.unit),
       ];
       for (var col = 0; col < values.length; col++) {
-        detailSheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row)).value = values[col];
+        detailSheet
+                .cell(
+                  CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+                )
+                .value =
+            values[col];
       }
       row++;
     }
@@ -161,7 +204,9 @@ class ExcelExportService {
         : ['Supplier', 'Total Purchased', 'Total Paid', 'Outstanding'];
 
     for (var col = 0; col < summaryHeaders.length; col++) {
-      final cell = summarySheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
+      final cell = summarySheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
       cell.value = TextCellValue(summaryHeaders[col]);
       cell.cellStyle = _headerStyle;
     }
@@ -175,7 +220,12 @@ class ExcelExportService {
         DoubleCellValue(supplier.outstandingBalance),
       ];
       for (var col = 0; col < values.length; col++) {
-        summarySheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row)).value = values[col];
+        summarySheet
+                .cell(
+                  CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+                )
+                .value =
+            values[col];
       }
       row++;
     }
@@ -204,7 +254,9 @@ class ExcelExportService {
         : ['Client', 'Total Orders', 'Paid', 'Outstanding'];
 
     for (var col = 0; col < headers.length; col++) {
-      final cell = sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0));
+      final cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
       cell.value = TextCellValue(headers[col]);
       cell.cellStyle = _headerStyle;
     }
@@ -218,7 +270,12 @@ class ExcelExportService {
         DoubleCellValue(client.outstanding),
       ];
       for (var col = 0; col < values.length; col++) {
-        sheet.cell(CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row)).value = values[col];
+        sheet
+                .cell(
+                  CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+                )
+                .value =
+            values[col];
       }
       row++;
     }

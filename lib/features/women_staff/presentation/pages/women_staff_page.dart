@@ -79,7 +79,11 @@ class _WomenStaffView extends StatelessWidget {
                               workers: const [],
                               staff: state.items,
                               month: state.selectedMonth,
-                              isArabic: Localizations.localeOf(context).languageCode == 'ar',
+                              isArabic:
+                                  Localizations.localeOf(
+                                    context,
+                                  ).languageCode ==
+                                  'ar',
                             );
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
