@@ -163,29 +163,67 @@ class _PurchasesTab extends StatelessWidget {
         child: Text(AppLocalizations.of(context)!.noPurchasesThisMonth),
       );
     }
-    return ListView.separated(
+
+    final l10n = AppLocalizations.of(context)!;
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      itemCount: purchases.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final item = purchases[index];
-        return Card(
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(AppSpacing.md),
-            title: Text('${item.itemName} • ${item.colorNumber}'),
-            subtitle: Text(
-              '${DateFormat.yMd().format(item.purchaseDate)}\n'
-              '${currency.format(item.price)} • ${item.quantity} ${item.unit}'
-              '${item.notes == null ? '' : '\n${item.notes}'}',
-            ),
-            trailing: IconButton(
-              onPressed: () =>
-                  context.read<SupplierDetailsCubit>().deletePurchase(item.id),
-              icon: const Icon(Icons.delete_outline),
-            ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
           ),
-        );
-      },
+          child: DataTable(
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            headingRowColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            border: TableBorder.all(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+            columns: [
+              DataColumn(label: Text(l10n.date)),
+              DataColumn(label: Text(l10n.itemType)),
+              DataColumn(label: Text(l10n.colorNumber)),
+              DataColumn(label: Text(l10n.price)),
+              DataColumn(label: Text(l10n.quantity)),
+              DataColumn(label: Text(l10n.notes)),
+              DataColumn(label: Text(l10n.actions)),
+            ],
+            rows: purchases.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(DateFormat.yMd().format(item.purchaseDate))),
+                  DataCell(Text(item.itemName)),
+                  DataCell(Text(item.colorNumber)),
+                  DataCell(Text(currency.format(item.price))),
+                  DataCell(Text('${item.quantity} ${item.unit}')),
+                  DataCell(
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 200),
+                      child: Text(
+                        item.notes ?? '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      onPressed: () => context
+                          .read<SupplierDetailsCubit>()
+                          .deletePurchase(item.id),
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -206,28 +244,61 @@ class _PaymentsTab extends StatelessWidget {
         child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
       );
     }
-    return ListView.separated(
+
+    final l10n = AppLocalizations.of(context)!;
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      itemCount: payments.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final item = payments[index];
-        return Card(
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(AppSpacing.md),
-            title: Text(currency.format(item.amount)),
-            subtitle: Text(
-              '${DateFormat.yMd().format(item.paymentDate)}'
-              '${item.notes == null ? '' : '\n${item.notes}'}',
-            ),
-            trailing: IconButton(
-              onPressed: () =>
-                  context.read<SupplierDetailsCubit>().deletePayment(item.id),
-              icon: const Icon(Icons.delete_outline),
-            ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
           ),
-        );
-      },
+          child: DataTable(
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            headingRowColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            border: TableBorder.all(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+            columns: [
+              DataColumn(label: Text(l10n.date)),
+              DataColumn(label: Text(l10n.amount)),
+              DataColumn(label: Text(l10n.notes)),
+              DataColumn(label: Text(l10n.actions)),
+            ],
+            rows: payments.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
+                  DataCell(Text(currency.format(item.amount))),
+                  DataCell(
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 200),
+                      child: Text(
+                        item.notes ?? '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    IconButton(
+                      onPressed: () => context
+                          .read<SupplierDetailsCubit>()
+                          .deletePayment(item.id),
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 }

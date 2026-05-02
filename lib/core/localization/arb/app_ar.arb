@@ -1,6 +1,7 @@
 {
   "@@locale": "ar",
   "appName": "نظام المصنع",
+  "date": "التاريخ",
   "dashboard": "لوحة التحكم",
   "workers": "العمال",
   "womenStaff": "الحريم",
@@ -244,5 +245,20 @@
   "exportThreads": "تصدير الخيوط",
   "exportClients": "تصدير الزباين",
   "exportSuccess": "تم تصدير الملف بنجاح",
-  "exportError": "فشل تصدير الملف"
+  "exportError": "فشل تصدير الملف",
+  "workersList": "قائمة العمال",
+  "womenStaffList": "قائمة الحريم",
+  "suppliersList": "قائمة الموردين",
+  "clientsList": "قائمة الزباين",
+  "name": "الاسم",
+  "netSalaryHeader": "صافي الراتب",
+  "advancesHeader": "السلف",
+  "absentDaysHeader": "أيام الغياب",
+  "actions": "الإجراءات",
+  "details": "تفاصيل",
+  "basicSalary": "الراتب الأساسي",
+  "totalPurchasesHeader": "إجمالي المشتريات",
+  "totalPaidHeader": "إجمالي المدفوع",
+  "remainingBalance": "الرصيد المتبقي",
+  "totalAmountHeader": "إجمالي المبلغ"
 }

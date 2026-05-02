@@ -229,59 +229,97 @@ class _ProductionTab extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
+    final l10n = AppLocalizations.of(context)!;
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      itemCount: productions.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final item = productions[index];
-        return Card(
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(AppSpacing.md),
-            title: Text(DateFormat.yMd().format(item.date)),
-            subtitle: Text(
-              '${AppLocalizations.of(context)!.stitchesValue(NumberFormat.decimalPattern().format(item.stitchCount))}\n'
-              '${AppLocalizations.of(context)!.earningsValue(currency.format(item.dailyEarnings))}'
-              '${item.notes == null ? '' : '\n${item.notes}'}',
-            ),
-            isThreeLine: item.notes != null,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: () async {
-                    final result = await showProductionSheet(
-                      context,
-                      initialValue: ProductionFormResult(
-                        productionId: item.id,
-                        date: item.date,
-                        stitchCount: item.stitchCount,
-                        notes: item.notes,
-                      ),
-                    );
-                    if (result == null || !context.mounted) {
-                      return;
-                    }
-                    await context.read<WorkerDetailsCubit>().saveProduction(
-                      productionId: item.id,
-                      date: result.date,
-                      stitchCount: result.stitchCount,
-                      notes: result.notes,
-                    );
-                  },
-                  icon: const Icon(Icons.edit_outlined),
-                ),
-                IconButton(
-                  onPressed: () => context
-                      .read<WorkerDetailsCubit>()
-                      .deleteProduction(item.id),
-                  icon: const Icon(Icons.delete_outline),
-                ),
-              ],
-            ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
           ),
-        );
-      },
+          child: DataTable(
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            headingRowColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            border: TableBorder.all(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+            columns: [
+              DataColumn(label: Text(l10n.date)),
+              DataColumn(label: Text(l10n.stitchCount)),
+              DataColumn(label: Text(l10n.earnings)),
+              DataColumn(label: Text(l10n.notes)),
+              DataColumn(label: Text(l10n.actions)),
+            ],
+            rows: productions.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(DateFormat.yMd().format(item.date))),
+                  DataCell(
+                    Text(
+                      NumberFormat.decimalPattern().format(item.stitchCount),
+                    ),
+                  ),
+                  DataCell(Text(currency.format(item.dailyEarnings))),
+                  DataCell(
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 200),
+                      child: Text(
+                        item.notes ?? '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            final result = await showProductionSheet(
+                              context,
+                              initialValue: ProductionFormResult(
+                                productionId: item.id,
+                                date: item.date,
+                                stitchCount: item.stitchCount,
+                                notes: item.notes,
+                              ),
+                            );
+                            if (result == null || !context.mounted) {
+                              return;
+                            }
+                            await context
+                                .read<WorkerDetailsCubit>()
+                                .saveProduction(
+                                  productionId: item.id,
+                                  date: result.date,
+                                  stitchCount: result.stitchCount,
+                                  notes: result.notes,
+                                );
+                          },
+                          icon: const Icon(Icons.edit_outlined, size: 20),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        IconButton(
+                          onPressed: () => context
+                              .read<WorkerDetailsCubit>()
+                              .deleteProduction(item.id),
+                          icon: const Icon(Icons.delete_outline, size: 20),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -300,31 +338,65 @@ class _AdvancesTab extends StatelessWidget {
       );
     }
 
-    return ListView.separated(
+    final l10n = AppLocalizations.of(context)!;
+
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      itemCount: advances.length,
-      separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final item = advances[index];
-        return Card(
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(AppSpacing.md),
-            title: Text(currency.format(item.amount)),
-            subtitle: Text(
-              '${DateFormat.yMd().format(item.date)}'
-              '${item.notes == null ? '' : '\n${item.notes}'}',
-            ),
-            trailing: item.carriedOver
-                ? Chip(label: Text(AppLocalizations.of(context)!.carryOver))
-                : IconButton(
-                    onPressed: () => context
-                        .read<WorkerDetailsCubit>()
-                        .deleteAdvance(item.id),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
           ),
-        );
-      },
+          child: DataTable(
+            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+            headingRowColor: WidgetStateProperty.all(
+              Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+            border: TableBorder.all(
+              color: Theme.of(context).dividerColor,
+              width: 1,
+            ),
+            columns: [
+              DataColumn(label: Text(l10n.date)),
+              DataColumn(label: Text(l10n.amount)),
+              DataColumn(label: Text(l10n.notes)),
+              DataColumn(label: Text(l10n.actions)),
+            ],
+            rows: advances.map((item) {
+              return DataRow(
+                cells: [
+                  DataCell(Text(DateFormat.yMd().format(item.date))),
+                  DataCell(Text(currency.format(item.amount))),
+                  DataCell(
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 200),
+                      child: Text(
+                        item.notes ?? '',
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ),
+                  DataCell(
+                    item.carriedOver
+                        ? Chip(
+                            label: Text(l10n.carryOver),
+                            visualDensity: VisualDensity.compact,
+                          )
+                        : IconButton(
+                            onPressed: () => context
+                                .read<WorkerDetailsCubit>()
+                                .deleteAdvance(item.id),
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+      ),
     );
   }
 }

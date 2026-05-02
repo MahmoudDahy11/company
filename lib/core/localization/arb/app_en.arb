@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "appName": "Factory System",
+  "date": "Date",
   "dashboard": "Dashboard",
   "workers": "Workers",
   "womenStaff": "Women Staff",
@@ -244,5 +245,20 @@
   "exportThreads": "Export threads",
   "exportClients": "Export clients",
   "exportSuccess": "File exported successfully",
-  "exportError": "Failed to export file"
+  "exportError": "Failed to export file",
+  "workersList": "Workers List",
+  "womenStaffList": "Women Staff List",
+  "suppliersList": "Suppliers List",
+  "clientsList": "Clients List",
+  "name": "Name",
+  "netSalaryHeader": "Net Salary",
+  "advancesHeader": "Advances",
+  "absentDaysHeader": "Absent Days",
+  "actions": "Actions",
+  "details": "Details",
+  "basicSalary": "Basic Salary",
+  "totalPurchasesHeader": "Total Purchases",
+  "totalPaidHeader": "Total Paid",
+  "remainingBalance": "Remaining Balance",
+  "totalAmountHeader": "Total Amount"
 }

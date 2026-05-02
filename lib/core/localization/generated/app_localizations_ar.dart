@@ -12,6 +12,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get appName => 'نظام المصنع';
 
   @override
+  String get date => 'التاريخ';
+
+  @override
   String get dashboard => 'لوحة التحكم';
 
   @override
@@ -464,4 +467,49 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get exportError => 'فشل تصدير الملف';
+
+  @override
+  String get workersList => 'قائمة العمال';
+
+  @override
+  String get womenStaffList => 'قائمة الحريم';
+
+  @override
+  String get suppliersList => 'قائمة الموردين';
+
+  @override
+  String get clientsList => 'قائمة الزباين';
+
+  @override
+  String get name => 'الاسم';
+
+  @override
+  String get netSalaryHeader => 'صافي الراتب';
+
+  @override
+  String get advancesHeader => 'السلف';
+
+  @override
+  String get absentDaysHeader => 'أيام الغياب';
+
+  @override
+  String get actions => 'الإجراءات';
+
+  @override
+  String get details => 'تفاصيل';
+
+  @override
+  String get basicSalary => 'الراتب الأساسي';
+
+  @override
+  String get totalPurchasesHeader => 'إجمالي المشتريات';
+
+  @override
+  String get totalPaidHeader => 'إجمالي المدفوع';
+
+  @override
+  String get remainingBalance => 'الرصيد المتبقي';
+
+  @override
+  String get totalAmountHeader => 'إجمالي المبلغ';
 }

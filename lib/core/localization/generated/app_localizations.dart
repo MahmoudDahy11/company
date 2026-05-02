@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Factory System'**
   String get appName;
 
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
   /// No description provided for @dashboard.
   ///
   /// In en, this message translates to:
@@ -925,6 +931,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to export file'**
   String get exportError;
+
+  /// No description provided for @workersList.
+  ///
+  /// In en, this message translates to:
+  /// **'Workers List'**
+  String get workersList;
+
+  /// No description provided for @womenStaffList.
+  ///
+  /// In en, this message translates to:
+  /// **'Women Staff List'**
+  String get womenStaffList;
+
+  /// No description provided for @suppliersList.
+  ///
+  /// In en, this message translates to:
+  /// **'Suppliers List'**
+  String get suppliersList;
+
+  /// No description provided for @clientsList.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients List'**
+  String get clientsList;
+
+  /// No description provided for @name.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get name;
+
+  /// No description provided for @netSalaryHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Net Salary'**
+  String get netSalaryHeader;
+
+  /// No description provided for @advancesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Advances'**
+  String get advancesHeader;
+
+  /// No description provided for @absentDaysHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Absent Days'**
+  String get absentDaysHeader;
+
+  /// No description provided for @actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get actions;
+
+  /// No description provided for @details.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get details;
+
+  /// No description provided for @basicSalary.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic Salary'**
+  String get basicSalary;
+
+  /// No description provided for @totalPurchasesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Purchases'**
+  String get totalPurchasesHeader;
+
+  /// No description provided for @totalPaidHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Paid'**
+  String get totalPaidHeader;
+
+  /// No description provided for @remainingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining Balance'**
+  String get remainingBalance;
+
+  /// No description provided for @totalAmountHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount'**
+  String get totalAmountHeader;
 }
 
 class _AppLocalizationsDelegate

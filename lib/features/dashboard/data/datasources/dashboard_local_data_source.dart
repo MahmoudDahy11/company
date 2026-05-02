@@ -208,9 +208,10 @@ class DashboardLocalDataSource {
     DateTime date,
     int stitchCount,
   ) async {
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
     final rateRow =
         await (_database.select(_database.stitchRates)
-              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(date))
+              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(endOfDay))
               ..orderBy([(t) => OrderingTerm.desc(t.effectiveFrom)])
               ..limit(1))
             .getSingleOrNull();

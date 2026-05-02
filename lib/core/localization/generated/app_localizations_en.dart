@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'Factory System';
 
   @override
+  String get date => 'Date';
+
+  @override
   String get dashboard => 'Dashboard';
 
   @override
@@ -465,4 +468,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportError => 'Failed to export file';
+
+  @override
+  String get workersList => 'Workers List';
+
+  @override
+  String get womenStaffList => 'Women Staff List';
+
+  @override
+  String get suppliersList => 'Suppliers List';
+
+  @override
+  String get clientsList => 'Clients List';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get netSalaryHeader => 'Net Salary';
+
+  @override
+  String get advancesHeader => 'Advances';
+
+  @override
+  String get absentDaysHeader => 'Absent Days';
+
+  @override
+  String get actions => 'Actions';
+
+  @override
+  String get details => 'Details';
+
+  @override
+  String get basicSalary => 'Basic Salary';
+
+  @override
+  String get totalPurchasesHeader => 'Total Purchases';
+
+  @override
+  String get totalPaidHeader => 'Total Paid';
+
+  @override
+  String get remainingBalance => 'Remaining Balance';
+
+  @override
+  String get totalAmountHeader => 'Total Amount';
 }

@@ -557,7 +557,8 @@ class WorkersLocalDataSource {
     DateTime date,
     int stitchCount,
   ) async {
-    final rate = await _rateForDate(date);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
+    final rate = await _rateForDate(endOfDay);
     return ((stitchCount / 100000) * rate).toDouble();
   }
 
