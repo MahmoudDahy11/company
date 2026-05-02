@@ -19,6 +19,193 @@
   "failedItems": "العناصر الفاشلة",
   "retrySync": "إعادة المحاولة",
   "noSyncItems": "لا توجد عناصر معلقة أو فاشلة للمزامنة.",
+  "save": "حفظ",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "notes": "ملاحظات",
+  "amount": "المبلغ",
+  "phoneNumber": "رقم الهاتف",
+  "phone": "الهاتف: {value}",
+  "@phone": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noPhoneNumber": "لا يوجد رقم هاتف",
+  "failedToLoadData": "تعذر تحميل البيانات",
+  "noData": "لا توجد بيانات",
+  "registrationDate": "تاريخ التسجيل: {value}",
+  "@registrationDate": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "dashboardSummaryWorkersWages": "إجمالي أجور العمال",
+  "dashboardSummaryWomenWages": "إجمالي أجور الحريم",
+  "dashboardSummaryThreadPurchases": "إجمالي مشتريات الخيوط",
+  "dashboardSummaryClientOutstanding": "إجمالي على الزبايين",
+  "dashboardQuickInfoTitle": "معلومات سريعة",
+  "dashboardRegisteredWorkers": "عدد العمال المسجلين",
+  "dashboardAbsentDaysThisMonth": "أيام الغياب هذا الشهر",
+  "dashboardPendingClients": "الزباين المتبقين",
+  "dashboardSuppliersOutstanding": "موردون لهم رصيد",
+  "dashboardTopWorkersChart": "أفضل 5 عمال هذا الشهر",
+  "dashboardThreadsYearChart": "مشتريات الخيوط خلال السنة",
+  "dashboardClientsDistributionChart": "توزيع ديون الزباين",
+  "dashboardWomenAdvancesChart": "سلف الحريم هذا الشهر",
+  "noCurrentDebts": "لا توجد ديون حالية",
+  "workersSearchHint": "ابحث عن عامل",
+  "stitchRate": "سعر الغرزة",
+  "noWorkersYet": "لا يوجد عمال حتى الآن",
+  "deleteWorkerTitle": "حذف العامل",
+  "confirmDeleteWorker": "هل تريد حذف {name}؟",
+  "@confirmDeleteWorker": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addWorker": "إضافة عامل",
+  "workerDetailsTitle": "تفاصيل العامل",
+  "summaryTab": "الملخص",
+  "productionTab": "الإنتاج",
+  "advancesTab": "السلف",
+  "currentRatePer100k": "السعر الحالي لكل 100,000 غرزة: {value}",
+  "@currentRatePer100k": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "totalStitches": "إجمالي الغرز",
+  "earnings": "الأرباح",
+  "advances": "السلف",
+  "carryOver": "الترحيل",
+  "absentDays": "أيام الغياب",
+  "netSalary": "الصافي",
+  "noProductionThisMonth": "لا توجد سجلات إنتاج لهذا الشهر",
+  "stitchesValue": "الغرز: {value}",
+  "@stitchesValue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "earningsValue": "الأرباح: {value}",
+  "@earningsValue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noAdvancesThisMonth": "لا توجد سلف لهذا الشهر",
+  "addProduction": "إضافة إنتاج",
+  "addAdvance": "إضافة سلفة",
+  "addPayment": "إضافة دفعة",
+  "addPurchase": "إضافة شراء",
+  "addModel": "إضافة موديل",
+  "workerName": "اسم العامل",
+  "updateStitchRate": "تحديث سعر الغرزة",
+  "ratePer100kStitches": "السعر لكل 100,000 غرزة",
+  "editProduction": "تعديل الإنتاج",
+  "stitchCount": "عدد الغرز",
+  "daysCount": "عدد الأيام",
+  "womenStaffSearchHint": "ابحث عن موظفة",
+  "noWomenStaffYet": "لا توجد موظفات حتى الآن",
+  "deleteStaffTitle": "حذف الموظفة",
+  "confirmDeleteStaff": "هل تريد حذف {name}؟",
+  "@confirmDeleteStaff": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addStaff": "إضافة موظفة",
+  "staffDetailsTitle": "تفاصيل الموظفة",
+  "fixedSalary": "الراتب الثابت",
+  "updateSalary": "تعديل الراتب",
+  "staffName": "الاسم",
+  "monthlySalary": "الراتب الشهري",
+  "threadsSearchHint": "ابحث عن مورد",
+  "monthlyPurchases": "مشتريات الشهر",
+  "yearlyPurchases": "مشتريات السنة",
+  "yearlyPayments": "مدفوعات السنة",
+  "totalOutstanding": "إجمالي المتبقي",
+  "noSuppliersYet": "لا يوجد موردون حتى الآن",
+  "deleteSupplierTitle": "حذف المورد",
+  "confirmDeleteSupplier": "هل تريد حذف {name}؟",
+  "@confirmDeleteSupplier": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addSupplier": "إضافة مورد",
+  "supplierDetailsTitle": "تفاصيل المورد",
+  "purchasesTab": "المشتريات",
+  "paymentsTab": "المدفوعات",
+  "outstanding": "المتبقي: {value}",
+  "@outstanding": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noPurchasesThisMonth": "لا توجد مشتريات لهذا الشهر",
+  "noPaymentsThisMonth": "لا توجد مدفوعات لهذا الشهر",
+  "supplierName": "اسم المورد",
+  "itemType": "نوع الصنف",
+  "colorNumber": "رقم اللون",
+  "price": "السعر",
+  "quantity": "الكمية",
+  "unit": "الوحدة",
+  "totalPurchases": "إجمالي المشتريات: {value}",
+  "@totalPurchases": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "totalPaid": "إجمالي المدفوع: {value}",
+  "@totalPaid": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "clientsSearchHint": "ابحث عن زبون",
+  "noClientsYet": "لا يوجد زباين حتى الآن",
+  "deleteClientTitle": "حذف الزبون",
+  "confirmDeleteClient": "هل تريد حذف {name}؟",
+  "@confirmDeleteClient": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addClient": "إضافة زبون",
+  "clientDetailsTitle": "تفاصيل الزبون",
+  "modelsTab": "الموديلات",
+  "noModelsThisMonth": "لا توجد موديلات لهذا الشهر",
+  "piecesWithPrice": "{count} قطعة • {price}",
+  "@piecesWithPrice": {
+    "placeholders": {
+      "count": {},
+      "price": {}
+    }
+  },
+  "totalAmount": "الإجمالي: {value}",
+  "@totalAmount": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "clientName": "اسم الزبون",
+  "modelName": "اسم الموديل",
+  "pieceCount": "عدد القطع",
+  "pricePerPiece": "السعر للقطعة",
+  "ordersTotal": "إجمالي الطلبات: {value}",
+  "@ordersTotal": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "paid": "المدفوع: {value}",
+  "@paid": {
+    "placeholders": {
+      "value": {}
+    }
+  },
   "featureComingSoon": "{feature} جاهز للتنفيذ.",
   "@featureComingSoon": {
     "placeholders": {

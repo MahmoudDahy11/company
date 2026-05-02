@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/supplier_list_item.dart';
 
@@ -18,6 +19,7 @@ class SupplierSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currency = NumberFormat.currency(
       locale: Localizations.localeOf(context).toLanguageTag(),
       symbol: 'EGP ',
@@ -44,16 +46,16 @@ class SupplierSummaryCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDelete,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'حذف المورد',
+                    tooltip: l10n.deleteSupplierTitle,
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text('إجمالي المشتريات: ${currency.format(item.totalPurchased)}'),
-              Text('إجمالي المدفوع: ${currency.format(item.totalPaid)}'),
+              Text(l10n.totalPurchases(currency.format(item.totalPurchased))),
+              Text(l10n.totalPaid(currency.format(item.totalPaid))),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'المتبقي: ${currency.format(item.outstandingBalance)}',
+                l10n.outstanding(currency.format(item.outstandingBalance)),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],

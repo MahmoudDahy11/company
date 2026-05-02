@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/worker_advance.dart';
 import '../../domain/entities/worker_production.dart';
@@ -37,6 +38,7 @@ class _WorkerDetailsView extends StatelessWidget {
       length: 3,
       child: BlocBuilder<WorkerDetailsCubit, WorkerDetailsState>(
         builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           final details = state.details;
           final currency = NumberFormat.currency(
             locale: Localizations.localeOf(context).toLanguageTag(),
@@ -46,12 +48,12 @@ class _WorkerDetailsView extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(details?.worker.name ?? 'تفاصيل العامل'),
-              bottom: const TabBar(
+              title: Text(details?.worker.name ?? l10n.workerDetailsTitle),
+              bottom: TabBar(
                 tabs: [
-                  Tab(text: 'الملخص'),
-                  Tab(text: 'الإنتاج'),
-                  Tab(text: 'السلف'),
+                  Tab(text: l10n.summaryTab),
+                  Tab(text: l10n.productionTab),
+                  Tab(text: l10n.advancesTab),
                 ],
               ),
             ),
@@ -59,7 +61,7 @@ class _WorkerDetailsView extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : details == null
                 ? Center(
-                    child: Text(state.errorMessage ?? 'تعذر تحميل البيانات'),
+                    child: Text(state.errorMessage ?? l10n.failedToLoadData),
                   )
                 : Column(
                     children: [
@@ -79,11 +81,17 @@ class _WorkerDetailsView extends StatelessWidget {
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Text(
-                              'تاريخ التسجيل: ${DateFormat.yMd().format(details.worker.createdAt)}',
+                              l10n.registrationDate(
+                                DateFormat.yMd().format(
+                                  details.worker.createdAt,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              'السعر الحالي لكل 100,000 غرزة: ${currency.format(details.summary.appliedRate)}',
+                              l10n.currentRatePer100k(
+                                currency.format(details.summary.appliedRate),
+                              ),
                             ),
                           ],
                         ),
@@ -163,17 +171,18 @@ class _SummaryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final summary = state.details!.summary;
     final items = <({String label, String value})>[
       (
-        label: 'إجمالي الغرز',
+        label: l10n.totalStitches,
         value: NumberFormat.decimalPattern().format(summary.totalStitchCount),
       ),
-      (label: 'الأرباح', value: currency.format(summary.totalEarnings)),
-      (label: 'السلف', value: currency.format(summary.totalAdvances)),
-      (label: 'الترحيل', value: currency.format(summary.carryOver)),
-      (label: 'أيام الغياب', value: summary.absentDays.toString()),
-      (label: 'الصافي', value: currency.format(summary.netSalary)),
+      (label: l10n.earnings, value: currency.format(summary.totalEarnings)),
+      (label: l10n.advances, value: currency.format(summary.totalAdvances)),
+      (label: l10n.carryOver, value: currency.format(summary.carryOver)),
+      (label: l10n.absentDays, value: summary.absentDays.toString()),
+      (label: l10n.netSalary, value: currency.format(summary.netSalary)),
     ];
 
     return GridView.builder(
@@ -215,7 +224,9 @@ class _ProductionTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (productions.isEmpty) {
-      return const Center(child: Text('لا توجد سجلات إنتاج لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noProductionThisMonth),
+      );
     }
 
     return ListView.separated(
@@ -229,8 +240,8 @@ class _ProductionTab extends StatelessWidget {
             contentPadding: const EdgeInsets.all(AppSpacing.md),
             title: Text(DateFormat.yMd().format(item.date)),
             subtitle: Text(
-              'الغرز: ${NumberFormat.decimalPattern().format(item.stitchCount)}\n'
-              'الأرباح: ${currency.format(item.dailyEarnings)}'
+              '${AppLocalizations.of(context)!.stitchesValue(NumberFormat.decimalPattern().format(item.stitchCount))}\n'
+              '${AppLocalizations.of(context)!.earningsValue(currency.format(item.dailyEarnings))}'
               '${item.notes == null ? '' : '\n${item.notes}'}',
             ),
             isThreeLine: item.notes != null,
@@ -284,7 +295,9 @@ class _AdvancesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (advances.isEmpty) {
-      return const Center(child: Text('لا توجد سلف لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noAdvancesThisMonth),
+      );
     }
 
     return ListView.separated(
@@ -302,7 +315,7 @@ class _AdvancesTab extends StatelessWidget {
               '${item.notes == null ? '' : '\n${item.notes}'}',
             ),
             trailing: item.carriedOver
-                ? const Chip(label: Text('ترحيل'))
+                ? Chip(label: Text(AppLocalizations.of(context)!.carryOver))
                 : IconButton(
                     onPressed: () => context
                         .read<WorkerDetailsCubit>()
@@ -329,21 +342,22 @@ class _DetailsFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopupMenuButton<VoidCallback>(
       icon: const Icon(Icons.add),
       onSelected: (callback) => callback(),
       itemBuilder: (context) => [
         PopupMenuItem<VoidCallback>(
           value: onAddProduction,
-          child: const Text('إضافة إنتاج'),
+          child: Text(l10n.addProduction),
         ),
         PopupMenuItem<VoidCallback>(
           value: onAddAdvance,
-          child: const Text('إضافة سلفة'),
+          child: Text(l10n.addAdvance),
         ),
         PopupMenuItem<VoidCallback>(
           value: onAbsentDays,
-          child: const Text('أيام الغياب'),
+          child: Text(l10n.absentDays),
         ),
       ],
     );

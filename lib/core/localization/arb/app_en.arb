@@ -19,6 +19,193 @@
   "failedItems": "Failed items",
   "retrySync": "Retry sync",
   "noSyncItems": "There are no pending or failed sync items.",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "notes": "Notes",
+  "amount": "Amount",
+  "phoneNumber": "Phone number",
+  "phone": "Phone: {value}",
+  "@phone": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noPhoneNumber": "No phone number",
+  "failedToLoadData": "Failed to load data",
+  "noData": "No data",
+  "registrationDate": "Registration date: {value}",
+  "@registrationDate": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "dashboardSummaryWorkersWages": "Total worker wages",
+  "dashboardSummaryWomenWages": "Total women staff wages",
+  "dashboardSummaryThreadPurchases": "Total thread purchases",
+  "dashboardSummaryClientOutstanding": "Total client outstanding",
+  "dashboardQuickInfoTitle": "Quick info",
+  "dashboardRegisteredWorkers": "Registered workers",
+  "dashboardAbsentDaysThisMonth": "Absent days this month",
+  "dashboardPendingClients": "Clients with outstanding balances",
+  "dashboardSuppliersOutstanding": "Suppliers with outstanding balance",
+  "dashboardTopWorkersChart": "Top 5 workers this month",
+  "dashboardThreadsYearChart": "Thread purchases over the year",
+  "dashboardClientsDistributionChart": "Client balance distribution",
+  "dashboardWomenAdvancesChart": "Women staff advances this month",
+  "noCurrentDebts": "There are no current debts",
+  "workersSearchHint": "Search worker",
+  "stitchRate": "Stitch rate",
+  "noWorkersYet": "No workers yet",
+  "deleteWorkerTitle": "Delete worker",
+  "confirmDeleteWorker": "Delete {name}?",
+  "@confirmDeleteWorker": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addWorker": "Add worker",
+  "workerDetailsTitle": "Worker details",
+  "summaryTab": "Summary",
+  "productionTab": "Production",
+  "advancesTab": "Advances",
+  "currentRatePer100k": "Current rate per 100,000 stitches: {value}",
+  "@currentRatePer100k": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "totalStitches": "Total stitches",
+  "earnings": "Earnings",
+  "advances": "Advances",
+  "carryOver": "Carry-over",
+  "absentDays": "Absent days",
+  "netSalary": "Net salary",
+  "noProductionThisMonth": "No production records for this month",
+  "stitchesValue": "Stitches: {value}",
+  "@stitchesValue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "earningsValue": "Earnings: {value}",
+  "@earningsValue": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noAdvancesThisMonth": "No advances for this month",
+  "addProduction": "Add production",
+  "addAdvance": "Add advance",
+  "addPayment": "Add payment",
+  "addPurchase": "Add purchase",
+  "addModel": "Add model",
+  "workerName": "Worker name",
+  "updateStitchRate": "Update stitch rate",
+  "ratePer100kStitches": "Rate per 100,000 stitches",
+  "editProduction": "Edit production",
+  "stitchCount": "Stitch count",
+  "daysCount": "Number of days",
+  "womenStaffSearchHint": "Search staff member",
+  "noWomenStaffYet": "No women staff yet",
+  "deleteStaffTitle": "Delete staff member",
+  "confirmDeleteStaff": "Delete {name}?",
+  "@confirmDeleteStaff": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addStaff": "Add staff member",
+  "staffDetailsTitle": "Staff details",
+  "fixedSalary": "Fixed salary",
+  "updateSalary": "Update salary",
+  "staffName": "Name",
+  "monthlySalary": "Monthly salary",
+  "threadsSearchHint": "Search supplier",
+  "monthlyPurchases": "Monthly purchases",
+  "yearlyPurchases": "Yearly purchases",
+  "yearlyPayments": "Yearly payments",
+  "totalOutstanding": "Total outstanding",
+  "noSuppliersYet": "No suppliers yet",
+  "deleteSupplierTitle": "Delete supplier",
+  "confirmDeleteSupplier": "Delete {name}?",
+  "@confirmDeleteSupplier": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addSupplier": "Add supplier",
+  "supplierDetailsTitle": "Supplier details",
+  "purchasesTab": "Purchases",
+  "paymentsTab": "Payments",
+  "outstanding": "Outstanding: {value}",
+  "@outstanding": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "noPurchasesThisMonth": "No purchases for this month",
+  "noPaymentsThisMonth": "No payments for this month",
+  "supplierName": "Supplier name",
+  "itemType": "Item type",
+  "colorNumber": "Color number",
+  "price": "Price",
+  "quantity": "Quantity",
+  "unit": "Unit",
+  "totalPurchases": "Total purchases: {value}",
+  "@totalPurchases": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "totalPaid": "Total paid: {value}",
+  "@totalPaid": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "clientsSearchHint": "Search client",
+  "noClientsYet": "No clients yet",
+  "deleteClientTitle": "Delete client",
+  "confirmDeleteClient": "Delete {name}?",
+  "@confirmDeleteClient": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "addClient": "Add client",
+  "clientDetailsTitle": "Client details",
+  "modelsTab": "Models",
+  "noModelsThisMonth": "No models for this month",
+  "piecesWithPrice": "{count} pieces • {price}",
+  "@piecesWithPrice": {
+    "placeholders": {
+      "count": {},
+      "price": {}
+    }
+  },
+  "totalAmount": "Total: {value}",
+  "@totalAmount": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "clientName": "Client name",
+  "modelName": "Model name",
+  "pieceCount": "Piece count",
+  "pricePerPiece": "Price per piece",
+  "ordersTotal": "Total orders: {value}",
+  "@ordersTotal": {
+    "placeholders": {
+      "value": {}
+    }
+  },
+  "paid": "Paid: {value}",
+  "@paid": {
+    "placeholders": {
+      "value": {}
+    }
+  },
   "featureComingSoon": "{feature} is ready for implementation.",
   "@featureComingSoon": {
     "placeholders": {

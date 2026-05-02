@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../../workers/presentation/widgets/month_selector.dart';
 import '../bloc/clients_cubit.dart';
@@ -33,6 +34,7 @@ class _ClientsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ClientsCubit, ClientsState>(
       builder: (context, state) {
+        final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
             child: Padding(
@@ -41,7 +43,7 @@ class _ClientsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الزبايين',
+                    l10n.clients,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -53,8 +55,8 @@ class _ClientsView extends StatelessWidget {
                       SizedBox(
                         width: 320,
                         child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'ابحث عن زبون',
+                          decoration: InputDecoration(
+                            hintText: l10n.clientsSearchHint,
                             prefixIcon: Icon(Icons.search),
                           ),
                           onChanged: context
@@ -74,7 +76,7 @@ class _ClientsView extends StatelessWidget {
                     child: state.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : state.filteredItems.isEmpty
-                        ? const Center(child: Text('لا يوجد زباين حتى الآن'))
+                        ? Center(child: Text(l10n.noClientsYet))
                         : ListView.separated(
                             itemCount: state.filteredItems.length,
                             separatorBuilder: (_, _) =>
@@ -90,20 +92,20 @@ class _ClientsView extends StatelessWidget {
                                   final shouldDelete = await showDialog<bool>(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text('حذف الزبون'),
+                                      title: Text(l10n.deleteClientTitle),
                                       content: Text(
-                                        'هل تريد حذف ${item.name}؟',
+                                        l10n.confirmDeleteClient(item.name),
                                       ),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(false),
-                                          child: const Text('إلغاء'),
+                                          child: Text(l10n.cancel),
                                         ),
                                         FilledButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(true),
-                                          child: const Text('حذف'),
+                                          child: Text(l10n.delete),
                                         ),
                                       ],
                                     ),
@@ -133,7 +135,7 @@ class _ClientsView extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.person_add_alt_1_outlined),
-            label: const Text('إضافة زبون'),
+            label: Text(l10n.addClient),
           ),
         );
       },

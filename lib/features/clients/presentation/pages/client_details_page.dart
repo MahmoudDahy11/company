@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../../workers/presentation/widgets/month_selector.dart';
 import '../bloc/client_details_cubit.dart';
@@ -35,6 +36,7 @@ class _ClientDetailsView extends StatelessWidget {
       length: 2,
       child: BlocBuilder<ClientDetailsCubit, ClientDetailsState>(
         builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           final details = state.details;
           final currency = NumberFormat.currency(
             locale: Localizations.localeOf(context).toLanguageTag(),
@@ -44,11 +46,11 @@ class _ClientDetailsView extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(details?.client.name ?? 'تفاصيل الزبون'),
-              bottom: const TabBar(
+              title: Text(details?.client.name ?? l10n.clientDetailsTitle),
+              bottom: TabBar(
                 tabs: [
-                  Tab(text: 'الموديلات'),
-                  Tab(text: 'المدفوعات'),
+                  Tab(text: l10n.modelsTab),
+                  Tab(text: l10n.paymentsTab),
                 ],
               ),
             ),
@@ -56,7 +58,7 @@ class _ClientDetailsView extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : details == null
                 ? Center(
-                    child: Text(state.errorMessage ?? 'تعذر تحميل البيانات'),
+                    child: Text(state.errorMessage ?? l10n.failedToLoadData),
                   )
                 : Column(
                     children: [
@@ -77,12 +79,14 @@ class _ClientDetailsView extends StatelessWidget {
                             const SizedBox(height: AppSpacing.md),
                             Text(
                               details.client.phone == null
-                                  ? 'لا يوجد رقم هاتف'
-                                  : 'الهاتف: ${details.client.phone}',
+                                  ? l10n.noPhoneNumber
+                                  : l10n.phone(details.client.phone!),
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              'المتبقي: ${currency.format(details.summary.outstanding)}',
+                              l10n.outstanding(
+                                currency.format(details.summary.outstanding),
+                              ),
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ],
@@ -115,7 +119,7 @@ class _ClientDetailsView extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('إضافة موديل'),
+                  child: Text(l10n.addModel),
                 ),
                 PopupMenuItem<VoidCallback>(
                   value: () async {
@@ -128,7 +132,7 @@ class _ClientDetailsView extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('إضافة دفعة'),
+                  child: Text(l10n.addPayment),
                 ),
               ],
             ),
@@ -151,7 +155,9 @@ class _ModelsTab extends StatelessWidget {
     );
     final models = details?.models ?? const [];
     if (models.isEmpty) {
-      return const Center(child: Text('لا توجد موديلات لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noModelsThisMonth),
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -165,8 +171,8 @@ class _ModelsTab extends StatelessWidget {
             title: Text(item.modelName),
             subtitle: Text(
               '${DateFormat.yMd().format(item.date)}\n'
-              '${item.pieceCount} قطعة • ${currency.format(item.pricePerPiece)}\n'
-              'الإجمالي: ${currency.format(item.total)}'
+              '${AppLocalizations.of(context)!.piecesWithPrice(item.pieceCount, currency.format(item.pricePerPiece))}\n'
+              '${AppLocalizations.of(context)!.totalAmount(currency.format(item.total))}'
               '${item.notes == null ? '' : '\n${item.notes}'}',
             ),
             trailing: IconButton(
@@ -193,7 +199,9 @@ class _PaymentsTab extends StatelessWidget {
     );
     final payments = details?.payments ?? const [];
     if (payments.isEmpty) {
-      return const Center(child: Text('لا توجد دفعات لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),

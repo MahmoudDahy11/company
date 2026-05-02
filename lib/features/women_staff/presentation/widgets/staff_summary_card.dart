@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/staff_list_item.dart';
 
@@ -18,6 +19,7 @@ class StaffSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currency = NumberFormat.currency(
       locale: Localizations.localeOf(context).toLanguageTag(),
       symbol: 'EGP ',
@@ -44,16 +46,18 @@ class StaffSummaryCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDelete,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'حذف الموظفة',
+                    tooltip: l10n.deleteStaffTitle,
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text('الراتب: ${currency.format(item.monthlySalary)}'),
-              Text('السلف: ${currency.format(item.totalAdvances)}'),
+              Text(
+                '${l10n.fixedSalary}: ${currency.format(item.monthlySalary)}',
+              ),
+              Text('${l10n.advances}: ${currency.format(item.totalAdvances)}'),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'الصافي: ${currency.format(item.netSalary)}',
+                '${l10n.netSalary}: ${currency.format(item.netSalary)}',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],

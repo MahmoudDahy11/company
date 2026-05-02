@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../../workers/presentation/widgets/month_selector.dart';
 import '../bloc/threads_cubit.dart';
@@ -34,6 +35,7 @@ class _ThreadsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThreadsCubit, ThreadsState>(
       builder: (context, state) {
+        final l10n = AppLocalizations.of(context)!;
         final currency = NumberFormat.currency(
           locale: Localizations.localeOf(context).toLanguageTag(),
           symbol: 'EGP ',
@@ -48,7 +50,7 @@ class _ThreadsView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'الخيوط',
+                    l10n.threads,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -60,8 +62,8 @@ class _ThreadsView extends StatelessWidget {
                       SizedBox(
                         width: 320,
                         child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'ابحث عن مورد',
+                          decoration: InputDecoration(
+                            hintText: l10n.threadsSearchHint,
                             prefixIcon: Icon(Icons.search),
                           ),
                           onChanged: context
@@ -82,19 +84,19 @@ class _ThreadsView extends StatelessWidget {
                     runSpacing: AppSpacing.md,
                     children: [
                       _OverviewCard(
-                        label: 'مشتريات الشهر',
+                        label: l10n.monthlyPurchases,
                         value: currency.format(state.overview.monthlyPurchased),
                       ),
                       _OverviewCard(
-                        label: 'مشتريات السنة',
+                        label: l10n.yearlyPurchases,
                         value: currency.format(state.overview.yearlyPurchased),
                       ),
                       _OverviewCard(
-                        label: 'مدفوعات السنة',
+                        label: l10n.yearlyPayments,
                         value: currency.format(state.overview.yearlyPaid),
                       ),
                       _OverviewCard(
-                        label: 'إجمالي المتبقي',
+                        label: l10n.totalOutstanding,
                         value: currency.format(state.overview.totalOutstanding),
                       ),
                     ],
@@ -104,7 +106,7 @@ class _ThreadsView extends StatelessWidget {
                     child: state.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : state.filteredItems.isEmpty
-                        ? const Center(child: Text('لا يوجد موردون حتى الآن'))
+                        ? Center(child: Text(l10n.noSuppliersYet))
                         : ListView.separated(
                             itemCount: state.filteredItems.length,
                             separatorBuilder: (_, _) =>
@@ -120,20 +122,20 @@ class _ThreadsView extends StatelessWidget {
                                   final shouldDelete = await showDialog<bool>(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text('حذف المورد'),
+                                      title: Text(l10n.deleteSupplierTitle),
                                       content: Text(
-                                        'هل تريد حذف ${item.name}؟',
+                                        l10n.confirmDeleteSupplier(item.name),
                                       ),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(false),
-                                          child: const Text('إلغاء'),
+                                          child: Text(l10n.cancel),
                                         ),
                                         FilledButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(true),
-                                          child: const Text('حذف'),
+                                          child: Text(l10n.delete),
                                         ),
                                       ],
                                     ),
@@ -163,7 +165,7 @@ class _ThreadsView extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.add_business_outlined),
-            label: const Text('إضافة مورد'),
+            label: Text(l10n.addSupplier),
           ),
         );
       },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../domain/entities/client_list_item.dart';
 
@@ -18,6 +19,7 @@ class ClientSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final currency = NumberFormat.currency(
       locale: Localizations.localeOf(context).toLanguageTag(),
       symbol: 'EGP ',
@@ -44,16 +46,16 @@ class ClientSummaryCard extends StatelessWidget {
                   IconButton(
                     onPressed: onDelete,
                     icon: const Icon(Icons.delete_outline),
-                    tooltip: 'حذف الزبون',
+                    tooltip: l10n.deleteClientTitle,
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text('إجمالي الطلبات: ${currency.format(item.totalAmount)}'),
-              Text('المدفوع: ${currency.format(item.totalPaid)}'),
+              Text(l10n.ordersTotal(currency.format(item.totalAmount))),
+              Text(l10n.paid(currency.format(item.totalPaid))),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'المتبقي: ${currency.format(item.outstanding)}',
+                l10n.outstanding(currency.format(item.outstanding)),
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ],

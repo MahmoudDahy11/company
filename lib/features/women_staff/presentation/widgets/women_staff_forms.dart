@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
 
@@ -75,22 +76,23 @@ class _AddStaffSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     final salaryController = TextEditingController();
 
     return _StaffSheetScaffold(
-      title: 'إضافة موظفة',
+      title: l10n.addStaff,
       child: Column(
         children: [
           TextField(
             controller: nameController,
-            decoration: const InputDecoration(labelText: 'الاسم'),
+            decoration: InputDecoration(labelText: l10n.staffName),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: salaryController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'الراتب الشهري'),
+            decoration: InputDecoration(labelText: l10n.monthlySalary),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -107,7 +109,7 @@ class _AddStaffSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -123,18 +125,19 @@ class _UpdateSalarySheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(
       text: initialValue.toStringAsFixed(2),
     );
 
     return _StaffSheetScaffold(
-      title: 'تعديل الراتب',
+      title: l10n.updateSalary,
       child: Column(
         children: [
           TextField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'الراتب الشهري'),
+            decoration: InputDecoration(labelText: l10n.monthlySalary),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -146,7 +149,7 @@ class _UpdateSalarySheet extends StatelessWidget {
                   Navigator.of(context).pop(salary);
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -160,12 +163,13 @@ class _AddAdvanceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final amountController = TextEditingController();
     final notesController = TextEditingController();
     final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
 
     return _StaffSheetScaffold(
-      title: 'إضافة سلفة',
+      title: l10n.addAdvance,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -193,12 +197,12 @@ class _AddAdvanceSheet extends StatelessWidget {
           TextField(
             controller: amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'المبلغ'),
+            decoration: InputDecoration(labelText: l10n.amount),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: notesController,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
+            decoration: InputDecoration(labelText: l10n.notes),
             maxLines: 2,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -219,7 +223,7 @@ class _AddAdvanceSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../bloc/workers_cubit.dart';
 import '../bloc/workers_state.dart';
@@ -33,6 +34,7 @@ class _WorkersView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<WorkersCubit, WorkersState>(
       builder: (context, state) {
+        final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
             child: Padding(
@@ -41,7 +43,7 @@ class _WorkersView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'العمال',
+                    l10n.workers,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -53,8 +55,8 @@ class _WorkersView extends StatelessWidget {
                       SizedBox(
                         width: 320,
                         child: TextField(
-                          decoration: const InputDecoration(
-                            hintText: 'ابحث عن عامل',
+                          decoration: InputDecoration(
+                            hintText: l10n.workersSearchHint,
                             prefixIcon: Icon(Icons.search),
                           ),
                           onChanged: context
@@ -77,7 +79,7 @@ class _WorkersView extends StatelessWidget {
                           }
                         },
                         icon: const Icon(Icons.price_change_outlined),
-                        label: const Text('سعر الغرزة'),
+                        label: Text(l10n.stitchRate),
                       ),
                     ],
                   ),
@@ -86,7 +88,7 @@ class _WorkersView extends StatelessWidget {
                     child: state.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : state.filteredItems.isEmpty
-                        ? const Center(child: Text('لا يوجد عمال حتى الآن'))
+                        ? Center(child: Text(l10n.noWorkersYet))
                         : ListView.separated(
                             itemCount: state.filteredItems.length,
                             separatorBuilder: (_, _) =>
@@ -102,20 +104,20 @@ class _WorkersView extends StatelessWidget {
                                   final shouldDelete = await showDialog<bool>(
                                     context: context,
                                     builder: (context) => AlertDialog(
-                                      title: const Text('حذف العامل'),
+                                      title: Text(l10n.deleteWorkerTitle),
                                       content: Text(
-                                        'هل تريد حذف ${item.name}؟',
+                                        l10n.confirmDeleteWorker(item.name),
                                       ),
                                       actions: [
                                         TextButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(false),
-                                          child: const Text('إلغاء'),
+                                          child: Text(l10n.cancel),
                                         ),
                                         FilledButton(
                                           onPressed: () =>
                                               Navigator.of(context).pop(true),
-                                          child: const Text('حذف'),
+                                          child: Text(l10n.delete),
                                         ),
                                       ],
                                     ),
@@ -143,7 +145,7 @@ class _WorkersView extends StatelessWidget {
               }
             },
             icon: const Icon(Icons.person_add_alt_1_outlined),
-            label: const Text('إضافة عامل'),
+            label: Text(l10n.addWorker),
           ),
         );
       },

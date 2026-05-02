@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
 
@@ -99,15 +100,16 @@ class _WorkerNameSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
 
     return _SheetScaffold(
-      title: 'إضافة عامل',
+      title: l10n.addWorker,
       child: Column(
         children: [
           TextField(
             controller: controller,
-            decoration: const InputDecoration(labelText: 'اسم العامل'),
+            decoration: InputDecoration(labelText: l10n.workerName),
             textInputAction: TextInputAction.done,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -119,7 +121,7 @@ class _WorkerNameSheet extends StatelessWidget {
                   Navigator.of(context).pop(controller.text.trim());
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -133,18 +135,17 @@ class _StitchRateSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController();
 
     return _SheetScaffold(
-      title: 'تحديث سعر الغرزة',
+      title: l10n.updateStitchRate,
       child: Column(
         children: [
           TextField(
             controller: controller,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'السعر لكل 100,000 غرزة',
-            ),
+            decoration: InputDecoration(labelText: l10n.ratePer100kStitches),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -156,7 +157,7 @@ class _StitchRateSheet extends StatelessWidget {
                   Navigator.of(context).pop(parsed);
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -172,6 +173,7 @@ class _ProductionSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dateNotifier = ValueNotifier<DateTime>(
       initialValue?.date ?? DateTime.now(),
     );
@@ -183,7 +185,7 @@ class _ProductionSheet extends StatelessWidget {
     );
 
     return _SheetScaffold(
-      title: initialValue == null ? 'إضافة إنتاج' : 'تعديل الإنتاج',
+      title: initialValue == null ? l10n.addProduction : l10n.editProduction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -211,12 +213,12 @@ class _ProductionSheet extends StatelessWidget {
           TextField(
             controller: stitchesController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'عدد الغرز'),
+            decoration: InputDecoration(labelText: l10n.stitchCount),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: notesController,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
+            decoration: InputDecoration(labelText: l10n.notes),
             maxLines: 2,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -240,7 +242,7 @@ class _ProductionSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -254,12 +256,13 @@ class _AdvanceSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
     final amountController = TextEditingController();
     final notesController = TextEditingController();
 
     return _SheetScaffold(
-      title: 'إضافة سلفة',
+      title: l10n.addAdvance,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -287,12 +290,12 @@ class _AdvanceSheet extends StatelessWidget {
           TextField(
             controller: amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'المبلغ'),
+            decoration: InputDecoration(labelText: l10n.amount),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: notesController,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
+            decoration: InputDecoration(labelText: l10n.notes),
             maxLines: 2,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -313,7 +316,7 @@ class _AdvanceSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -329,16 +332,17 @@ class _AbsentDaysSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: initialValue.toString());
 
     return _SheetScaffold(
-      title: 'أيام الغياب',
+      title: l10n.absentDays,
       child: Column(
         children: [
           TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'عدد الأيام'),
+            decoration: InputDecoration(labelText: l10n.daysCount),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -350,7 +354,7 @@ class _AbsentDaysSheet extends StatelessWidget {
                   Navigator.of(context).pop(value);
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],

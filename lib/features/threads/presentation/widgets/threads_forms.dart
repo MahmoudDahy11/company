@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
 
@@ -94,21 +95,22 @@ class _SupplierSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController();
     final phoneController = TextEditingController();
 
     return _ThreadsSheetScaffold(
-      title: 'إضافة مورد',
+      title: l10n.addSupplier,
       child: Column(
         children: [
           TextField(
             controller: nameController,
-            decoration: const InputDecoration(labelText: 'اسم المورد'),
+            decoration: InputDecoration(labelText: l10n.supplierName),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: phoneController,
-            decoration: const InputDecoration(labelText: 'رقم الهاتف'),
+            decoration: InputDecoration(labelText: l10n.phoneNumber),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -126,7 +128,7 @@ class _SupplierSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -140,6 +142,7 @@ class _PurchaseSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final itemController = TextEditingController();
     final colorController = TextEditingController();
     final priceController = TextEditingController();
@@ -149,7 +152,7 @@ class _PurchaseSheet extends StatelessWidget {
     final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
 
     return _ThreadsSheetScaffold(
-      title: 'إضافة شراء',
+      title: l10n.addPurchase,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -176,34 +179,34 @@ class _PurchaseSheet extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: itemController,
-            decoration: const InputDecoration(labelText: 'نوع الصنف'),
+            decoration: InputDecoration(labelText: l10n.itemType),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: colorController,
-            decoration: const InputDecoration(labelText: 'رقم اللون'),
+            decoration: InputDecoration(labelText: l10n.colorNumber),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: priceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'السعر'),
+            decoration: InputDecoration(labelText: l10n.price),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: quantityController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'الكمية'),
+            decoration: InputDecoration(labelText: l10n.quantity),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: unitController,
-            decoration: const InputDecoration(labelText: 'الوحدة'),
+            decoration: InputDecoration(labelText: l10n.unit),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: notesController,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
+            decoration: InputDecoration(labelText: l10n.notes),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -234,7 +237,7 @@ class _PurchaseSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],
@@ -248,12 +251,13 @@ class _SupplierPaymentSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final amountController = TextEditingController();
     final notesController = TextEditingController();
     final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
 
     return _ThreadsSheetScaffold(
-      title: 'إضافة دفعة',
+      title: l10n.addPayment,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -281,12 +285,12 @@ class _SupplierPaymentSheet extends StatelessWidget {
           TextField(
             controller: amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'المبلغ'),
+            decoration: InputDecoration(labelText: l10n.amount),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: notesController,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
+            decoration: InputDecoration(labelText: l10n.notes),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
@@ -306,7 +310,7 @@ class _SupplierPaymentSheet extends StatelessWidget {
                   );
                 }
               },
-              child: const Text('حفظ'),
+              child: Text(l10n.save),
             ),
           ),
         ],

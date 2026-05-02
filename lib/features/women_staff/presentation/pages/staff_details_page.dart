@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../../workers/presentation/widgets/month_selector.dart';
 import '../bloc/staff_details_cubit.dart';
@@ -33,6 +34,7 @@ class _StaffDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<StaffDetailsCubit, StaffDetailsState>(
       builder: (context, state) {
+        final l10n = AppLocalizations.of(context)!;
         final details = state.details;
         final currency = NumberFormat.currency(
           locale: Localizations.localeOf(context).toLanguageTag(),
@@ -42,12 +44,12 @@ class _StaffDetailsView extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(details?.staffMember.name ?? 'تفاصيل الموظفة'),
+            title: Text(details?.staffMember.name ?? l10n.staffDetailsTitle),
           ),
           body: state.isLoading
               ? const Center(child: CircularProgressIndicator())
               : details == null
-              ? Center(child: Text(state.errorMessage ?? 'تعذر تحميل البيانات'))
+              ? Center(child: Text(state.errorMessage ?? l10n.failedToLoadData))
               : Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
@@ -62,7 +64,11 @@ class _StaffDetailsView extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'تاريخ التسجيل: ${DateFormat.yMd().format(details.staffMember.createdAt)}',
+                        l10n.registrationDate(
+                          DateFormat.yMd().format(
+                            details.staffMember.createdAt,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       Wrap(
@@ -70,23 +76,23 @@ class _StaffDetailsView extends StatelessWidget {
                         runSpacing: AppSpacing.md,
                         children: [
                           _SummaryCard(
-                            label: 'الراتب الثابت',
+                            label: l10n.fixedSalary,
                             value: currency.format(
                               details.summary.monthlySalary,
                             ),
                           ),
                           _SummaryCard(
-                            label: 'السلف',
+                            label: l10n.advances,
                             value: currency.format(
                               details.summary.totalAdvances,
                             ),
                           ),
                           _SummaryCard(
-                            label: 'الترحيل',
+                            label: l10n.carryOver,
                             value: currency.format(details.summary.carryOver),
                           ),
                           _SummaryCard(
-                            label: 'الصافي',
+                            label: l10n.netSalary,
                             value: currency.format(details.summary.netSalary),
                           ),
                         ],
@@ -107,7 +113,7 @@ class _StaffDetailsView extends StatelessWidget {
                               }
                             },
                             icon: const Icon(Icons.edit_outlined),
-                            label: const Text('تعديل الراتب'),
+                            label: Text(l10n.updateSalary),
                           ),
                           const SizedBox(width: AppSpacing.sm),
                           FilledButton.icon(
@@ -126,16 +132,14 @@ class _StaffDetailsView extends StatelessWidget {
                               }
                             },
                             icon: const Icon(Icons.add),
-                            label: const Text('إضافة سلفة'),
+                            label: Text(l10n.addAdvance),
                           ),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       Expanded(
                         child: details.advances.isEmpty
-                            ? const Center(
-                                child: Text('لا توجد سلف لهذا الشهر'),
-                              )
+                            ? Center(child: Text(l10n.noAdvancesThisMonth))
                             : ListView.separated(
                                 itemCount: details.advances.length,
                                 separatorBuilder: (_, _) =>
@@ -153,7 +157,7 @@ class _StaffDetailsView extends StatelessWidget {
                                         '${item.notes == null ? '' : '\n${item.notes}'}',
                                       ),
                                       trailing: item.carriedOver
-                                          ? const Chip(label: Text('ترحيل'))
+                                          ? Chip(label: Text(l10n.carryOver))
                                           : IconButton(
                                               onPressed: () => context
                                                   .read<StaffDetailsCubit>()

@@ -45,6 +45,16 @@ import 'package:company/features/clients/presentation/bloc/client_details_cubit.
     as _i177;
 import 'package:company/features/clients/presentation/bloc/clients_cubit.dart'
     as _i416;
+import 'package:company/features/dashboard/data/datasources/dashboard_local_data_source.dart'
+    as _i406;
+import 'package:company/features/dashboard/data/repositories/dashboard_repository_impl.dart'
+    as _i860;
+import 'package:company/features/dashboard/domain/repositories/dashboard_repository.dart'
+    as _i861;
+import 'package:company/features/dashboard/domain/usecases/watch_dashboard_summary_usecase.dart'
+    as _i504;
+import 'package:company/features/dashboard/presentation/bloc/dashboard_cubit.dart'
+    as _i625;
 import 'package:company/features/threads/data/datasources/threads_local_data_source.dart'
     as _i906;
 import 'package:company/features/threads/data/repositories/threads_repository_impl.dart'
@@ -157,6 +167,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i788.ClientsLocalDataSource>(
       () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i406.DashboardLocalDataSource>(
+      () => _i406.DashboardLocalDataSource(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i906.ThreadsLocalDataSource>(
       () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
     );
@@ -166,8 +179,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i493.WorkersLocalDataSource>(
       () => _i493.WorkersLocalDataSource(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i861.DashboardRepository>(
+      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
+    );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
+    );
+    gh.factory<_i504.WatchDashboardSummaryUseCase>(
+      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
     gh.lazySingleton<_i836.ClientsRepository>(
       () => _i598.ClientsRepositoryImpl(gh<_i788.ClientsLocalDataSource>()),
@@ -181,6 +200,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
+    );
+    gh.factory<_i625.DashboardCubit>(
+      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),

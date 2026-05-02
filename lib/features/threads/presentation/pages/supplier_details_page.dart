@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
 import '../../../workers/presentation/widgets/month_selector.dart';
 import '../bloc/supplier_details_cubit.dart';
@@ -35,6 +36,7 @@ class _SupplierDetailsView extends StatelessWidget {
       length: 2,
       child: BlocBuilder<SupplierDetailsCubit, SupplierDetailsState>(
         builder: (context, state) {
+          final l10n = AppLocalizations.of(context)!;
           final details = state.details;
           final currency = NumberFormat.currency(
             locale: Localizations.localeOf(context).toLanguageTag(),
@@ -44,11 +46,11 @@ class _SupplierDetailsView extends StatelessWidget {
 
           return Scaffold(
             appBar: AppBar(
-              title: Text(details?.supplier.name ?? 'تفاصيل المورد'),
-              bottom: const TabBar(
+              title: Text(details?.supplier.name ?? l10n.supplierDetailsTitle),
+              bottom: TabBar(
                 tabs: [
-                  Tab(text: 'المشتريات'),
-                  Tab(text: 'المدفوعات'),
+                  Tab(text: l10n.purchasesTab),
+                  Tab(text: l10n.paymentsTab),
                 ],
               ),
             ),
@@ -56,7 +58,7 @@ class _SupplierDetailsView extends StatelessWidget {
                 ? const Center(child: CircularProgressIndicator())
                 : details == null
                 ? Center(
-                    child: Text(state.errorMessage ?? 'تعذر تحميل البيانات'),
+                    child: Text(state.errorMessage ?? l10n.failedToLoadData),
                   )
                 : Column(
                     children: [
@@ -77,12 +79,16 @@ class _SupplierDetailsView extends StatelessWidget {
                             const SizedBox(height: AppSpacing.md),
                             Text(
                               details.supplier.phone == null
-                                  ? 'لا يوجد رقم هاتف'
-                                  : 'الهاتف: ${details.supplier.phone}',
+                                  ? l10n.noPhoneNumber
+                                  : l10n.phone(details.supplier.phone!),
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              'المتبقي: ${currency.format(details.summary.outstandingBalance)}',
+                              l10n.outstanding(
+                                currency.format(
+                                  details.summary.outstandingBalance,
+                                ),
+                              ),
                               style: Theme.of(context).textTheme.titleLarge,
                             ),
                           ],
@@ -117,7 +123,7 @@ class _SupplierDetailsView extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('إضافة شراء'),
+                  child: Text(l10n.addPurchase),
                 ),
                 PopupMenuItem<VoidCallback>(
                   value: () async {
@@ -130,7 +136,7 @@ class _SupplierDetailsView extends StatelessWidget {
                       );
                     }
                   },
-                  child: const Text('إضافة دفعة'),
+                  child: Text(l10n.addPayment),
                 ),
               ],
             ),
@@ -153,7 +159,9 @@ class _PurchasesTab extends StatelessWidget {
     );
     final purchases = details?.purchases ?? const [];
     if (purchases.isEmpty) {
-      return const Center(child: Text('لا توجد مشتريات لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noPurchasesThisMonth),
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -194,7 +202,9 @@ class _PaymentsTab extends StatelessWidget {
     );
     final payments = details?.payments ?? const [];
     if (payments.isEmpty) {
-      return const Center(child: Text('لا توجد مدفوعات لهذا الشهر'));
+      return Center(
+        child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.all(AppSpacing.lg),
