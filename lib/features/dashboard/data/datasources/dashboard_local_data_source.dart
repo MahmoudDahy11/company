@@ -79,8 +79,7 @@ class DashboardLocalDataSource {
     final supplierIds = suppliers.map((s) => s.id).toList();
     final monthThreadPurchases = supplierIds.isEmpty
         ? <ThreadPurchase>[]
-        : await (_database.select(_database.threadPurchases)
-              ..where(
+        : await (_database.select(_database.threadPurchases)..where(
                 (t) =>
                     t.supplierId.isIn(supplierIds) &
                     t.purchaseDate.isBetweenValues(
@@ -88,7 +87,7 @@ class DashboardLocalDataSource {
                       monthRange.end,
                     ),
               ))
-            .get();
+              .get();
     final totalThreadPurchases = monthThreadPurchases.fold<double>(
       0,
       (sum, row) => sum + row.price,
@@ -119,15 +118,12 @@ class DashboardLocalDataSource {
     final workerIds = activeWorkers.map((w) => w.id).toList();
     final absentRows = workerIds.isEmpty
         ? <WorkerAbsentDay>[]
-        : await (_database.select(_database.workerAbsentDays)
-              ..where(
+        : await (_database.select(_database.workerAbsentDays)..where(
                 (t) =>
                     t.workerId.isIn(workerIds) &
-                    t.monthStart.equals(
-                      DateTime(month.year, month.month),
-                    ),
+                    t.monthStart.equals(DateTime(month.year, month.month)),
               ))
-            .get();
+              .get();
     final absentDaysCount = absentRows.fold<int>(
       0,
       (sum, row) => sum + row.absentDays,
@@ -139,13 +135,12 @@ class DashboardLocalDataSource {
       final end = DateTime(month.year, monthIndex + 1, 0, 23, 59, 59, 999);
       final rows = supplierIds.isEmpty
           ? <ThreadPurchase>[]
-          : await (_database.select(_database.threadPurchases)
-                ..where(
+          : await (_database.select(_database.threadPurchases)..where(
                   (t) =>
                       t.supplierId.isIn(supplierIds) &
                       t.purchaseDate.isBetweenValues(start, end),
                 ))
-              .get();
+                .get();
       threadLines.add(
         DashboardLinePoint(
           month: monthIndex,

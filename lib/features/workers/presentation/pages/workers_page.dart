@@ -169,9 +169,7 @@ class _WorkersView extends StatelessWidget {
                                 padding: const EdgeInsets.all(AppSpacing.lg),
                                 child: Text(
                                   l10n.workersList,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
+                                  style: Theme.of(context).textTheme.titleLarge
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: const Color(0xFF1F2937),
@@ -214,10 +212,9 @@ class _WorkersView extends StatelessWidget {
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                              locale:
-                                                  Localizations.localeOf(
-                                                    context,
-                                                  ).toLanguageTag(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
                                               symbol: '',
                                               decimalDigits: 2,
                                             ).format(item.netSalary).trim(),
@@ -226,15 +223,12 @@ class _WorkersView extends StatelessWidget {
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                                  locale:
-                                                      Localizations.localeOf(
-                                                        context,
-                                                      ).toLanguageTag(),
-                                                  symbol: '',
-                                                  decimalDigits: 2,
-                                                )
-                                                .format(item.totalAdvances)
-                                                .trim(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.totalAdvances).trim(),
                                           ),
                                         ),
                                         DataCell(const Text('0')),
@@ -248,18 +242,14 @@ class _WorkersView extends StatelessWidget {
                                                     item.id,
                                                   ),
                                                 ),
-                                                style:
-                                                    OutlinedButton.styleFrom(
-                                                      foregroundColor:
-                                                          const Color(
-                                                            0xFF1F2937,
-                                                          ),
-                                                      side: BorderSide(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade300,
-                                                      ),
-                                                    ),
+                                                style: OutlinedButton.styleFrom(
+                                                  foregroundColor: const Color(
+                                                    0xFF1F2937,
+                                                  ),
+                                                  side: BorderSide(
+                                                    color: Colors.grey.shade300,
+                                                  ),
+                                                ),
                                                 child: Text(l10n.details),
                                               ),
                                               const SizedBox(
@@ -295,10 +285,11 @@ class _WorkersView extends StatelessWidget {
                                                                 context,
                                                                 true,
                                                               ),
-                                                          style: TextButton.styleFrom(
-                                                            foregroundColor:
-                                                                Colors.red,
-                                                          ),
+                                                          style:
+                                                              TextButton.styleFrom(
+                                                                foregroundColor:
+                                                                    Colors.red,
+                                                              ),
                                                           child: Text(
                                                             l10n.delete,
                                                           ),
@@ -309,12 +300,8 @@ class _WorkersView extends StatelessWidget {
                                                   if (confirm == true &&
                                                       context.mounted) {
                                                     context
-                                                        .read<
-                                                          WorkersCubit
-                                                        >()
-                                                        .deleteWorker(
-                                                          item.id,
-                                                        );
+                                                        .read<WorkersCubit>()
+                                                        .deleteWorker(item.id);
                                                   }
                                                 },
                                                 icon: const Icon(

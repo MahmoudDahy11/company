@@ -65,7 +65,9 @@ class AppShell extends StatelessWidget {
                               ),
                             )
                             .toList(),
-                        trailing: _ShellActions(localeController: localeController),
+                        trailing: _ShellActions(
+                          localeController: localeController,
+                        ),
                       ),
                     ),
                   ),

@@ -156,9 +156,7 @@ class _ClientsView extends StatelessWidget {
                                 padding: const EdgeInsets.all(AppSpacing.lg),
                                 child: Text(
                                   l10n.clientsList,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
+                                  style: Theme.of(context).textTheme.titleLarge
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: const Color(0xFF1F2937),
@@ -184,9 +182,7 @@ class _ClientsView extends StatelessWidget {
                                   columns: [
                                     DataColumn(label: Text(l10n.name)),
                                     DataColumn(
-                                      label: Text(
-                                        l10n.totalAmountHeader,
-                                      ),
+                                      label: Text(l10n.totalAmountHeader),
                                     ),
                                     DataColumn(
                                       label: Text(l10n.totalPaidHeader),
@@ -203,24 +199,20 @@ class _ClientsView extends StatelessWidget {
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                                  locale:
-                                                      Localizations.localeOf(
-                                                        context,
-                                                      ).toLanguageTag(),
-                                                  symbol: '',
-                                                  decimalDigits: 2,
-                                                )
-                                                .format(item.totalAmount)
-                                                .trim(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.totalAmount).trim(),
                                           ),
                                         ),
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                              locale:
-                                                  Localizations.localeOf(
-                                                    context,
-                                                  ).toLanguageTag(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
                                               symbol: '',
                                               decimalDigits: 2,
                                             ).format(item.totalPaid).trim(),
@@ -229,17 +221,12 @@ class _ClientsView extends StatelessWidget {
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                                  locale:
-                                                      Localizations.localeOf(
-                                                        context,
-                                                      ).toLanguageTag(),
-                                                  symbol: '',
-                                                  decimalDigits: 2,
-                                                )
-                                                .format(
-                                                  item.outstanding,
-                                                )
-                                                .trim(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.outstanding).trim(),
                                             style: const TextStyle(
                                               color: Colors.red,
                                               fontWeight: FontWeight.bold,
@@ -256,18 +243,14 @@ class _ClientsView extends StatelessWidget {
                                                     item.id,
                                                   ),
                                                 ),
-                                                style:
-                                                    OutlinedButton.styleFrom(
-                                                      foregroundColor:
-                                                          const Color(
-                                                            0xFF1F2937,
-                                                          ),
-                                                      side: BorderSide(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade300,
-                                                      ),
-                                                    ),
+                                                style: OutlinedButton.styleFrom(
+                                                  foregroundColor: const Color(
+                                                    0xFF1F2937,
+                                                  ),
+                                                  side: BorderSide(
+                                                    color: Colors.grey.shade300,
+                                                  ),
+                                                ),
                                                 child: Text(l10n.details),
                                               ),
                                               const SizedBox(
@@ -303,10 +286,11 @@ class _ClientsView extends StatelessWidget {
                                                                 context,
                                                                 true,
                                                               ),
-                                                          style: TextButton.styleFrom(
-                                                            foregroundColor:
-                                                                Colors.red,
-                                                          ),
+                                                          style:
+                                                              TextButton.styleFrom(
+                                                                foregroundColor:
+                                                                    Colors.red,
+                                                              ),
                                                           child: Text(
                                                             l10n.delete,
                                                           ),
@@ -317,12 +301,8 @@ class _ClientsView extends StatelessWidget {
                                                   if (confirm == true &&
                                                       context.mounted) {
                                                     context
-                                                        .read<
-                                                          ClientsCubit
-                                                        >()
-                                                        .deleteClient(
-                                                          item.id,
-                                                        );
+                                                        .read<ClientsCubit>()
+                                                        .deleteClient(item.id);
                                                   }
                                                 },
                                                 icon: const Icon(

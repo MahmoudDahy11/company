@@ -158,9 +158,7 @@ class _ThreadsView extends StatelessWidget {
                                 padding: const EdgeInsets.all(AppSpacing.lg),
                                 child: Text(
                                   l10n.suppliersList,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleLarge
+                                  style: Theme.of(context).textTheme.titleLarge
                                       ?.copyWith(
                                         fontWeight: FontWeight.bold,
                                         color: const Color(0xFF1F2937),
@@ -186,9 +184,7 @@ class _ThreadsView extends StatelessWidget {
                                   columns: [
                                     DataColumn(label: Text(l10n.name)),
                                     DataColumn(
-                                      label: Text(
-                                        l10n.totalPurchasesHeader,
-                                      ),
+                                      label: Text(l10n.totalPurchasesHeader),
                                     ),
                                     DataColumn(
                                       label: Text(l10n.totalPaidHeader),
@@ -219,10 +215,9 @@ class _ThreadsView extends StatelessWidget {
                                         DataCell(
                                           Text(
                                             NumberFormat.currency(
-                                              locale:
-                                                  Localizations.localeOf(
-                                                    context,
-                                                  ).toLanguageTag(),
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
                                               symbol: '',
                                               decimalDigits: 2,
                                             ).format(item.totalPaid).trim(),
@@ -238,9 +233,7 @@ class _ThreadsView extends StatelessWidget {
                                                   symbol: '',
                                                   decimalDigits: 2,
                                                 )
-                                                .format(
-                                                  item.outstandingBalance,
-                                                )
+                                                .format(item.outstandingBalance)
                                                 .trim(),
                                             style: const TextStyle(
                                               color: Colors.red,
@@ -258,18 +251,14 @@ class _ThreadsView extends StatelessWidget {
                                                     item.id,
                                                   ),
                                                 ),
-                                                style:
-                                                    OutlinedButton.styleFrom(
-                                                      foregroundColor:
-                                                          const Color(
-                                                            0xFF1F2937,
-                                                          ),
-                                                      side: BorderSide(
-                                                        color: Colors
-                                                            .grey
-                                                            .shade300,
-                                                      ),
-                                                    ),
+                                                style: OutlinedButton.styleFrom(
+                                                  foregroundColor: const Color(
+                                                    0xFF1F2937,
+                                                  ),
+                                                  side: BorderSide(
+                                                    color: Colors.grey.shade300,
+                                                  ),
+                                                ),
                                                 child: Text(l10n.details),
                                               ),
                                               const SizedBox(
@@ -305,10 +294,11 @@ class _ThreadsView extends StatelessWidget {
                                                                 context,
                                                                 true,
                                                               ),
-                                                          style: TextButton.styleFrom(
-                                                            foregroundColor:
-                                                                Colors.red,
-                                                          ),
+                                                          style:
+                                                              TextButton.styleFrom(
+                                                                foregroundColor:
+                                                                    Colors.red,
+                                                              ),
                                                           child: Text(
                                                             l10n.delete,
                                                           ),
@@ -319,9 +309,7 @@ class _ThreadsView extends StatelessWidget {
                                                   if (confirm == true &&
                                                       context.mounted) {
                                                     context
-                                                        .read<
-                                                          ThreadsCubit
-                                                        >()
+                                                        .read<ThreadsCubit>()
                                                         .deleteSupplier(
                                                           item.id,
                                                         );
