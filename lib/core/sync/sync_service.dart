@@ -82,6 +82,10 @@ class SyncService {
     return _database.getPendingOrFailedSyncEntries();
   }
 
+  Future<void> clearQueue() {
+    return _database.clearSyncQueue();
+  }
+
   Future<void> dispose() async {
     await _connectivitySubscription?.cancel();
   }

@@ -110,6 +110,10 @@ class AppDatabase extends _$AppDatabase {
       ),
     );
   }
+
+  Future<void> clearSyncQueue() {
+    return delete(syncQueue).go();
+  }
 }
 
 LazyDatabase _openConnection() {

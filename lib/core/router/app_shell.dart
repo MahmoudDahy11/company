@@ -47,19 +47,28 @@ class AppShell extends StatelessWidget {
           return Scaffold(
             body: Row(
               children: [
-                NavigationRail(
-                  selectedIndex: navigationShell.currentIndex,
-                  onDestinationSelected: _onTap,
-                  labelType: NavigationRailLabelType.all,
-                  destinations: destinations
-                      .map(
-                        (destination) => NavigationRailDestination(
-                          icon: destination.icon,
-                          label: Text(destination.label),
-                        ),
-                      )
-                      .toList(),
-                  trailing: _ShellActions(localeController: localeController),
+                SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: IntrinsicHeight(
+                      child: NavigationRail(
+                        selectedIndex: navigationShell.currentIndex,
+                        onDestinationSelected: _onTap,
+                        labelType: NavigationRailLabelType.all,
+                        destinations: destinations
+                            .map(
+                              (destination) => NavigationRailDestination(
+                                icon: destination.icon,
+                                label: Text(destination.label),
+                              ),
+                            )
+                            .toList(),
+                        trailing: _ShellActions(localeController: localeController),
+                      ),
+                    ),
+                  ),
                 ),
                 const VerticalDivider(width: 1),
                 Expanded(child: navigationShell),

@@ -76,13 +76,18 @@ class DashboardLocalDataSource {
       );
     }
 
-    final monthThreadPurchases =
-        await (_database.select(_database.threadPurchases)..where(
-              (t) => t.purchaseDate.isBetweenValues(
-                monthRange.start,
-                monthRange.end,
-              ),
-            ))
+    final supplierIds = suppliers.map((s) => s.id).toList();
+    final monthThreadPurchases = supplierIds.isEmpty
+        ? <ThreadPurchase>[]
+        : await (_database.select(_database.threadPurchases)
+              ..where(
+                (t) =>
+                    t.supplierId.isIn(supplierIds) &
+                    t.purchaseDate.isBetweenValues(
+                      monthRange.start,
+                      monthRange.end,
+                    ),
+              ))
             .get();
     final totalThreadPurchases = monthThreadPurchases.fold<double>(
       0,
@@ -111,10 +116,17 @@ class DashboardLocalDataSource {
       }
     }
 
-    final absentRows =
-        await (_database.select(_database.workerAbsentDays)..where(
-              (t) => t.monthStart.equals(DateTime(month.year, month.month)),
-            ))
+    final workerIds = activeWorkers.map((w) => w.id).toList();
+    final absentRows = workerIds.isEmpty
+        ? <WorkerAbsentDay>[]
+        : await (_database.select(_database.workerAbsentDays)
+              ..where(
+                (t) =>
+                    t.workerId.isIn(workerIds) &
+                    t.monthStart.equals(
+                      DateTime(month.year, month.month),
+                    ),
+              ))
             .get();
     final absentDaysCount = absentRows.fold<int>(
       0,
@@ -125,9 +137,15 @@ class DashboardLocalDataSource {
     for (var monthIndex = 1; monthIndex <= 12; monthIndex++) {
       final start = DateTime(month.year, monthIndex);
       final end = DateTime(month.year, monthIndex + 1, 0, 23, 59, 59, 999);
-      final rows = await (_database.select(
-        _database.threadPurchases,
-      )..where((t) => t.purchaseDate.isBetweenValues(start, end))).get();
+      final rows = supplierIds.isEmpty
+          ? <ThreadPurchase>[]
+          : await (_database.select(_database.threadPurchases)
+                ..where(
+                  (t) =>
+                      t.supplierId.isIn(supplierIds) &
+                      t.purchaseDate.isBetweenValues(start, end),
+                ))
+              .get();
       threadLines.add(
         DashboardLinePoint(
           month: monthIndex,

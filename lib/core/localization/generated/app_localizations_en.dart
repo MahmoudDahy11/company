@@ -70,6 +70,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSyncItems => 'There are no pending or failed sync items.';
 
   @override
+  String get clearSyncQueue => 'Clear Sync Queue';
+
+  @override
+  String get confirmClearSyncQueue =>
+      'Do you want to clear all pending operations? This may prevent current changes from being uploaded to the server.';
+
+  @override
   String get email => 'Email';
 
   @override

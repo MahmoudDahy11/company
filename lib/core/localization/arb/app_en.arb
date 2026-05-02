@@ -20,6 +20,8 @@
   "failedItems": "Failed items",
   "retrySync": "Retry sync",
   "noSyncItems": "There are no pending or failed sync items.",
+  "clearSyncQueue": "Clear Sync Queue",
+  "confirmClearSyncQueue": "Do you want to clear all pending operations? This may prevent current changes from being uploaded to the server.",
   "email": "Email",
   "password": "Password",
   "rememberMe": "Remember me",

@@ -56,35 +56,43 @@ class SyncStatusButton extends StatelessWidget {
   }
 
   Future<void> _showDetails(BuildContext context) async {
-    final service = GetIt.I<SyncService>();
-    final entries = await service.getPendingOrFailedEntries();
+    try {
+      final service = GetIt.I<SyncService>();
+      final entries = await service.getPendingOrFailedEntries();
 
-    if (!context.mounted) {
-      return;
-    }
+      if (!context.mounted) {
+        return;
+      }
 
-    final isDesktop =
-        MediaQuery.sizeOf(context).width >= AppBreakpoints.desktop;
-    final child = _SyncStatusSheet(entries: entries);
+      final isDesktop =
+          MediaQuery.sizeOf(context).width >= AppBreakpoints.desktop;
+      final child = _SyncStatusSheet(entries: entries);
 
-    if (isDesktop) {
-      await showDialog<void>(
-        context: context,
-        builder: (context) => Dialog(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: child,
+      if (isDesktop) {
+        await showDialog<void>(
+          context: context,
+          builder: (context) => Dialog(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560),
+              child: child,
+            ),
           ),
-        ),
-      );
-      return;
-    }
+        );
+        return;
+      }
 
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => child,
-    );
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) => child,
+      );
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
   }
 
   _SyncVisual _visualFor(BuildContext context, SyncIndicatorState state) {
@@ -135,50 +143,110 @@ class _SyncStatusSheet extends StatelessWidget {
         .toList();
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.syncStatusTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            if (entries.isEmpty)
-              Text(
-                l10n.noSyncItems,
-                style: Theme.of(context).textTheme.bodyLarge,
-              )
-            else ...[
-              if (pendingEntries.isNotEmpty) ...[
-                Text('${l10n.pendingItems}: ${pendingEntries.length}'),
-                const SizedBox(height: AppSpacing.sm),
-                ...pendingEntries.map((entry) => _SyncEntryTile(entry: entry)),
-                const SizedBox(height: AppSpacing.md),
-              ],
-              if (failedEntries.isNotEmpty) ...[
-                Text('${l10n.failedItems}: ${failedEntries.length}'),
-                const SizedBox(height: AppSpacing.sm),
-                ...failedEntries.map((entry) => _SyncEntryTile(entry: entry)),
-                const SizedBox(height: AppSpacing.md),
-              ],
-            ],
-            Align(
-              alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton.icon(
-                onPressed: () async {
-                  await GetIt.I<SyncService>().processQueue();
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                  }
-                },
-                icon: const Icon(Icons.sync),
-                label: Text(l10n.retrySync),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.8,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    l10n.syncStatusTitle,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  if (entries.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text(l10n.clearSyncQueue),
+                            content: Text(l10n.confirmClearSyncQueue),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: Text(l10n.cancel),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                style: TextButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                ),
+                                child: Text(l10n.delete),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true && context.mounted) {
+                          await GetIt.I<SyncService>().clearQueue();
+                          if (context.mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      },
+                      icon: const Icon(Icons.delete_sweep_outlined, size: 20),
+                      label: Text(l10n.clearSyncQueue),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: AppSpacing.md),
+              if (entries.isEmpty)
+                Text(
+                  l10n.noSyncItems,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                )
+              else
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (pendingEntries.isNotEmpty) ...[
+                          Text(
+                            '${l10n.pendingItems}: ${pendingEntries.length}',
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          ...pendingEntries.map(
+                            (entry) => _SyncEntryTile(entry: entry),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                        if (failedEntries.isNotEmpty) ...[
+                          Text('${l10n.failedItems}: ${failedEntries.length}'),
+                          const SizedBox(height: AppSpacing.sm),
+                          ...failedEntries.map(
+                            (entry) => _SyncEntryTile(entry: entry),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.md),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: FilledButton.icon(
+                  onPressed: () async {
+                    await GetIt.I<SyncService>().processQueue();
+                    if (context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  icon: const Icon(Icons.sync),
+                  label: Text(l10n.retrySync),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

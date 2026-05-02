@@ -37,7 +37,7 @@ class _WorkersView extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,192 +150,189 @@ class _WorkersView extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  Expanded(
-                    child: state.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : state.filteredItems.isEmpty
-                        ? Center(child: Text(l10n.noWorkersYet))
-                        : Card(
-                            color: Colors.white,
-                            elevation: 0,
-                            margin: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(color: Colors.grey.shade200),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(AppSpacing.lg),
-                                  child: Text(
-                                    l10n.workersList,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF1F2937),
-                                        ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: DataTable(
-                                      border: TableBorder.all(
-                                        color: Colors.grey.shade200,
-                                        width: 1,
-                                      ),
-                                      headingRowColor: WidgetStateProperty.all(
-                                        Colors.grey.shade50,
-                                      ),
-                                      headingTextStyle: TextStyle(
-                                        color: Colors.grey.shade500,
+                  state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : state.filteredItems.isEmpty
+                      ? Center(child: Text(l10n.noWorkersYet))
+                      : Card(
+                          color: Colors.white,
+                          elevation: 0,
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(AppSpacing.lg),
+                                child: Text(
+                                  l10n.workersList,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge
+                                      ?.copyWith(
                                         fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1F2937),
                                       ),
-                                      dataRowMaxHeight: 64,
-                                      dataRowMinHeight: 64,
-                                      columns: [
-                                        DataColumn(label: Text(l10n.name)),
-                                        DataColumn(
-                                          label: Text(l10n.netSalaryHeader),
+                                ),
+                              ),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  border: TableBorder.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                  headingRowColor: WidgetStateProperty.all(
+                                    Colors.grey.shade50,
+                                  ),
+                                  headingTextStyle: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  dataRowMaxHeight: 64,
+                                  dataRowMinHeight: 64,
+                                  columns: [
+                                    DataColumn(label: Text(l10n.name)),
+                                    DataColumn(
+                                      label: Text(l10n.netSalaryHeader),
+                                    ),
+                                    DataColumn(
+                                      label: Text(l10n.advancesHeader),
+                                    ),
+                                    DataColumn(
+                                      label: Text(l10n.absentDaysHeader),
+                                    ),
+                                    DataColumn(label: Text(l10n.actions)),
+                                  ],
+                                  rows: state.filteredItems.map((item) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(item.name)),
+                                        DataCell(
+                                          Text(
+                                            NumberFormat.currency(
+                                              locale:
+                                                  Localizations.localeOf(
+                                                    context,
+                                                  ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.netSalary).trim(),
+                                          ),
                                         ),
-                                        DataColumn(
-                                          label: Text(l10n.advancesHeader),
-                                        ),
-                                        DataColumn(
-                                          label: Text(l10n.absentDaysHeader),
-                                        ),
-                                        DataColumn(label: Text(l10n.actions)),
-                                      ],
-                                      rows: state.filteredItems.map((item) {
-                                        return DataRow(
-                                          cells: [
-                                            DataCell(Text(item.name)),
-                                            DataCell(
-                                              Text(
-                                                NumberFormat.currency(
+                                        DataCell(
+                                          Text(
+                                            NumberFormat.currency(
                                                   locale:
                                                       Localizations.localeOf(
                                                         context,
                                                       ).toLanguageTag(),
                                                   symbol: '',
                                                   decimalDigits: 2,
-                                                ).format(item.netSalary).trim(),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Text(
-                                                NumberFormat.currency(
-                                                      locale:
-                                                          Localizations.localeOf(
-                                                            context,
-                                                          ).toLanguageTag(),
-                                                      symbol: '',
-                                                      decimalDigits: 2,
-                                                    )
-                                                    .format(item.totalAdvances)
-                                                    .trim(),
-                                              ),
-                                            ),
-                                            DataCell(const Text('0')),
-                                            DataCell(
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  OutlinedButton(
-                                                    onPressed: () => context.push(
-                                                      WorkersPage.detailsPath(
-                                                        item.id,
+                                                )
+                                                .format(item.totalAdvances)
+                                                .trim(),
+                                          ),
+                                        ),
+                                        DataCell(const Text('0')),
+                                        DataCell(
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              OutlinedButton(
+                                                onPressed: () => context.push(
+                                                  WorkersPage.detailsPath(
+                                                    item.id,
+                                                  ),
+                                                ),
+                                                style:
+                                                    OutlinedButton.styleFrom(
+                                                      foregroundColor:
+                                                          const Color(
+                                                            0xFF1F2937,
+                                                          ),
+                                                      side: BorderSide(
+                                                        color: Colors
+                                                            .grey
+                                                            .shade300,
                                                       ),
                                                     ),
-                                                    style:
-                                                        OutlinedButton.styleFrom(
-                                                          foregroundColor:
-                                                              const Color(
-                                                                0xFF1F2937,
-                                                              ),
-                                                          side: BorderSide(
-                                                            color: Colors
-                                                                .grey
-                                                                .shade300,
-                                                          ),
-                                                        ),
-                                                    child: Text(l10n.details),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: AppSpacing.sm,
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () async {
-                                                      final confirm = await showDialog<bool>(
-                                                        context: context,
-                                                        builder: (context) => AlertDialog(
-                                                          title: Text(
-                                                            l10n.deleteWorkerTitle,
-                                                          ),
-                                                          content: Text(
-                                                            l10n.confirmDeleteWorker(
-                                                              item.name,
-                                                            ),
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                    false,
-                                                                  ),
-                                                              child: Text(
-                                                                l10n.cancel,
-                                                              ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                    true,
-                                                                  ),
-                                                              style: TextButton.styleFrom(
-                                                                foregroundColor:
-                                                                    Colors.red,
-                                                              ),
-                                                              child: Text(
-                                                                l10n.delete,
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                      if (confirm == true &&
-                                                          context.mounted) {
-                                                        context
-                                                            .read<
-                                                              WorkersCubit
-                                                            >()
-                                                            .deleteWorker(
-                                                              item.id,
-                                                            );
-                                                      }
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.delete_outline,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
+                                                child: Text(l10n.details),
                                               ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
+                                              const SizedBox(
+                                                width: AppSpacing.sm,
+                                              ),
+                                              IconButton(
+                                                onPressed: () async {
+                                                  final confirm = await showDialog<bool>(
+                                                    context: context,
+                                                    builder: (context) => AlertDialog(
+                                                      title: Text(
+                                                        l10n.deleteWorkerTitle,
+                                                      ),
+                                                      content: Text(
+                                                        l10n.confirmDeleteWorker(
+                                                          item.name,
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                                false,
+                                                              ),
+                                                          child: Text(
+                                                            l10n.cancel,
+                                                          ),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                                true,
+                                                              ),
+                                                          style: TextButton.styleFrom(
+                                                            foregroundColor:
+                                                                Colors.red,
+                                                          ),
+                                                          child: Text(
+                                                            l10n.delete,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                  if (confirm == true &&
+                                                      context.mounted) {
+                                                    context
+                                                        .read<
+                                                          WorkersCubit
+                                                        >()
+                                                        .deleteWorker(
+                                                          item.id,
+                                                        );
+                                                  }
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                  ),
+                        ),
                 ],
               ),
             ),

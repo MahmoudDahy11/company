@@ -70,6 +70,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noSyncItems => 'لا توجد عناصر معلقة أو فاشلة للمزامنة.';
 
   @override
+  String get clearSyncQueue => 'مسح قائمة الانتظار';
+
+  @override
+  String get confirmClearSyncQueue =>
+      'هل تريد مسح كافة العمليات المعلقة؟ هذا الإجراء قد يمنع رفع التعديلات الحالية للخادم.';
+
+  @override
   String get email => 'البريد الإلكتروني';
 
   @override

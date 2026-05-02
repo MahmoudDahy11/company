@@ -218,6 +218,18 @@ abstract class AppLocalizations {
   /// **'There are no pending or failed sync items.'**
   String get noSyncItems;
 
+  /// No description provided for @clearSyncQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Sync Queue'**
+  String get clearSyncQueue;
+
+  /// No description provided for @confirmClearSyncQueue.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to clear all pending operations? This may prevent current changes from being uploaded to the server.'**
+  String get confirmClearSyncQueue;
+
   /// No description provided for @email.
   ///
   /// In en, this message translates to:

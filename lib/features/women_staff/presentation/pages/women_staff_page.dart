@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/export/excel_export_service.dart';
@@ -37,7 +36,7 @@ class _WomenStaffView extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,198 +137,165 @@ class _WomenStaffView extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  Expanded(
-                    child: state.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : state.filteredItems.isEmpty
-                        ? Center(child: Text(l10n.noWomenStaffYet))
-                        : Card(
-                            color: Colors.white,
-                            elevation: 0,
-                            margin: EdgeInsets.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(color: Colors.grey.shade200),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(AppSpacing.lg),
-                                  child: Text(
-                                    l10n.womenStaffList,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: const Color(0xFF1F2937),
-                                        ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: SingleChildScrollView(
-                                    child: DataTable(
-                                      headingTextStyle: TextStyle(
-                                        color: Colors.grey.shade500,
+                  state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : state.filteredItems.isEmpty
+                      ? Center(child: Text(l10n.noWomenStaffYet))
+                      : Card(
+                          color: Colors.white,
+                          elevation: 0,
+                          margin: EdgeInsets.zero,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(AppSpacing.lg),
+                                child: Text(
+                                  l10n.womenStaffList,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(
                                         fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1F2937),
                                       ),
-                                      dataRowMaxHeight: 64,
-                                      dataRowMinHeight: 64,
-                                      columns: [
-                                        DataColumn(label: Text(l10n.name)),
-                                        DataColumn(
-                                          label: Text(l10n.basicSalary),
+                                ),
+                              ),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: DataTable(
+                                  border: TableBorder.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                  headingRowColor: WidgetStateProperty.all(
+                                    Colors.grey.shade50,
+                                  ),
+                                  headingTextStyle: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  dataRowMaxHeight: 64,
+                                  dataRowMinHeight: 64,
+                                  columns: [
+                                    DataColumn(label: Text(l10n.name)),
+                                    DataColumn(label: Text(l10n.basicSalary)),
+                                    DataColumn(
+                                      label: Text(l10n.advancesHeader),
+                                    ),
+                                    DataColumn(
+                                      label: Text(l10n.netSalaryHeader),
+                                    ),
+                                    DataColumn(label: Text(l10n.actions)),
+                                  ],
+                                  rows: state.filteredItems.map((item) {
+                                    return DataRow(
+                                      cells: [
+                                        DataCell(Text(item.name)),
+                                        DataCell(
+                                          Text(
+                                            NumberFormat.currency(
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.monthlySalary).trim(),
+                                          ),
                                         ),
-                                        DataColumn(
-                                          label: Text(l10n.advancesHeader),
+                                        DataCell(
+                                          Text(
+                                            NumberFormat.currency(
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.totalAdvances).trim(),
+                                          ),
                                         ),
-                                        DataColumn(
-                                          label: Text(l10n.netSalaryHeader),
+                                        DataCell(
+                                          Text(
+                                            NumberFormat.currency(
+                                              locale: Localizations.localeOf(
+                                                context,
+                                              ).toLanguageTag(),
+                                              symbol: '',
+                                              decimalDigits: 2,
+                                            ).format(item.netSalary).trim(),
+                                          ),
                                         ),
-                                        DataColumn(label: Text(l10n.actions)),
-                                      ],
-                                      rows: state.filteredItems.map((item) {
-                                        return DataRow(
-                                          cells: [
-                                            DataCell(Text(item.name)),
-                                            DataCell(
-                                              Text(
-                                                NumberFormat.currency(
-                                                      locale:
-                                                          Localizations.localeOf(
-                                                            context,
-                                                          ).toLanguageTag(),
-                                                      symbol: '',
-                                                      decimalDigits: 2,
-                                                    )
-                                                    .format(item.monthlySalary)
-                                                    .trim(),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Text(
-                                                NumberFormat.currency(
-                                                      locale:
-                                                          Localizations.localeOf(
-                                                            context,
-                                                          ).toLanguageTag(),
-                                                      symbol: '',
-                                                      decimalDigits: 2,
-                                                    )
-                                                    .format(item.totalAdvances)
-                                                    .trim(),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Text(
-                                                NumberFormat.currency(
-                                                  locale:
-                                                      Localizations.localeOf(
-                                                        context,
-                                                      ).toLanguageTag(),
-                                                  symbol: '',
-                                                  decimalDigits: 2,
-                                                ).format(item.netSalary).trim(),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  OutlinedButton(
-                                                    onPressed: () => context.push(
-                                                      WomenStaffPage.detailsPath(
-                                                        item.id,
+                                        DataCell(
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                onPressed: () async {
+                                                  final confirm = await showDialog<bool>(
+                                                    context: context,
+                                                    builder: (context) => AlertDialog(
+                                                      title: Text(
+                                                        l10n.deleteStaffTitle,
                                                       ),
-                                                    ),
-                                                    style:
-                                                        OutlinedButton.styleFrom(
-                                                          foregroundColor:
-                                                              const Color(
-                                                                0xFF1F2937,
+                                                      content: Text(
+                                                        l10n.confirmDeleteStaff(
+                                                          item.name,
+                                                        ),
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                                false,
                                                               ),
-                                                          side: BorderSide(
-                                                            color: Colors
-                                                                .grey
-                                                                .shade300,
+                                                          child: Text(
+                                                            l10n.cancel,
                                                           ),
                                                         ),
-                                                    child: Text(l10n.details),
-                                                  ),
-                                                  const SizedBox(
-                                                    width: AppSpacing.sm,
-                                                  ),
-                                                  IconButton(
-                                                    onPressed: () async {
-                                                      final confirm = await showDialog<bool>(
-                                                        context: context,
-                                                        builder: (context) => AlertDialog(
-                                                          title: Text(
-                                                            l10n.deleteStaffTitle,
-                                                          ),
-                                                          content: Text(
-                                                            l10n.confirmDeleteStaff(
-                                                              item.name,
-                                                            ),
-                                                          ),
-                                                          actions: [
-                                                            TextButton(
-                                                              onPressed: () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                    false,
-                                                                  ),
-                                                              child: Text(
-                                                                l10n.cancel,
+                                                        TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                context,
+                                                                true,
                                                               ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () =>
-                                                                  Navigator.pop(
-                                                                    context,
-                                                                    true,
-                                                                  ),
-                                                              style: TextButton.styleFrom(
+                                                          style:
+                                                              TextButton.styleFrom(
                                                                 foregroundColor:
                                                                     Colors.red,
                                                               ),
-                                                              child: Text(
-                                                                l10n.delete,
-                                                              ),
-                                                            ),
-                                                          ],
+                                                          child: Text(
+                                                            l10n.delete,
+                                                          ),
                                                         ),
-                                                      );
-                                                      if (confirm == true &&
-                                                          context.mounted) {
-                                                        context
-                                                            .read<
-                                                              WomenStaffCubit
-                                                            >()
-                                                            .deleteStaff(
-                                                              item.id,
-                                                            );
-                                                      }
-                                                    },
-                                                    icon: const Icon(
-                                                      Icons.delete_outline,
-                                                      color: Colors.red,
+                                                      ],
                                                     ),
-                                                  ),
-                                                ],
+                                                  );
+                                                  if (confirm == true &&
+                                                      context.mounted) {
+                                                    context
+                                                        .read<WomenStaffCubit>()
+                                                        .deleteStaff(item.id);
+                                                  }
+                                                },
+                                                icon: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: Colors.red,
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }).toList(),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                  ),
+                        ),
                 ],
               ),
             ),
