@@ -48,17 +48,36 @@
       "value": {}
     }
   },
-  "dashboardSummaryWorkersWages": "إجمالي أجور العمال",
-  "dashboardSummaryWomenWages": "إجمالي أجور الحريم",
-  "dashboardSummaryThreadPurchases": "إجمالي مشتريات الخيوط",
-  "dashboardSummaryClientOutstanding": "إجمالي على الزبايين",
-  "dashboardQuickInfoTitle": "معلومات سريعة",
-  "dashboardRegisteredWorkers": "عدد العمال المسجلين",
-  "dashboardAbsentDaysThisMonth": "أيام الغياب هذا الشهر",
-  "dashboardPendingClients": "الزباين المتبقين",
-  "dashboardSuppliersOutstanding": "موردون لهم رصيد",
-  "dashboardTopWorkersChart": "أفضل 5 عمال هذا الشهر",
-  "dashboardThreadsYearChart": "مشتريات الخيوط خلال السنة",
+  "dashboardSummaryWorkersWages": "أجور العمال",
+  "dashboardSummaryWomenWages": "أجور الحريم",
+  "dashboardSummaryThreadPurchases": "مشتريات الخيط",
+  "dashboardSummaryClientOutstanding": "ديون الزبائن",
+  "workersAndAbsence": "{workers} عمال، {absence} أيام غياب",
+  "@workersAndAbsence": {
+    "placeholders": {
+      "workers": {},
+      "absence": {}
+    }
+  },
+  "suppliersOutstanding": "{count} موردين لهم مستحقات",
+  "@suppliersOutstanding": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "clientsDebts": "{count} زبائن عليهم ديون",
+  "@clientsDebts": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "dashboardTopWorkersChart": "إنتاج العمال (أعلى 10)",
+  "dashboardThreadsYearChart": "مشتريات الخيط ({year})",
+  "@dashboardThreadsYearChart": {
+    "placeholders": {
+      "year": {}
+    }
+  },
   "dashboardClientsDistributionChart": "توزيع ديون الزباين",
   "dashboardWomenAdvancesChart": "سلف الحريم هذا الشهر",
   "noCurrentDebts": "لا توجد ديون حالية",

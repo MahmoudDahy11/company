@@ -7,7 +7,6 @@ import 'package:intl/intl.dart';
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
-import '../../../workers/presentation/widgets/month_selector.dart';
 import '../../domain/entities/dashboard_summary.dart';
 import '../bloc/dashboard_cubit.dart';
 import '../bloc/dashboard_state.dart';
@@ -48,15 +47,19 @@ class _DashboardView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  l10n.dashboard,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                MonthSelector(
-                  month: state.selectedMonth,
-                  onPrevious: context.read<DashboardCubit>().previousMonth,
-                  onNext: context.read<DashboardCubit>().nextMonth,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _DashboardMonthSelector(
+                      month: state.selectedMonth,
+                      onChanged: context.read<DashboardCubit>().updateMonth,
+                    ),
+                    Text(
+                      l10n.dashboard,
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (state.isLoading)
@@ -66,11 +69,13 @@ class _DashboardView extends StatelessWidget {
                     child: Text(state.errorMessage ?? l10n.failedToLoadData),
                   )
                 else ...[
-                  _SummarySection(summary: summary, currency: currency),
+                  _DashboardCardsSection(summary: summary, currency: currency),
                   const SizedBox(height: AppSpacing.lg),
-                  _QuickInfoSection(summary: summary),
-                  const SizedBox(height: AppSpacing.lg),
-                  _ChartsSection(summary: summary, currency: currency),
+                  _ChartsSection(
+                    summary: summary,
+                    currency: currency,
+                    selectedMonth: state.selectedMonth,
+                  ),
                 ],
               ],
             ),
@@ -81,8 +86,8 @@ class _DashboardView extends StatelessWidget {
   }
 }
 
-class _SummarySection extends StatelessWidget {
-  const _SummarySection({required this.summary, required this.currency});
+class _DashboardCardsSection extends StatelessWidget {
+  const _DashboardCardsSection({required this.summary, required this.currency});
 
   final DashboardSummary summary;
   final NumberFormat currency;
@@ -90,133 +95,140 @@ class _SummarySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final cards = [
-      (
-        l10n.dashboardSummaryWorkersWages,
-        currency.format(summary.totalWorkerWages),
-      ),
-      (
-        l10n.dashboardSummaryWomenWages,
-        currency.format(summary.totalWomenStaffWages),
-      ),
-      (
-        l10n.dashboardSummaryThreadPurchases,
-        currency.format(summary.totalThreadPurchases),
-      ),
-      (
-        l10n.dashboardSummaryClientOutstanding,
-        currency.format(summary.totalClientOutstanding),
-      ),
-    ];
 
     return Wrap(
       spacing: AppSpacing.md,
       runSpacing: AppSpacing.md,
-      children: cards
-          .map(
-            (card) => SizedBox(
-              width: MediaQuery.sizeOf(context).width >= AppBreakpoints.desktop
-                  ? 280
-                  : double.infinity,
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(card.$1),
-                      const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        card.$2,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-          .toList(),
+      children: [
+        _DashboardCard(
+          title: l10n.dashboardSummaryWorkersWages,
+          value: currency
+              .format(summary.totalWorkerWages)
+              .replaceAll('EGP', '')
+              .trim(),
+          subtitle: l10n.workersAndAbsence(
+            summary.registeredWorkersCount,
+            summary.absentDaysCount,
+          ),
+          icon: Icons.attach_money,
+          color: const Color(0xFF1F2937),
+        ),
+        _DashboardCard(
+          title: l10n.dashboardSummaryWomenWages,
+          value: currency
+              .format(summary.totalWomenStaffWages)
+              .replaceAll('EGP', '')
+              .trim(),
+          subtitle: null,
+          icon: Icons.attach_money,
+          color: const Color(0xFF1F2937),
+        ),
+        _DashboardCard(
+          title: l10n.dashboardSummaryThreadPurchases,
+          value: currency
+              .format(summary.totalThreadPurchases)
+              .replaceAll('EGP', '')
+              .trim(),
+          subtitle: l10n.suppliersOutstanding(
+            summary.suppliersWithOutstandingCount,
+          ),
+          icon: Icons.local_shipping_outlined,
+          color: const Color(0xFF1F2937),
+        ),
+        _DashboardCard(
+          title: l10n.dashboardSummaryClientOutstanding,
+          value: currency
+              .format(summary.totalClientOutstanding)
+              .replaceAll('EGP', '')
+              .trim(),
+          subtitle: l10n.clientsDebts(summary.pendingClientBalancesCount),
+          icon: Icons.work_outline,
+          color: const Color(0xFFEF4444), // Red for debts
+        ),
+      ],
     );
   }
 }
 
-class _QuickInfoSection extends StatelessWidget {
-  const _QuickInfoSection({required this.summary});
+class _DashboardCard extends StatelessWidget {
+  const _DashboardCard({
+    required this.title,
+    required this.value,
+    this.subtitle,
+    required this.icon,
+    required this.color,
+  });
 
-  final DashboardSummary summary;
+  final String title;
+  final String value;
+  final String? subtitle;
+  final IconData icon;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final items = [
-      (
-        l10n.dashboardRegisteredWorkers,
-        summary.registeredWorkersCount.toString(),
+    return Container(
+      width: MediaQuery.sizeOf(context).width >= AppBreakpoints.desktop
+          ? (MediaQuery.sizeOf(context).width - 64 - 16) /
+                2 // Accounts for padding
+          : double.infinity,
+      constraints: const BoxConstraints(maxWidth: 500, minHeight: 140),
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
       ),
-      (l10n.dashboardAbsentDaysThisMonth, summary.absentDaysCount.toString()),
-      (
-        l10n.dashboardPendingClients,
-        summary.pendingClientBalancesCount.toString(),
-      ),
-      (
-        l10n.dashboardSuppliersOutstanding,
-        summary.suppliersWithOutstandingCount.toString(),
-      ),
-    ];
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.dashboardQuickInfoTitle,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Wrap(
-              spacing: AppSpacing.md,
-              runSpacing: AppSpacing.md,
-              children: items
-                  .map(
-                    (item) => Container(
-                      constraints: const BoxConstraints(minWidth: 180),
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(item.$1),
-                          const SizedBox(height: AppSpacing.xs),
-                          Text(
-                            item.$2,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ],
-                      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  value,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    subtitle!,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey.shade600,
                     ),
-                  )
-                  .toList(),
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
+          ),
+          Icon(icon, color: color, size: 28),
+        ],
       ),
     );
   }
 }
 
 class _ChartsSection extends StatelessWidget {
-  const _ChartsSection({required this.summary, required this.currency});
+  const _ChartsSection({
+    required this.summary,
+    required this.currency,
+    required this.selectedMonth,
+  });
 
   final DashboardSummary summary;
   final NumberFormat currency;
+  final DateTime selectedMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +247,7 @@ class _ChartsSection extends StatelessWidget {
         ),
         _ChartCard(
           width: isDesktop ? 560 : double.infinity,
-          title: l10n.dashboardThreadsYearChart,
+          title: l10n.dashboardThreadsYearChart(selectedMonth.year.toString()),
           child: _ThreadPurchasesLineChart(
             points: summary.threadPurchasesByMonth,
           ),
@@ -290,6 +302,78 @@ class _ChartCard extends StatelessWidget {
   }
 }
 
+class _DashboardMonthSelector extends StatelessWidget {
+  const _DashboardMonthSelector({required this.month, required this.onChanged});
+
+  final DateTime month;
+  final ValueChanged<DateTime> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
+
+    final months = List.generate(12, (index) {
+      final m = DateTime(month.year, index + 1);
+      return DropdownMenuItem(
+        value: index + 1,
+        child: Text(DateFormat.MMMM(locale).format(m)),
+      );
+    });
+
+    final years = List.generate(10, (index) {
+      final y = DateTime.now().year - 5 + index;
+      return DropdownMenuItem(value: y, child: Text(y.toString()));
+    });
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: month.year,
+              items: years,
+              onChanged: (y) {
+                if (y != null) {
+                  onChanged(DateTime(y, month.month));
+                }
+              },
+            ),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Container(
+          height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<int>(
+              value: month.month,
+              items: months,
+              onChanged: (m) {
+                if (m != null) {
+                  onChanged(DateTime(month.year, m));
+                }
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _TopWorkersChart extends StatelessWidget {
   const _TopWorkersChart({required this.points});
 
@@ -304,8 +388,22 @@ class _TopWorkersChart extends StatelessWidget {
     return BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: Colors.grey.shade300,
+            strokeWidth: 1,
+            dashArray: [4, 4],
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.shade400),
+            left: BorderSide(color: Colors.grey.shade400),
+          ),
+        ),
         titlesData: FlTitlesData(
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -342,9 +440,11 @@ class _TopWorkersChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: points[i].value,
-                  width: 24,
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color(0xFF0F766E),
+                  width: 50,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(4),
+                  ),
+                  color: const Color(0xFF374151), // Dark grey like screenshot
                 ),
               ],
             ),
@@ -363,8 +463,22 @@ class _ThreadPurchasesLineChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        gridData: const FlGridData(show: true),
-        borderData: FlBorderData(show: false),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: Colors.grey.shade300,
+            strokeWidth: 1,
+            dashArray: [4, 4],
+          ),
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.shade400),
+            left: BorderSide(color: Colors.grey.shade400),
+          ),
+        ),
         titlesData: FlTitlesData(
           topTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
@@ -388,9 +502,18 @@ class _ThreadPurchasesLineChart extends StatelessWidget {
                 .map((point) => FlSpot(point.month.toDouble(), point.value))
                 .toList(),
             isCurved: true,
-            barWidth: 3,
-            color: const Color(0xFFEA580C),
-            dotData: const FlDotData(show: true),
+            barWidth: 2,
+            color: const Color(0xFFF97316), // Orange
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, barData, index) =>
+                  FlDotCirclePainter(
+                    radius: 4,
+                    color: Colors.white,
+                    strokeWidth: 2,
+                    strokeColor: const Color(0xFFF97316),
+                  ),
+            ),
           ),
         ],
       ),

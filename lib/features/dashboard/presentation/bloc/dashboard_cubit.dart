@@ -29,26 +29,19 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   void previousMonth() {
-    emit(
-      state.copyWith(
-        selectedMonth: DateTime(
-          state.selectedMonth.year,
-          state.selectedMonth.month - 1,
-        ),
-      ),
+    updateMonth(
+      DateTime(state.selectedMonth.year, state.selectedMonth.month - 1),
     );
-    start();
   }
 
   void nextMonth() {
-    emit(
-      state.copyWith(
-        selectedMonth: DateTime(
-          state.selectedMonth.year,
-          state.selectedMonth.month + 1,
-        ),
-      ),
+    updateMonth(
+      DateTime(state.selectedMonth.year, state.selectedMonth.month + 1),
     );
+  }
+
+  void updateMonth(DateTime newMonth) {
+    emit(state.copyWith(selectedMonth: newMonth));
     start();
   }
 

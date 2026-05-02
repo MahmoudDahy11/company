@@ -329,68 +329,56 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardSummaryWorkersWages.
   ///
   /// In en, this message translates to:
-  /// **'Total worker wages'**
+  /// **'Worker wages'**
   String get dashboardSummaryWorkersWages;
 
   /// No description provided for @dashboardSummaryWomenWages.
   ///
   /// In en, this message translates to:
-  /// **'Total women staff wages'**
+  /// **'Women staff wages'**
   String get dashboardSummaryWomenWages;
 
   /// No description provided for @dashboardSummaryThreadPurchases.
   ///
   /// In en, this message translates to:
-  /// **'Total thread purchases'**
+  /// **'Thread purchases'**
   String get dashboardSummaryThreadPurchases;
 
   /// No description provided for @dashboardSummaryClientOutstanding.
   ///
   /// In en, this message translates to:
-  /// **'Total client outstanding'**
+  /// **'Client debts'**
   String get dashboardSummaryClientOutstanding;
 
-  /// No description provided for @dashboardQuickInfoTitle.
+  /// No description provided for @workersAndAbsence.
   ///
   /// In en, this message translates to:
-  /// **'Quick info'**
-  String get dashboardQuickInfoTitle;
+  /// **'{workers} workers, {absence} absent days'**
+  String workersAndAbsence(Object workers, Object absence);
 
-  /// No description provided for @dashboardRegisteredWorkers.
+  /// No description provided for @suppliersOutstanding.
   ///
   /// In en, this message translates to:
-  /// **'Registered workers'**
-  String get dashboardRegisteredWorkers;
+  /// **'{count} suppliers with outstanding'**
+  String suppliersOutstanding(Object count);
 
-  /// No description provided for @dashboardAbsentDaysThisMonth.
+  /// No description provided for @clientsDebts.
   ///
   /// In en, this message translates to:
-  /// **'Absent days this month'**
-  String get dashboardAbsentDaysThisMonth;
-
-  /// No description provided for @dashboardPendingClients.
-  ///
-  /// In en, this message translates to:
-  /// **'Clients with outstanding balances'**
-  String get dashboardPendingClients;
-
-  /// No description provided for @dashboardSuppliersOutstanding.
-  ///
-  /// In en, this message translates to:
-  /// **'Suppliers with outstanding balance'**
-  String get dashboardSuppliersOutstanding;
+  /// **'{count} clients with debts'**
+  String clientsDebts(Object count);
 
   /// No description provided for @dashboardTopWorkersChart.
   ///
   /// In en, this message translates to:
-  /// **'Top 5 workers this month'**
+  /// **'Worker production (Top 10)'**
   String get dashboardTopWorkersChart;
 
   /// No description provided for @dashboardThreadsYearChart.
   ///
   /// In en, this message translates to:
-  /// **'Thread purchases over the year'**
-  String get dashboardThreadsYearChart;
+  /// **'Thread purchases ({year})'**
+  String dashboardThreadsYearChart(Object year);
 
   /// No description provided for @dashboardClientsDistributionChart.
   ///

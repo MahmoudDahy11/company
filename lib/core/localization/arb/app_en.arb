@@ -48,17 +48,36 @@
       "value": {}
     }
   },
-  "dashboardSummaryWorkersWages": "Total worker wages",
-  "dashboardSummaryWomenWages": "Total women staff wages",
-  "dashboardSummaryThreadPurchases": "Total thread purchases",
-  "dashboardSummaryClientOutstanding": "Total client outstanding",
-  "dashboardQuickInfoTitle": "Quick info",
-  "dashboardRegisteredWorkers": "Registered workers",
-  "dashboardAbsentDaysThisMonth": "Absent days this month",
-  "dashboardPendingClients": "Clients with outstanding balances",
-  "dashboardSuppliersOutstanding": "Suppliers with outstanding balance",
-  "dashboardTopWorkersChart": "Top 5 workers this month",
-  "dashboardThreadsYearChart": "Thread purchases over the year",
+  "dashboardSummaryWorkersWages": "Worker wages",
+  "dashboardSummaryWomenWages": "Women staff wages",
+  "dashboardSummaryThreadPurchases": "Thread purchases",
+  "dashboardSummaryClientOutstanding": "Client debts",
+  "workersAndAbsence": "{workers} workers, {absence} absent days",
+  "@workersAndAbsence": {
+    "placeholders": {
+      "workers": {},
+      "absence": {}
+    }
+  },
+  "suppliersOutstanding": "{count} suppliers with outstanding",
+  "@suppliersOutstanding": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "clientsDebts": "{count} clients with debts",
+  "@clientsDebts": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "dashboardTopWorkersChart": "Worker production (Top 10)",
+  "dashboardThreadsYearChart": "Thread purchases ({year})",
+  "@dashboardThreadsYearChart": {
+    "placeholders": {
+      "year": {}
+    }
+  },
   "dashboardClientsDistributionChart": "Client balance distribution",
   "dashboardWomenAdvancesChart": "Women staff advances this month",
   "noCurrentDebts": "There are no current debts",

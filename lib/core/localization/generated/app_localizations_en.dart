@@ -129,38 +129,39 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dashboardSummaryWorkersWages => 'Total worker wages';
+  String get dashboardSummaryWorkersWages => 'Worker wages';
 
   @override
-  String get dashboardSummaryWomenWages => 'Total women staff wages';
+  String get dashboardSummaryWomenWages => 'Women staff wages';
 
   @override
-  String get dashboardSummaryThreadPurchases => 'Total thread purchases';
+  String get dashboardSummaryThreadPurchases => 'Thread purchases';
 
   @override
-  String get dashboardSummaryClientOutstanding => 'Total client outstanding';
+  String get dashboardSummaryClientOutstanding => 'Client debts';
 
   @override
-  String get dashboardQuickInfoTitle => 'Quick info';
+  String workersAndAbsence(Object workers, Object absence) {
+    return '$workers workers, $absence absent days';
+  }
 
   @override
-  String get dashboardRegisteredWorkers => 'Registered workers';
+  String suppliersOutstanding(Object count) {
+    return '$count suppliers with outstanding';
+  }
 
   @override
-  String get dashboardAbsentDaysThisMonth => 'Absent days this month';
+  String clientsDebts(Object count) {
+    return '$count clients with debts';
+  }
 
   @override
-  String get dashboardPendingClients => 'Clients with outstanding balances';
+  String get dashboardTopWorkersChart => 'Worker production (Top 10)';
 
   @override
-  String get dashboardSuppliersOutstanding =>
-      'Suppliers with outstanding balance';
-
-  @override
-  String get dashboardTopWorkersChart => 'Top 5 workers this month';
-
-  @override
-  String get dashboardThreadsYearChart => 'Thread purchases over the year';
+  String dashboardThreadsYearChart(Object year) {
+    return 'Thread purchases ($year)';
+  }
 
   @override
   String get dashboardClientsDistributionChart => 'Client balance distribution';

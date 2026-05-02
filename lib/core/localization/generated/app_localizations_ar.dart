@@ -128,37 +128,39 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get dashboardSummaryWorkersWages => 'إجمالي أجور العمال';
+  String get dashboardSummaryWorkersWages => 'أجور العمال';
 
   @override
-  String get dashboardSummaryWomenWages => 'إجمالي أجور الحريم';
+  String get dashboardSummaryWomenWages => 'أجور الحريم';
 
   @override
-  String get dashboardSummaryThreadPurchases => 'إجمالي مشتريات الخيوط';
+  String get dashboardSummaryThreadPurchases => 'مشتريات الخيط';
 
   @override
-  String get dashboardSummaryClientOutstanding => 'إجمالي على الزبايين';
+  String get dashboardSummaryClientOutstanding => 'ديون الزبائن';
 
   @override
-  String get dashboardQuickInfoTitle => 'معلومات سريعة';
+  String workersAndAbsence(Object workers, Object absence) {
+    return '$workers عمال، $absence أيام غياب';
+  }
 
   @override
-  String get dashboardRegisteredWorkers => 'عدد العمال المسجلين';
+  String suppliersOutstanding(Object count) {
+    return '$count موردين لهم مستحقات';
+  }
 
   @override
-  String get dashboardAbsentDaysThisMonth => 'أيام الغياب هذا الشهر';
+  String clientsDebts(Object count) {
+    return '$count زبائن عليهم ديون';
+  }
 
   @override
-  String get dashboardPendingClients => 'الزباين المتبقين';
+  String get dashboardTopWorkersChart => 'إنتاج العمال (أعلى 10)';
 
   @override
-  String get dashboardSuppliersOutstanding => 'موردون لهم رصيد';
-
-  @override
-  String get dashboardTopWorkersChart => 'أفضل 5 عمال هذا الشهر';
-
-  @override
-  String get dashboardThreadsYearChart => 'مشتريات الخيوط خلال السنة';
+  String dashboardThreadsYearChart(Object year) {
+    return 'مشتريات الخيط ($year)';
+  }
 
   @override
   String get dashboardClientsDistributionChart => 'توزيع ديون الزباين';
