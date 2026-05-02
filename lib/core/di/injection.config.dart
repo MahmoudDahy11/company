@@ -19,6 +19,34 @@ import 'package:company/core/sync/connectivity_service.dart' as _i447;
 import 'package:company/core/sync/sync_remote_data_source.dart' as _i671;
 import 'package:company/core/sync/sync_service.dart' as _i807;
 import 'package:company/core/sync/sync_status_cubit.dart' as _i359;
+import 'package:company/features/threads/data/datasources/threads_local_data_source.dart'
+    as _i906;
+import 'package:company/features/threads/data/repositories/threads_repository_impl.dart'
+    as _i424;
+import 'package:company/features/threads/domain/repositories/threads_repository.dart'
+    as _i552;
+import 'package:company/features/threads/domain/usecases/add_purchase_usecase.dart'
+    as _i212;
+import 'package:company/features/threads/domain/usecases/add_supplier_payment_usecase.dart'
+    as _i896;
+import 'package:company/features/threads/domain/usecases/add_supplier_usecase.dart'
+    as _i850;
+import 'package:company/features/threads/domain/usecases/delete_purchase_usecase.dart'
+    as _i1059;
+import 'package:company/features/threads/domain/usecases/delete_supplier_payment_usecase.dart'
+    as _i970;
+import 'package:company/features/threads/domain/usecases/delete_supplier_usecase.dart'
+    as _i834;
+import 'package:company/features/threads/domain/usecases/watch_supplier_details_usecase.dart'
+    as _i233;
+import 'package:company/features/threads/domain/usecases/watch_suppliers_usecase.dart'
+    as _i63;
+import 'package:company/features/threads/domain/usecases/watch_threads_overview_usecase.dart'
+    as _i824;
+import 'package:company/features/threads/presentation/bloc/supplier_details_cubit.dart'
+    as _i850;
+import 'package:company/features/threads/presentation/bloc/threads_cubit.dart'
+    as _i136;
 import 'package:company/features/women_staff/data/datasources/women_staff_local_data_source.dart'
     as _i387;
 import 'package:company/features/women_staff/data/repositories/women_staff_repository_impl.dart'
@@ -100,6 +128,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i906.ThreadsLocalDataSource>(
+      () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
       () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
     );
@@ -118,6 +149,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
+    );
+    gh.lazySingleton<_i552.ThreadsRepository>(
+      () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
     );
     gh.factory<_i454.AddAdvanceUseCase>(
       () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),
@@ -175,6 +209,33 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i359.SyncStatusCubit>(),
       ),
     );
+    gh.factory<_i212.AddPurchaseUseCase>(
+      () => _i212.AddPurchaseUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i896.AddSupplierPaymentUseCase>(
+      () => _i896.AddSupplierPaymentUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i850.AddSupplierUseCase>(
+      () => _i850.AddSupplierUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i1059.DeletePurchaseUseCase>(
+      () => _i1059.DeletePurchaseUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i970.DeleteSupplierPaymentUseCase>(
+      () => _i970.DeleteSupplierPaymentUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i834.DeleteSupplierUseCase>(
+      () => _i834.DeleteSupplierUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i233.WatchSupplierDetailsUseCase>(
+      () => _i233.WatchSupplierDetailsUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i63.WatchSuppliersUseCase>(
+      () => _i63.WatchSuppliersUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i824.WatchThreadsOverviewUseCase>(
+      () => _i824.WatchThreadsOverviewUseCase(gh<_i552.ThreadsRepository>()),
+    );
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
@@ -196,6 +257,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
     );
+    gh.factory<_i850.SupplierDetailsCubit>(
+      () => _i850.SupplierDetailsCubit(
+        gh<_i233.WatchSupplierDetailsUseCase>(),
+        gh<_i212.AddPurchaseUseCase>(),
+        gh<_i1059.DeletePurchaseUseCase>(),
+        gh<_i896.AddSupplierPaymentUseCase>(),
+        gh<_i970.DeleteSupplierPaymentUseCase>(),
+      ),
+    );
     gh.factory<_i411.WomenStaffCubit>(
       () => _i411.WomenStaffCubit(
         gh<_i829.WatchStaffUseCase>(),
@@ -209,6 +279,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i478.AddStaffAdvanceUseCase>(),
         gh<_i732.DeleteStaffAdvanceUseCase>(),
         gh<_i282.UpdateSalaryUseCase>(),
+      ),
+    );
+    gh.factory<_i136.ThreadsCubit>(
+      () => _i136.ThreadsCubit(
+        gh<_i63.WatchSuppliersUseCase>(),
+        gh<_i824.WatchThreadsOverviewUseCase>(),
+        gh<_i850.AddSupplierUseCase>(),
+        gh<_i834.DeleteSupplierUseCase>(),
       ),
     );
     return this;

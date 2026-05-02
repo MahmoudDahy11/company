@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/clients/presentation/pages/clients_page.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
+import '../../features/threads/presentation/pages/supplier_details_page.dart';
 import '../../features/threads/presentation/pages/threads_page.dart';
 import '../../features/women_staff/presentation/pages/staff_details_page.dart';
 import '../../features/women_staff/presentation/pages/women_staff_page.dart';
@@ -75,6 +76,18 @@ class AppRouter {
                     path: ThreadsPage.routePath,
                     name: ThreadsPage.routeName,
                     builder: (context, state) => const ThreadsPage(),
+                    routes: [
+                      GoRoute(
+                        path: SupplierDetailsPage.routePath,
+                        name: SupplierDetailsPage.routeName,
+                        builder: (context, state) {
+                          final supplierId = int.parse(
+                            state.pathParameters['supplierId']!,
+                          );
+                          return SupplierDetailsPage(supplierId: supplierId);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

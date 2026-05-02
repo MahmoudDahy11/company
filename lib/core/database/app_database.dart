@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../features/workers/data/models/workers_tables.dart';
 import '../../features/women_staff/data/models/women_staff_tables.dart';
+import '../../features/threads/data/models/threads_tables.dart';
 import '../sync/sync_queue_table.dart';
 
 part 'app_database.g.dart';
@@ -21,13 +22,16 @@ part 'app_database.g.dart';
     WorkerAbsentDays,
     WomenStaffMembers,
     StaffAdvances,
+    Suppliers,
+    ThreadPurchases,
+    SupplierPayments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -45,6 +49,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await m.createTable(womenStaffMembers);
         await m.createTable(staffAdvances);
+      }
+      if (from < 4) {
+        await m.createTable(suppliers);
+        await m.createTable(threadPurchases);
+        await m.createTable(supplierPayments);
       }
     },
   );
