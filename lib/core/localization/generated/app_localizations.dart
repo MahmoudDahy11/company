@@ -1057,6 +1057,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Do you want to delete this payment of {amount}?'**
   String confirmDeletePayment(Object amount);
+
+  /// No description provided for @financialOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Overview'**
+  String get financialOverview;
+
+  /// No description provided for @totalDueFromClients.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Due From Clients'**
+  String get totalDueFromClients;
+
+  /// No description provided for @totalDueToSuppliers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Due To Suppliers'**
+  String get totalDueToSuppliers;
+
+  /// No description provided for @clientsAnnualTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Clients Summary'**
+  String get clientsAnnualTable;
+
+  /// No description provided for @threadsAnnualTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Threads Summary'**
+  String get threadsAnnualTable;
+
+  /// No description provided for @totalWork.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Work'**
+  String get totalWork;
+
+  /// No description provided for @remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remaining;
+
+  /// No description provided for @remainingOur.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining (To us)'**
+  String get remainingOur;
+
+  /// No description provided for @last3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 Months'**
+  String get last3Months;
+
+  /// No description provided for @last6Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 Months'**
+  String get last6Months;
+
+  /// No description provided for @lastYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Year'**
+  String get lastYear;
 }
 
 class _AppLocalizationsDelegate

@@ -535,4 +535,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String confirmDeletePayment(Object amount) {
     return 'هل تريد حذف هذه الدفعة بقيمة $amount؟';
   }
+
+  @override
+  String get financialOverview => 'المركز المالي';
+
+  @override
+  String get totalDueFromClients => 'إجمالي عندنا (الزبايين)';
+
+  @override
+  String get totalDueToSuppliers => 'إجمالي علينا (الخيوط)';
+
+  @override
+  String get clientsAnnualTable => 'جدول الزبايين';
+
+  @override
+  String get threadsAnnualTable => 'جدول الخيوط';
+
+  @override
+  String get totalWork => 'إجمالي الشغل';
+
+  @override
+  String get remaining => 'المتبقي';
+
+  @override
+  String get remainingOur => 'المتبقي علينا';
+
+  @override
+  String get last3Months => 'آخر 3 شهور';
+
+  @override
+  String get last6Months => 'آخر 6 شهور';
+
+  @override
+  String get lastYear => 'آخر سنة';
 }

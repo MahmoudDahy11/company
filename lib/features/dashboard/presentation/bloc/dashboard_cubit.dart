@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
+import '../../domain/entities/financial_filter.dart';
 import '../../domain/usecases/watch_dashboard_summary_usecase.dart';
 import 'dashboard_state.dart';
 
@@ -18,7 +19,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   void start() {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
-    _subscription = _watchDashboardSummaryUseCase(state.selectedMonth).listen(
+    _subscription = _watchDashboardSummaryUseCase(state.selectedMonth, state.financialFilter).listen(
       (summary) => emit(
         state.copyWith(summary: summary, isLoading: false, errorMessage: null),
       ),
@@ -42,6 +43,11 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   void updateMonth(DateTime newMonth) {
     emit(state.copyWith(selectedMonth: newMonth));
+    start();
+  }
+
+  void updateFinancialFilter(FinancialFilter filter) {
+    emit(state.copyWith(financialFilter: filter));
     start();
   }
 

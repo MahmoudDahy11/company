@@ -536,4 +536,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String confirmDeletePayment(Object amount) {
     return 'Do you want to delete this payment of $amount?';
   }
+
+  @override
+  String get financialOverview => 'Financial Overview';
+
+  @override
+  String get totalDueFromClients => 'Total Due From Clients';
+
+  @override
+  String get totalDueToSuppliers => 'Total Due To Suppliers';
+
+  @override
+  String get clientsAnnualTable => 'Clients Summary';
+
+  @override
+  String get threadsAnnualTable => 'Threads Summary';
+
+  @override
+  String get totalWork => 'Total Work';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get remainingOur => 'Remaining (To us)';
+
+  @override
+  String get last3Months => 'Last 3 Months';
+
+  @override
+  String get last6Months => 'Last 6 Months';
+
+  @override
+  String get lastYear => 'Last Year';
 }

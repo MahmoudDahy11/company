@@ -266,5 +266,16 @@
   "deleteModelTitle": "حذف الموديل",
   "confirmDeleteModel": "هل تريد حذف موديل {name}؟",
   "deletePaymentTitle": "حذف الدفعة",
-  "confirmDeletePayment": "هل تريد حذف هذه الدفعة بقيمة {amount}؟"
+  "confirmDeletePayment": "هل تريد حذف هذه الدفعة بقيمة {amount}؟",
+  "financialOverview": "المركز المالي",
+  "totalDueFromClients": "إجمالي عندنا (الزبايين)",
+  "totalDueToSuppliers": "إجمالي علينا (الخيوط)",
+  "clientsAnnualTable": "جدول الزبايين",
+  "threadsAnnualTable": "جدول الخيوط",
+  "totalWork": "إجمالي الشغل",
+  "remaining": "المتبقي",
+  "remainingOur": "المتبقي علينا",
+  "last3Months": "آخر 3 شهور",
+  "last6Months": "آخر 6 شهور",
+  "lastYear": "آخر سنة"
 }

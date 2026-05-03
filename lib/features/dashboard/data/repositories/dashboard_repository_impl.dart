@@ -1,6 +1,7 @@
 import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/dashboard_summary.dart';
+import '../../domain/entities/financial_filter.dart';
 import '../../domain/repositories/dashboard_repository.dart';
 import '../datasources/dashboard_local_data_source.dart';
 
@@ -11,7 +12,10 @@ class DashboardRepositoryImpl implements DashboardRepository {
   final DashboardLocalDataSource _localDataSource;
 
   @override
-  Stream<DashboardSummary> watchSummary(DateTime month) {
-    return _localDataSource.watchSummary(month);
+  Stream<DashboardSummary> watchSummary(
+    DateTime month,
+    FinancialFilter financialFilter,
+  ) {
+    return _localDataSource.watchSummary(month, financialFilter);
   }
 }

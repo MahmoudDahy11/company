@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/dashboard_summary.dart';
+import '../../domain/entities/financial_filter.dart';
 
 @lazySingleton
 class DashboardLocalDataSource {
@@ -12,8 +13,13 @@ class DashboardLocalDataSource {
 
   final AppDatabase _database;
 
-  Stream<DashboardSummary> watchSummary(DateTime month) {
-    return _watchTrigger().asyncMap((_) => _buildSummary(month));
+  Stream<DashboardSummary> watchSummary(
+    DateTime month,
+    FinancialFilter financialFilter,
+  ) {
+    return _watchTrigger().asyncMap(
+      (_) => _buildSummary(month, financialFilter),
+    );
   }
 
   Stream<List<QueryRow>> _watchTrigger() {
@@ -39,17 +45,14 @@ class DashboardLocalDataSource {
         .watch();
   }
 
-  Future<DashboardSummary> _buildSummary(DateTime month) async {
+  Future<DashboardSummary> _buildSummary(
+    DateTime month,
+    FinancialFilter financialFilter,
+  ) async {
     final monthRange = _monthRange(month);
-    final activeWorkers = await (_database.select(
-      _database.workers,
-    )..where((t) => t.isActive.equals(true))).get();
-    final activeWomen = await (_database.select(
-      _database.womenStaffMembers,
-    )..where((t) => t.isActive.equals(true))).get();
-    final activeClients = await (_database.select(
-      _database.clients,
-    )..where((t) => t.isActive.equals(true))).get();
+    final activeWorkers = await (_database.select(_database.workers)..where((t) => t.isActive.equals(true))).get();
+    final activeWomen = await (_database.select(_database.womenStaffMembers)..where((t) => t.isActive.equals(true))).get();
+    final activeClients = await (_database.select(_database.clients)..where((t) => t.isActive.equals(true))).get();
     final suppliers = await _database.select(_database.suppliers).get();
 
     double totalWorkerWages = 0;
@@ -149,6 +152,41 @@ class DashboardLocalDataSource {
       );
     }
 
+    // --- Financial Summary Logic ---
+    final financialRange = _financialRange(month, financialFilter);
+    
+    final clientAnnualSummaries = <ClientAnnualSummary>[];
+    double totalDueFromClients = 0;
+    for (final client in activeClients) {
+      final summary = await _clientRangeSummary(client.id, financialRange);
+      clientAnnualSummaries.add(ClientAnnualSummary(
+        clientId: client.id,
+        name: client.name,
+        totalWork: summary.totalAmount,
+        totalPaid: summary.totalPaid,
+        remaining: summary.outstanding,
+      ));
+      totalDueFromClients += summary.outstanding;
+    }
+    // Sort: highest remaining first, zero remaining at bottom
+    clientAnnualSummaries.sort((a, b) => b.remaining.compareTo(a.remaining));
+
+    final supplierAnnualSummaries = <SupplierAnnualSummary>[];
+    double totalDueToSuppliers = 0;
+    for (final supplier in suppliers) {
+      final summary = await _supplierRangeSummary(supplier.id, financialRange);
+      supplierAnnualSummaries.add(SupplierAnnualSummary(
+        supplierId: supplier.id,
+        name: supplier.name,
+        totalPurchases: summary.totalPurchased,
+        totalPaid: summary.totalPaid,
+        remaining: summary.outstandingBalance,
+      ));
+      totalDueToSuppliers += summary.outstandingBalance;
+    }
+    // Sort: highest remaining first
+    supplierAnnualSummaries.sort((a, b) => b.remaining.compareTo(a.remaining));
+
     return DashboardSummary(
       totalWorkerWages: totalWorkerWages,
       totalWomenStaffWages: totalWomenStaffWages,
@@ -162,7 +200,67 @@ class DashboardLocalDataSource {
       threadPurchasesByMonth: threadLines,
       clientOutstandingDistribution: clientPiePoints,
       womenAdvancesByStaff: womenAdvancesBars,
+      financialSummary: FinancialSummary(
+        totalDueFromClients: totalDueFromClients,
+        totalDueToSuppliers: totalDueToSuppliers,
+        clientSummaries: clientAnnualSummaries,
+        supplierSummaries: supplierAnnualSummaries,
+      ),
     );
+  }
+
+  Future<_ClientSummary> _clientRangeSummary(
+    int clientId,
+    ({DateTime start, DateTime end}) range,
+  ) async {
+    final models = await (_database.select(_database.clientModels)..where(
+              (t) =>
+                  t.clientId.equals(clientId) &
+                  t.date.isBetweenValues(range.start, range.end),
+            ))
+            .get();
+    final payments = await (_database.select(_database.clientPayments)..where(
+              (t) =>
+                  t.clientId.equals(clientId) &
+                  t.paymentDate.isBetweenValues(range.start, range.end),
+            ))
+            .get();
+    final totalAmount = models.fold<double>(0, (sum, row) => sum + (row.pieceCount * row.pricePerPiece));
+    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
+    return _ClientSummary(totalAmount: totalAmount, totalPaid: totalPaid);
+  }
+
+  Future<_SupplierSummary> _supplierRangeSummary(
+    int supplierId,
+    ({DateTime start, DateTime end}) range,
+  ) async {
+    final purchases = await (_database.select(_database.threadPurchases)..where(
+              (t) =>
+                  t.supplierId.equals(supplierId) &
+                  t.purchaseDate.isBetweenValues(range.start, range.end),
+            ))
+            .get();
+    final payments = await (_database.select(_database.supplierPayments)..where(
+              (t) =>
+                  t.supplierId.equals(supplierId) &
+                  t.paymentDate.isBetweenValues(range.start, range.end),
+            ))
+            .get();
+    final totalPurchased = purchases.fold<double>(0, (sum, row) => sum + row.price);
+    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
+    return _SupplierSummary(totalPurchased: totalPurchased, totalPaid: totalPaid);
+  }
+
+  ({DateTime start, DateTime end}) _financialRange(DateTime month, FinancialFilter filter) {
+    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
+    switch (filter) {
+      case FinancialFilter.last3Months:
+        return (start: DateTime(month.year, month.month - 2), end: end);
+      case FinancialFilter.last6Months:
+        return (start: DateTime(month.year, month.month - 5), end: end);
+      case FinancialFilter.lastYear:
+        return (start: DateTime(month.year, month.month - 11), end: end);
+    }
   }
 
   Future<_WorkerSummary> _workerMonthSummary(
@@ -274,26 +372,7 @@ class DashboardLocalDataSource {
     DateTime month,
   ) async {
     final range = _monthRange(month);
-    final models =
-        await (_database.select(_database.clientModels)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.date.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final payments =
-        await (_database.select(_database.clientPayments)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.paymentDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final totalAmount = models.fold<double>(
-      0,
-      (sum, row) => sum + (row.pieceCount * row.pricePerPiece),
-    );
-    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
-    return _ClientSummary(totalAmount: totalAmount, totalPaid: totalPaid);
+    return _clientRangeSummary(clientId, range);
   }
 
   Future<_SupplierSummary> _supplierMonthSummary(
@@ -301,29 +380,7 @@ class DashboardLocalDataSource {
     DateTime month,
   ) async {
     final range = _monthRange(month);
-    final purchases =
-        await (_database.select(_database.threadPurchases)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.purchaseDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final payments =
-        await (_database.select(_database.supplierPayments)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.paymentDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final totalPurchased = purchases.fold<double>(
-      0,
-      (sum, row) => sum + row.price,
-    );
-    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
-    return _SupplierSummary(
-      totalPurchased: totalPurchased,
-      totalPaid: totalPaid,
-    );
+    return _supplierRangeSummary(supplierId, range);
   }
 
   ({DateTime start, DateTime end}) _monthRange(DateTime month) {

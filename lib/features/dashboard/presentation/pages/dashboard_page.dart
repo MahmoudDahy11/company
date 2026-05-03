@@ -2,12 +2,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../../clients/presentation/pages/client_details_page.dart';
+import '../../../threads/presentation/pages/supplier_details_page.dart';
 import '../../domain/entities/dashboard_summary.dart';
+import '../../domain/entities/financial_filter.dart';
 import '../bloc/dashboard_cubit.dart';
 import '../bloc/dashboard_state.dart';
 
@@ -97,6 +101,17 @@ class _DashboardView extends StatelessWidget {
                     summary: summary,
                     currency: currency,
                     selectedMonth: state.selectedMonth,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  const Divider(),
+                  const SizedBox(height: AppSpacing.xl),
+                  _FinancialSection(
+                    summary: summary,
+                    currency: currency,
+                    currentFilter: state.financialFilter,
+                    onFilterChanged: context
+                        .read<DashboardCubit>()
+                        .updateFinancialFilter,
                   ),
                 ],
               ],
@@ -675,6 +690,377 @@ class _WomenAdvancesChart extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _FinancialSection extends StatelessWidget {
+  const _FinancialSection({
+    required this.summary,
+    required this.currency,
+    required this.currentFilter,
+    required this.onFilterChanged,
+  });
+
+  final DashboardSummary summary;
+  final NumberFormat currency;
+  final FinancialFilter currentFilter;
+  final ValueChanged<FinancialFilter> onFilterChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final financial = summary.financialSummary;
+
+    if (financial == null) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              l10n.financialOverview,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            _FinancialFilterSelector(
+              current: currentFilter,
+              onChanged: onFilterChanged,
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [
+            _DashboardCard(
+              title: l10n.totalDueFromClients,
+              value: currency.format(financial.totalDueFromClients),
+              icon: Icons.account_balance_wallet,
+              color: const Color(0xFF10B981), // Green
+            ),
+            _DashboardCard(
+              title: l10n.totalDueToSuppliers,
+              value: currency.format(financial.totalDueToSuppliers),
+              icon: Icons.shopping_cart,
+              color: const Color(0xFFF59E0B), // Orange/Amber
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        _FinancialTableCard(
+          title: l10n.clientsAnnualTable,
+          child: _ClientsAnnualTable(
+            summaries: financial.clientSummaries,
+            currency: currency,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        _FinancialTableCard(
+          title: l10n.threadsAnnualTable,
+          child: _ThreadsAnnualTable(
+            summaries: financial.supplierSummaries,
+            currency: currency,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FinancialFilterSelector extends StatelessWidget {
+  const _FinancialFilterSelector({
+    required this.current,
+    required this.onChanged,
+  });
+
+  final FinancialFilter current;
+  final ValueChanged<FinancialFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return SegmentedButton<FinancialFilter>(
+      segments: [
+        ButtonSegment(
+          value: FinancialFilter.last3Months,
+          label: Text(l10n.last3Months),
+        ),
+        ButtonSegment(
+          value: FinancialFilter.last6Months,
+          label: Text(l10n.last6Months),
+        ),
+        ButtonSegment(
+          value: FinancialFilter.lastYear,
+          label: Text(l10n.lastYear),
+        ),
+      ],
+      selected: {current},
+      onSelectionChanged: (set) => onChanged(set.first),
+    );
+  }
+}
+
+class _FinancialTableCard extends StatelessWidget {
+  const _FinancialTableCard({required this.title, required this.child});
+
+  final String title;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            child,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ClientsAnnualTable extends StatelessWidget {
+  const _ClientsAnnualTable({required this.summaries, required this.currency});
+
+  final List<ClientAnnualSummary> summaries;
+  final NumberFormat currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text(l10n.clientName)),
+              DataColumn(label: Text(l10n.totalWork), numeric: true),
+              DataColumn(label: Text(l10n.totalPaidHeader), numeric: true),
+              DataColumn(label: Text(l10n.remaining), numeric: true),
+            ],
+            rows: summaries.map((s) {
+              final isDimmed = s.remaining <= 0;
+              final style = isDimmed
+                  ? const TextStyle(color: Colors.grey)
+                  : const TextStyle(fontWeight: FontWeight.bold);
+
+              return DataRow(
+                onSelectChanged: (_) {
+                  context.goNamed(
+                    ClientDetailsPage.routeName,
+                    pathParameters: {'clientId': s.clientId.toString()},
+                  );
+                },
+                cells: [
+                  DataCell(Text(s.name, style: style)),
+                  DataCell(Text(currency.format(s.totalWork), style: style)),
+                  DataCell(Text(currency.format(s.totalPaid), style: style)),
+                  DataCell(
+                    Text(
+                      currency.format(s.remaining),
+                      style: style.copyWith(
+                        color: s.remaining > 0 ? Colors.red : null,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        SizedBox(
+          height: 300,
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceAround,
+              barTouchData: BarTouchData(enabled: true),
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: true, reservedSize: 60),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final i = value.toInt();
+                      if (i < 0 || i >= summaries.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          summaries[i].name,
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: summaries.asMap().entries.map((e) {
+                return BarChartGroupData(
+                  x: e.key,
+                  barRods: [
+                    BarChartRodData(
+                      toY: e.value.totalPaid,
+                      color: Colors.green,
+                      width: 16,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    BarChartRodData(
+                      toY: e.value.remaining,
+                      color: Colors.red,
+                      width: 16,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ThreadsAnnualTable extends StatelessWidget {
+  const _ThreadsAnnualTable({required this.summaries, required this.currency});
+
+  final List<SupplierAnnualSummary> summaries;
+  final NumberFormat currency;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: DataTable(
+            columns: [
+              DataColumn(label: Text(l10n.supplierName)),
+              DataColumn(label: Text(l10n.totalPurchasesHeader), numeric: true),
+              DataColumn(label: Text(l10n.totalPaidHeader), numeric: true),
+              DataColumn(label: Text(l10n.remainingOur), numeric: true),
+            ],
+            rows: summaries.map((s) {
+              return DataRow(
+                onSelectChanged: (_) {
+                  context.goNamed(
+                    SupplierDetailsPage.routeName,
+                    pathParameters: {'supplierId': s.supplierId.toString()},
+                  );
+                },
+                cells: [
+                  DataCell(Text(s.name)),
+                  DataCell(Text(currency.format(s.totalPurchases))),
+                  DataCell(Text(currency.format(s.totalPaid))),
+                  DataCell(
+                    Text(
+                      currency.format(s.remaining),
+                      style: const TextStyle(
+                        color: Colors.orange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xl),
+        SizedBox(
+          height: 300,
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceAround,
+              titlesData: FlTitlesData(
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: true, reservedSize: 60),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) {
+                      final i = value.toInt();
+                      if (i < 0 || i >= summaries.length) {
+                        return const SizedBox.shrink();
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          summaries[i].name,
+                          style: const TextStyle(fontSize: 10),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+              ),
+              borderData: FlBorderData(show: false),
+              barGroups: summaries.asMap().entries.map((e) {
+                return BarChartGroupData(
+                  x: e.key,
+                  barRods: [
+                    BarChartRodData(
+                      toY: e.value.totalPaid,
+                      color: Colors.green,
+                      width: 16,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    BarChartRodData(
+                      toY: e.value.remaining,
+                      color: Colors.orange,
+                      width: 16,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -12,6 +12,7 @@ class DashboardSummary {
     required this.threadPurchasesByMonth,
     required this.clientOutstandingDistribution,
     required this.womenAdvancesByStaff,
+    this.financialSummary,
   });
 
   final double totalWorkerWages;
@@ -26,6 +27,53 @@ class DashboardSummary {
   final List<DashboardLinePoint> threadPurchasesByMonth;
   final List<DashboardPiePoint> clientOutstandingDistribution;
   final List<DashboardBarPoint> womenAdvancesByStaff;
+  final FinancialSummary? financialSummary;
+}
+
+class FinancialSummary {
+  const FinancialSummary({
+    required this.totalDueFromClients,
+    required this.totalDueToSuppliers,
+    required this.clientSummaries,
+    required this.supplierSummaries,
+  });
+
+  final double totalDueFromClients;
+  final double totalDueToSuppliers;
+  final List<ClientAnnualSummary> clientSummaries;
+  final List<SupplierAnnualSummary> supplierSummaries;
+}
+
+class ClientAnnualSummary {
+  const ClientAnnualSummary({
+    required this.clientId,
+    required this.name,
+    required this.totalWork,
+    required this.totalPaid,
+    required this.remaining,
+  });
+
+  final int clientId;
+  final String name;
+  final double totalWork;
+  final double totalPaid;
+  final double remaining;
+}
+
+class SupplierAnnualSummary {
+  const SupplierAnnualSummary({
+    required this.supplierId,
+    required this.name,
+    required this.totalPurchases,
+    required this.totalPaid,
+    required this.remaining,
+  });
+
+  final int supplierId;
+  final String name;
+  final double totalPurchases;
+  final double totalPaid;
+  final double remaining;
 }
 
 class DashboardBarPoint {
