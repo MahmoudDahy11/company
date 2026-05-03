@@ -47,19 +47,41 @@ class _DashboardView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _DashboardMonthSelector(
-                      month: state.selectedMonth,
-                      onChanged: context.read<DashboardCubit>().updateMonth,
-                    ),
-                    Text(
-                      l10n.dashboard,
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                Builder(
+                  builder: (context) {
+                    final isMobile =
+                        MediaQuery.sizeOf(context).width <
+                        AppBreakpoints.mobile;
+                    final headerContent = [
+                      _DashboardMonthSelector(
+                        month: state.selectedMonth,
+                        onChanged: context.read<DashboardCubit>().updateMonth,
+                      ),
+                      if (isMobile) const SizedBox(height: AppSpacing.md),
+                      Text(
+                        l10n.dashboard,
+                        style:
+                            (isMobile
+                                    ? Theme.of(context).textTheme.headlineSmall
+                                    : Theme.of(
+                                        context,
+                                      ).textTheme.headlineMedium)
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                    ];
+
+                    if (isMobile) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: headerContent,
+                      );
+                    }
+
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: headerContent,
+                    );
+                  },
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (state.isLoading)
