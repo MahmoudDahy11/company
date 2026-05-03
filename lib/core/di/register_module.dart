@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../database/app_database.dart';
 import '../firebase/firebase_initializer.dart';
 import '../localization/app_locale_controller.dart';
+
+import '../firebase/firebase_provider.dart';
 
 @module
 abstract class RegisterModule {
@@ -23,10 +26,21 @@ abstract class RegisterModule {
   Connectivity get connectivity => Connectivity();
 
   @lazySingleton
-  FirebaseFirestore get firebaseFirestore => FirebaseFirestore.instance;
+  FirebaseProvider get firebaseProvider {
+    FirebaseAuth? auth;
+    FirebaseFirestore? firestore;
 
-  @lazySingleton
-  FirebaseAuth get firebaseAuth => FirebaseAuth.instance;
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.linux) {
+      try {
+        auth = FirebaseAuth.instance;
+        firestore = FirebaseFirestore.instance;
+      } catch (e) {
+        debugPrint('Firebase instances could not be created: $e');
+      }
+    }
+
+    return FirebaseProvider(auth: auth, firestore: firestore);
+  }
 
   @preResolve
   Future<SharedPreferences> get sharedPreferences =>

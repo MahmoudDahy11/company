@@ -262,5 +262,9 @@
   "totalPurchasesHeader": "إجمالي المشتريات",
   "totalPaidHeader": "إجمالي المدفوع",
   "remainingBalance": "الرصيد المتبقي",
-  "totalAmountHeader": "إجمالي المبلغ"
+  "totalAmountHeader": "إجمالي المبلغ",
+  "deleteModelTitle": "حذف الموديل",
+  "confirmDeleteModel": "هل تريد حذف موديل {name}؟",
+  "deletePaymentTitle": "حذف الدفعة",
+  "confirmDeletePayment": "هل تريد حذف هذه الدفعة بقيمة {amount}؟"
 }

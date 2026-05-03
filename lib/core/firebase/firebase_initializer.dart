@@ -9,6 +9,17 @@ class FirebaseInitializer {
       return;
     }
 
+    // Official Firebase plugins currently don't support Linux.
+    // Skipping initialization on Linux to avoid PlatformException.
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+      if (kDebugMode) {
+        debugPrint(
+          'Firebase is not supported on Linux. Skipping initialization.',
+        );
+      }
+      return;
+    }
+
     try {
       await Firebase.initializeApp(
         options: kIsWeb
@@ -22,6 +33,10 @@ class FirebaseInitializer {
     } on FirebaseException catch (error) {
       if (kDebugMode) {
         debugPrint('Firebase initialization skipped: ${error.message}');
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        debugPrint('Firebase initialization failed with error: $error');
       }
     }
   }

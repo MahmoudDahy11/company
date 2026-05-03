@@ -520,4 +520,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalAmountHeader => 'Total Amount';
+
+  @override
+  String get deleteModelTitle => 'Delete Model';
+
+  @override
+  String confirmDeleteModel(Object name) {
+    return 'Do you want to delete model $name?';
+  }
+
+  @override
+  String get deletePaymentTitle => 'Delete Payment';
+
+  @override
+  String confirmDeletePayment(Object amount) {
+    return 'Do you want to delete this payment of $amount?';
+  }
 }

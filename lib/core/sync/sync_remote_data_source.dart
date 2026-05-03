@@ -5,15 +5,21 @@ import 'package:injectable/injectable.dart';
 
 import '../database/app_database.dart';
 import 'sync_queue_table.dart';
+import '../firebase/firebase_provider.dart';
 
 @lazySingleton
 class SyncRemoteDataSource {
-  SyncRemoteDataSource(this._firestore);
+  SyncRemoteDataSource(this._firebaseProvider);
 
-  final FirebaseFirestore _firestore;
+  final FirebaseProvider _firebaseProvider;
 
   Future<void> pushEntry(SyncQueueData entry) async {
-    final document = _firestore
+    final firestore = _firebaseProvider.firestore;
+    if (firestore == null) {
+      throw Exception('Firestore is not supported on this platform.');
+    }
+
+    final document = firestore
         .collection('factory_backup')
         .doc(entry.targetTableName)
         .collection('records')

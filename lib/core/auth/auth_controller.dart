@@ -4,14 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../firebase/firebase_provider.dart';
 
 @lazySingleton
 class AuthController extends ChangeNotifier {
-  AuthController(this._firebaseAuth, this._sharedPreferences);
+  AuthController(this._firebaseProvider, this._sharedPreferences);
 
   static const _rememberMeKey = 'remember_admin_session';
 
-  final FirebaseAuth _firebaseAuth;
+  final FirebaseProvider _firebaseProvider;
   final SharedPreferences _sharedPreferences;
 
   StreamSubscription<User?>? _authSubscription;
@@ -30,14 +31,38 @@ class AuthController extends ChangeNotifier {
     }
 
     _rememberMe = _sharedPreferences.getBool(_rememberMeKey) ?? false;
-    _authSubscription = _firebaseAuth.authStateChanges().listen(
-      _handleAuthChange,
-    );
 
-    if (!_rememberMe && _firebaseAuth.currentUser != null) {
-      await _firebaseAuth.signOut();
+    // Check if we have a mock session on Linux
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.linux &&
+        _rememberMe) {
+      _isAuthenticated = true;
+    }
+
+    final auth = _firebaseProvider.auth;
+    if (auth != null) {
+      try {
+        _authSubscription = auth.authStateChanges().listen(_handleAuthChange);
+
+        if (!_rememberMe && auth.currentUser != null) {
+          await auth.signOut();
+        } else {
+          _handleAuthChange(auth.currentUser);
+        }
+      } catch (error) {
+        if (kDebugMode) {
+          debugPrint(
+            'Auth initialization skipped (Firebase probably not available): $error',
+          );
+        }
+        _handleAuthChange(null);
+      }
     } else {
-      _handleAuthChange(_firebaseAuth.currentUser);
+      if (kDebugMode) {
+        debugPrint(
+          'Auth Controller: Firebase Auth is null (Not supported on this platform).',
+        );
+      }
     }
 
     _isInitialized = true;
@@ -49,7 +74,20 @@ class AuthController extends ChangeNotifier {
     required String password,
     required bool rememberMe,
   }) async {
-    await _firebaseAuth.signInWithEmailAndPassword(
+    final auth = _firebaseProvider.auth;
+    if (auth == null) {
+      // Mock sign-in for Linux/Unsupported platforms
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.linux) {
+        _isAuthenticated = true;
+        _rememberMe = rememberMe;
+        await _sharedPreferences.setBool(_rememberMeKey, rememberMe);
+        notifyListeners();
+        return;
+      }
+      throw Exception('Sign in is not supported on this platform.');
+    }
+
+    await auth.signInWithEmailAndPassword(
       email: email.trim(),
       password: password,
     );
@@ -61,7 +99,14 @@ class AuthController extends ChangeNotifier {
   Future<void> signOut() async {
     _rememberMe = false;
     await _sharedPreferences.setBool(_rememberMeKey, false);
-    await _firebaseAuth.signOut();
+
+    final auth = _firebaseProvider.auth;
+    if (auth != null) {
+      await auth.signOut();
+    } else {
+      _isAuthenticated = false;
+    }
+
     notifyListeners();
   }
 

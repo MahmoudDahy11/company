@@ -9,12 +9,12 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:company/core/auth/auth_controller.dart' as _i875;
 import 'package:company/core/database/app_database.dart' as _i549;
 import 'package:company/core/di/register_module.dart' as _i673;
 import 'package:company/core/export/excel_export_service.dart' as _i211;
 import 'package:company/core/firebase/firebase_initializer.dart' as _i221;
+import 'package:company/core/firebase/firebase_provider.dart' as _i80;
 import 'package:company/core/localization/app_locale_controller.dart' as _i707;
 import 'package:company/core/router/app_router.dart' as _i512;
 import 'package:company/core/sync/connectivity_service.dart' as _i447;
@@ -142,7 +142,6 @@ import 'package:company/features/workers/presentation/bloc/worker_details_cubit.
 import 'package:company/features/workers/presentation/bloc/workers_cubit.dart'
     as _i109;
 import 'package:connectivity_plus/connectivity_plus.dart' as _i895;
-import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
@@ -167,21 +166,14 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.firebaseInitializer,
     );
     gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);
-    gh.lazySingleton<_i974.FirebaseFirestore>(
-      () => registerModule.firebaseFirestore,
+    gh.lazySingleton<_i80.FirebaseProvider>(
+      () => registerModule.firebaseProvider,
     );
-    gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     gh.lazySingleton<_i211.ExcelExportService>(
       () => _i211.ExcelExportService(),
     );
-    gh.lazySingleton<_i875.AuthController>(
-      () => _i875.AuthController(
-        gh<_i59.FirebaseAuth>(),
-        gh<_i460.SharedPreferences>(),
-      ),
-    );
-    gh.lazySingleton<_i512.AppRouter>(
-      () => _i512.AppRouter(gh<_i875.AuthController>()),
+    gh.lazySingleton<_i671.SyncRemoteDataSource>(
+      () => _i671.SyncRemoteDataSource(gh<_i80.FirebaseProvider>()),
     );
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
@@ -210,6 +202,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i504.WatchDashboardSummaryUseCase>(
       () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
+    gh.lazySingleton<_i875.AuthController>(
+      () => _i875.AuthController(
+        gh<_i80.FirebaseProvider>(),
+        gh<_i460.SharedPreferences>(),
+      ),
+    );
     gh.lazySingleton<_i836.ClientsRepository>(
       () => _i598.ClientsRepositoryImpl(gh<_i788.ClientsLocalDataSource>()),
     );
@@ -219,9 +217,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
-    );
-    gh.lazySingleton<_i671.SyncRemoteDataSource>(
-      () => _i671.SyncRemoteDataSource(gh<_i974.FirebaseFirestore>()),
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
@@ -261,6 +256,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i511.WatchWorkersUseCase>(
       () => _i511.WatchWorkersUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.lazySingleton<_i512.AppRouter>(
+      () => _i512.AppRouter(gh<_i875.AuthController>()),
     );
     gh.factory<_i109.WorkersCubit>(
       () => _i109.WorkersCubit(

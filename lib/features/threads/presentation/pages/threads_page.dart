@@ -44,67 +44,67 @@ class _ThreadsView extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                Builder(
-                  builder: (context) {
-                    final isMobile =
-                        MediaQuery.sizeOf(context).width <
-                        AppBreakpoints.mobile;
+                  Builder(
+                    builder: (context) {
+                      final isMobile =
+                          MediaQuery.sizeOf(context).width <
+                          AppBreakpoints.mobile;
 
-                    final actionButtons = [
-                      FilledButton.icon(
-                        onPressed: () async {
-                          final result = await showSupplierSheet(context);
-                          if (result != null && context.mounted) {
-                            await context.read<ThreadsCubit>().addSupplier(
-                              name: result.name,
-                              phone: result.phone,
-                            );
-                          }
-                        },
-                        icon: const Icon(Icons.add),
-                        label: Text(l10n.addSupplier),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF374151),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.lg,
-                            vertical: AppSpacing.md,
+                      final actionButtons = [
+                        FilledButton.icon(
+                          onPressed: () async {
+                            final result = await showSupplierSheet(context);
+                            if (result != null && context.mounted) {
+                              await context.read<ThreadsCubit>().addSupplier(
+                                name: result.name,
+                                phone: result.phone,
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.add),
+                          label: Text(l10n.addSupplier),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF374151),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.lg,
+                              vertical: AppSpacing.md,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          try {
-                            await GetIt.I<ExcelExportService>().exportThreads(
-                              suppliers: state.items,
-                              allPurchases: const [],
-                              month: state.selectedMonth,
-                              isArabic:
-                                  Localizations.localeOf(context).languageCode ==
-                                  'ar',
-                            );
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.exportSuccess)),
+                        const SizedBox(width: AppSpacing.md),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            try {
+                              await GetIt.I<ExcelExportService>().exportThreads(
+                                suppliers: state.items,
+                                allPurchases: const [],
+                                month: state.selectedMonth,
+                                isArabic:
+                                    Localizations.localeOf(
+                                      context,
+                                    ).languageCode ==
+                                    'ar',
                               );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.exportSuccess)),
+                                );
+                              }
+                            } catch (_) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(l10n.exportError)),
+                                );
+                              }
                             }
-                          } catch (_) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(l10n.exportError)),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(Icons.download_outlined),
-                        label: Text(l10n.exportExcel),
-                      ),
-                    ];
+                          },
+                          icon: const Icon(Icons.download_outlined),
+                          label: Text(l10n.exportExcel),
+                        ),
+                      ];
 
-                    final searchAndTitle = [
-                      Expanded(
-                        flex: isMobile ? 0 : 1,
-                        child: SizedBox(
+                      final searchAndTitle = [
+                        SizedBox(
                           width: isMobile ? double.infinity : 250,
                           height: 40,
                           child: TextField(
@@ -121,55 +121,60 @@ class _ThreadsView extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            onChanged:
-                                context.read<ThreadsCubit>().updateSearchQuery,
+                            onChanged: context
+                                .read<ThreadsCubit>()
+                                .updateSearchQuery,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      Text(
-                        l10n.threads,
-                        style: (isMobile
-                                ? Theme.of(context).textTheme.headlineSmall
-                                : Theme.of(context).textTheme.headlineMedium)
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF1F2937),
-                            ),
-                      ),
-                    ];
+                        const SizedBox(width: AppSpacing.lg),
+                        Text(
+                          l10n.threads,
+                          style:
+                              (isMobile
+                                      ? Theme.of(
+                                          context,
+                                        ).textTheme.headlineSmall
+                                      : Theme.of(
+                                          context,
+                                        ).textTheme.headlineMedium)
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF1F2937),
+                                  ),
+                        ),
+                      ];
 
-                    if (isMobile) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                      if (isMobile) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [searchAndTitle.last],
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            searchAndTitle.first,
+                            const SizedBox(height: AppSpacing.md),
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(children: actionButtons),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Row(children: actionButtons),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [searchAndTitle.last],
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          searchAndTitle.first,
-                          const SizedBox(height: AppSpacing.md),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(children: actionButtons),
+                            mainAxisSize: MainAxisSize.min,
+                            children: searchAndTitle,
                           ),
                         ],
                       );
-                    }
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(children: actionButtons),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: searchAndTitle,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                    },
+                  ),
                   const SizedBox(height: AppSpacing.lg),
                   state.isLoading
                       ? const Center(child: CircularProgressIndicator())

@@ -1033,6 +1033,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Amount'**
   String get totalAmountHeader;
+
+  /// No description provided for @deleteModelTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Model'**
+  String get deleteModelTitle;
+
+  /// No description provided for @confirmDeleteModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete model {name}?'**
+  String confirmDeleteModel(Object name);
+
+  /// No description provided for @deletePaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Payment'**
+  String get deletePaymentTitle;
+
+  /// No description provided for @confirmDeletePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this payment of {amount}?'**
+  String confirmDeletePayment(Object amount);
 }
 
 class _AppLocalizationsDelegate

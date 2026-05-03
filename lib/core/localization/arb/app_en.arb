@@ -262,5 +262,9 @@
   "totalPurchasesHeader": "Total Purchases",
   "totalPaidHeader": "Total Paid",
   "remainingBalance": "Remaining Balance",
-  "totalAmountHeader": "Total Amount"
+  "totalAmountHeader": "Total Amount",
+  "deleteModelTitle": "Delete Model",
+  "confirmDeleteModel": "Do you want to delete model {name}?",
+  "deletePaymentTitle": "Delete Payment",
+  "confirmDeletePayment": "Do you want to delete this payment of {amount}?"
 }

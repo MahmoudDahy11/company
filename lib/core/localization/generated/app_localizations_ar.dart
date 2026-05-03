@@ -519,4 +519,20 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get totalAmountHeader => 'إجمالي المبلغ';
+
+  @override
+  String get deleteModelTitle => 'حذف الموديل';
+
+  @override
+  String confirmDeleteModel(Object name) {
+    return 'هل تريد حذف موديل $name؟';
+  }
+
+  @override
+  String get deletePaymentTitle => 'حذف الدفعة';
+
+  @override
+  String confirmDeletePayment(Object amount) {
+    return 'هل تريد حذف هذه الدفعة بقيمة $amount؟';
+  }
 }
