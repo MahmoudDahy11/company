@@ -717,20 +717,50 @@ class _FinancialSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              l10n.financialOverview,
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-            ),
-            _FinancialFilterSelector(
-              current: currentFilter,
-              onChanged: onFilterChanged,
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 600;
+
+            if (isMobile) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpacing.md,
+                children: [
+                  Text(
+                    l10n.financialOverview,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  _FinancialFilterSelector(
+                    current: currentFilter,
+                    onChanged: onFilterChanged,
+                  ),
+                ],
+              );
+            }
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    l10n.financialOverview,
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                _FinancialFilterSelector(
+                  current: currentFilter,
+                  onChanged: onFilterChanged,
+                ),
+              ],
+            );
+          },
         ),
         const SizedBox(height: AppSpacing.lg),
         Wrap(

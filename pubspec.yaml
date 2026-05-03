@@ -18,6 +18,17 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/dahycompany.png
+  color_dark: "#1a1a1a"
+  image_dark: assets/dahycompany.png
+  android_12:
+    image: assets/dahycompany.png
+    image_dark: assets/dahycompany.png
+    icon_background_color: "#FFFFFF"
+    icon_background_color_dark: "#1a1a1a"
+
 environment:
   sdk: ^3.11.4
 
@@ -55,6 +66,8 @@ dependencies:
   open_file: ^3.5.11
   drift_flutter: ^0.2.8
 
+  flutter_native_splash: ^2.4.1
+
 dev_dependencies:
   build_runner: ^2.15.0
   drift_dev: ^2.31.0
@@ -81,10 +94,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  # Assets
+  assets:
+    - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
