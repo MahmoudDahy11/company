@@ -45,6 +45,23 @@ class ClientsRepositoryImpl implements ClientsRepository {
   );
 
   @override
+  Future<void> updateModel({
+    required int modelId,
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  }) => _localDataSource.updateModel(
+    modelId: modelId,
+    modelName: modelName,
+    pieceCount: pieceCount,
+    pricePerPiece: pricePerPiece,
+    date: date,
+    notes: notes,
+  );
+
+  @override
   Future<void> deleteModel(int modelId) =>
       _localDataSource.deleteModel(modelId);
 
@@ -56,6 +73,19 @@ class ClientsRepositoryImpl implements ClientsRepository {
     String? notes,
   }) => _localDataSource.addPayment(
     clientId: clientId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
+
+  @override
+  Future<void> updatePayment({
+    required int paymentId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) => _localDataSource.updatePayment(
+    paymentId: paymentId,
     amount: amount,
     paymentDate: paymentDate,
     notes: notes,

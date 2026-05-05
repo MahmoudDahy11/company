@@ -241,6 +241,60 @@ class WorkersLocalDataSource {
     });
   }
 
+  Future<void> addOrUpdateAdvance({
+    int? advanceId,
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      late final int id;
+      late final SyncQueueOperation operation;
+
+      if (advanceId == null) {
+        id = await _database
+            .into(_database.workerAdvances)
+            .insert(
+              WorkerAdvancesCompanion.insert(
+                workerId: workerId,
+                amount: amount,
+                date: date,
+                notes: Value(notes),
+              ),
+            );
+        operation = SyncQueueOperation.insert;
+      } else {
+        await (_database.update(
+          _database.workerAdvances,
+        )..where((table) => table.id.equals(advanceId))).write(
+          WorkerAdvancesCompanion(
+            workerId: Value(workerId),
+            amount: Value(amount),
+            date: Value(date),
+            notes: Value(notes),
+          ),
+        );
+        id = advanceId;
+        operation = SyncQueueOperation.update;
+      }
+
+      await _queueSync(
+        operation: operation,
+        tableName: 'worker_advances',
+        recordId: id,
+        payload: <String, dynamic>{
+          'id': id,
+          'workerId': workerId,
+          'amount': amount,
+          'date': date.toIso8601String(),
+          'notes': notes,
+          'carriedOver': false,
+        },
+      );
+    });
+  }
+
   Future<void> deleteAdvance(int advanceId) async {
     final existing = await (_database.select(
       _database.workerAdvances,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../domain/usecases/add_advance_usecase.dart';
+import '../../domain/usecases/add_or_update_advance_usecase.dart';
 import '../../domain/usecases/add_or_update_production_usecase.dart';
 import '../../domain/usecases/delete_advance_usecase.dart';
 import '../../domain/usecases/delete_production_usecase.dart';
@@ -18,6 +19,7 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     this._addOrUpdateProductionUseCase,
     this._deleteProductionUseCase,
     this._addAdvanceUseCase,
+    this._addOrUpdateAdvanceUseCase,
     this._deleteAdvanceUseCase,
     this._upsertAbsentDaysUseCase,
   ) : super(WorkerDetailsState.initial(0));
@@ -26,6 +28,7 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
   final AddOrUpdateProductionUseCase _addOrUpdateProductionUseCase;
   final DeleteProductionUseCase _deleteProductionUseCase;
   final AddAdvanceUseCase _addAdvanceUseCase;
+  final AddOrUpdateAdvanceUseCase _addOrUpdateAdvanceUseCase;
   final DeleteAdvanceUseCase _deleteAdvanceUseCase;
   final UpsertAbsentDaysUseCase _upsertAbsentDaysUseCase;
 
@@ -93,6 +96,21 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     String? notes,
   }) {
     return _addAdvanceUseCase(
+      workerId: state.workerId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  Future<void> saveAdvance({
+    int? advanceId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _addOrUpdateAdvanceUseCase(
+      advanceId: advanceId,
       workerId: state.workerId,
       amount: amount,
       date: date,

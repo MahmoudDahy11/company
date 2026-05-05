@@ -277,5 +277,15 @@
   "remainingOur": "المتبقي علينا",
   "last3Months": "آخر 3 شهور",
   "last6Months": "آخر 6 شهور",
-  "lastYear": "آخر سنة"
+  "lastYear": "آخر سنة",
+  "deleteProductionTitle": "حذف الإنتاج",
+  "confirmDeleteProduction": "هل تريد حذف سجل الإنتاج هذا؟",
+  "deleteAdvanceTitle": "حذف السلفة",
+  "confirmDeleteAdvance": "هل تريد حذف سجل السلفة هذا؟",
+  "editAdvance": "تعديل سلفة",
+  "editModel": "تعديل موديل",
+  "editPurchase": "تعديل شراء",
+  "editPayment": "تعديل دفعة",
+  "deletePurchaseTitle": "حذف الشراء",
+  "confirmDeletePurchase": "هل تريد حذف سجل الشراء هذا؟"
 }

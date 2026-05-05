@@ -569,4 +569,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lastYear => 'Last Year';
+
+  @override
+  String get deleteProductionTitle => 'Delete Production';
+
+  @override
+  String get confirmDeleteProduction =>
+      'Do you want to delete this production record?';
+
+  @override
+  String get deleteAdvanceTitle => 'Delete Advance';
+
+  @override
+  String get confirmDeleteAdvance =>
+      'Do you want to delete this advance record?';
+
+  @override
+  String get editAdvance => 'Edit Advance';
+
+  @override
+  String get editModel => 'Edit Model';
+
+  @override
+  String get editPurchase => 'Edit Purchase';
+
+  @override
+  String get editPayment => 'Edit Payment';
+
+  @override
+  String get deletePurchaseTitle => 'Delete Purchase';
+
+  @override
+  String get confirmDeletePurchase =>
+      'Do you want to delete this purchase record?';
 }

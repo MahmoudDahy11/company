@@ -69,6 +69,23 @@ class WorkersRepositoryImpl implements WorkersRepository {
   }
 
   @override
+  Future<void> addOrUpdateAdvance({
+    int? advanceId,
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _localDataSource.addOrUpdateAdvance(
+      advanceId: advanceId,
+      workerId: workerId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  @override
   Future<void> deleteAdvance(int advanceId) {
     return _localDataSource.deleteAdvance(advanceId);
   }

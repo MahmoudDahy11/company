@@ -8,6 +8,8 @@ import '../../domain/usecases/add_client_model_usecase.dart';
 import '../../domain/usecases/add_client_payment_usecase.dart';
 import '../../domain/usecases/delete_client_model_usecase.dart';
 import '../../domain/usecases/delete_client_payment_usecase.dart';
+import '../../domain/usecases/update_client_model_usecase.dart';
+import '../../domain/usecases/update_client_payment_usecase.dart';
 import '../../domain/usecases/watch_client_details_usecase.dart';
 import 'client_details_state.dart';
 
@@ -16,15 +18,19 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
   ClientDetailsCubit(
     this._watchClientDetailsUseCase,
     this._addClientModelUseCase,
+    this._updateClientModelUseCase,
     this._deleteClientModelUseCase,
     this._addClientPaymentUseCase,
+    this._updateClientPaymentUseCase,
     this._deleteClientPaymentUseCase,
   ) : super(ClientDetailsState.initial(0));
 
   final WatchClientDetailsUseCase _watchClientDetailsUseCase;
   final AddClientModelUseCase _addClientModelUseCase;
+  final UpdateClientModelUseCase _updateClientModelUseCase;
   final DeleteClientModelUseCase _deleteClientModelUseCase;
   final AddClientPaymentUseCase _addClientPaymentUseCase;
+  final UpdateClientPaymentUseCase _updateClientPaymentUseCase;
   final DeleteClientPaymentUseCase _deleteClientPaymentUseCase;
 
   StreamSubscription<ClientDetailsData>? _subscription;
@@ -75,6 +81,22 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
     notes: notes,
   );
 
+  Future<void> updateModel({
+    required int modelId,
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  }) => _updateClientModelUseCase(
+    modelId: modelId,
+    modelName: modelName,
+    pieceCount: pieceCount,
+    pricePerPiece: pricePerPiece,
+    date: date,
+    notes: notes,
+  );
+
   Future<void> deleteModel(int modelId) => _deleteClientModelUseCase(modelId);
 
   Future<void> addPayment({
@@ -83,6 +105,18 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
     String? notes,
   }) => _addClientPaymentUseCase(
     clientId: state.clientId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
+
+  Future<void> updatePayment({
+    required int paymentId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) => _updateClientPaymentUseCase(
+    paymentId: paymentId,
     amount: amount,
     paymentDate: paymentDate,
     notes: notes,

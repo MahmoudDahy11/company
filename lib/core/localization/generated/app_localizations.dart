@@ -1123,6 +1123,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last Year'**
   String get lastYear;
+
+  /// No description provided for @deleteProductionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Production'**
+  String get deleteProductionTitle;
+
+  /// No description provided for @confirmDeleteProduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this production record?'**
+  String get confirmDeleteProduction;
+
+  /// No description provided for @deleteAdvanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Advance'**
+  String get deleteAdvanceTitle;
+
+  /// No description provided for @confirmDeleteAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this advance record?'**
+  String get confirmDeleteAdvance;
+
+  /// No description provided for @editAdvance.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Advance'**
+  String get editAdvance;
+
+  /// No description provided for @editModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Model'**
+  String get editModel;
+
+  /// No description provided for @editPurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Purchase'**
+  String get editPurchase;
+
+  /// No description provided for @editPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Payment'**
+  String get editPayment;
+
+  /// No description provided for @deletePurchaseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Purchase'**
+  String get deletePurchaseTitle;
+
+  /// No description provided for @confirmDeletePurchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this purchase record?'**
+  String get confirmDeletePurchase;
 }
 
 class _AppLocalizationsDelegate

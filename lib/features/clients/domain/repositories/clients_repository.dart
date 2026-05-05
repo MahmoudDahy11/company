@@ -19,10 +19,26 @@ abstract class ClientsRepository {
     String? notes,
   });
 
+  Future<void> updateModel({
+    required int modelId,
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  });
+
   Future<void> deleteModel(int modelId);
 
   Future<void> addPayment({
     required int clientId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  });
+
+  Future<void> updatePayment({
+    required int paymentId,
     required double amount,
     required DateTime paymentDate,
     String? notes,

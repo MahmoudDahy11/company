@@ -160,6 +160,75 @@ class ThreadsLocalDataSource {
     });
   }
 
+  Future<void> addOrUpdatePurchase({
+    int? purchaseId,
+    required int supplierId,
+    required String itemName,
+    required String colorNumber,
+    required DateTime purchaseDate,
+    required double price,
+    required double quantity,
+    required String unit,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      late final int id;
+      late final SyncQueueOperation operation;
+
+      if (purchaseId == null) {
+        id = await _database
+            .into(_database.threadPurchases)
+            .insert(
+              ThreadPurchasesCompanion.insert(
+                supplierId: supplierId,
+                itemName: itemName.trim(),
+                colorNumber: colorNumber.trim(),
+                purchaseDate: purchaseDate,
+                price: price,
+                quantity: quantity,
+                unit: unit.trim(),
+                notes: Value(notes),
+              ),
+            );
+        operation = SyncQueueOperation.insert;
+      } else {
+        await (_database.update(
+          _database.threadPurchases,
+        )..where((table) => table.id.equals(purchaseId))).write(
+          ThreadPurchasesCompanion(
+            supplierId: Value(supplierId),
+            itemName: Value(itemName.trim()),
+            colorNumber: Value(colorNumber.trim()),
+            purchaseDate: Value(purchaseDate),
+            price: Value(price),
+            quantity: Value(quantity),
+            unit: Value(unit.trim()),
+            notes: Value(notes),
+          ),
+        );
+        id = purchaseId;
+        operation = SyncQueueOperation.update;
+      }
+
+      await _queueSync(
+        operation: operation,
+        tableName: 'thread_purchases',
+        recordId: id,
+        payload: <String, dynamic>{
+          'id': id,
+          'supplierId': supplierId,
+          'itemName': itemName.trim(),
+          'colorNumber': colorNumber.trim(),
+          'purchaseDate': purchaseDate.toIso8601String(),
+          'price': price,
+          'quantity': quantity,
+          'unit': unit.trim(),
+          'notes': notes,
+        },
+      );
+    });
+  }
+
   Future<void> deletePurchase(int purchaseId) async {
     await _database.transaction(() async {
       final row = await (_database.select(
@@ -202,6 +271,59 @@ class ThreadsLocalDataSource {
           );
       await _queueSync(
         operation: SyncQueueOperation.insert,
+        tableName: 'supplier_payments',
+        recordId: id,
+        payload: <String, dynamic>{
+          'id': id,
+          'supplierId': supplierId,
+          'amount': amount,
+          'paymentDate': paymentDate.toIso8601String(),
+          'notes': notes,
+        },
+      );
+    });
+  }
+
+  Future<void> addOrUpdatePayment({
+    int? paymentId,
+    required int supplierId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      late final int id;
+      late final SyncQueueOperation operation;
+
+      if (paymentId == null) {
+        id = await _database
+            .into(_database.supplierPayments)
+            .insert(
+              SupplierPaymentsCompanion.insert(
+                supplierId: supplierId,
+                amount: amount,
+                paymentDate: paymentDate,
+                notes: Value(notes),
+              ),
+            );
+        operation = SyncQueueOperation.insert;
+      } else {
+        await (_database.update(
+          _database.supplierPayments,
+        )..where((table) => table.id.equals(paymentId))).write(
+          SupplierPaymentsCompanion(
+            supplierId: Value(supplierId),
+            amount: Value(amount),
+            paymentDate: Value(paymentDate),
+            notes: Value(notes),
+          ),
+        );
+        id = paymentId;
+        operation = SyncQueueOperation.update;
+      }
+
+      await _queueSync(
+        operation: operation,
         tableName: 'supplier_payments',
         recordId: id,
         payload: <String, dynamic>{

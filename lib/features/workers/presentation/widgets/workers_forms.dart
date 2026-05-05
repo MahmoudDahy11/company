@@ -52,10 +52,13 @@ Future<ProductionFormResult?> showProductionSheet(
   );
 }
 
-Future<AdvanceFormResult?> showAdvanceSheet(BuildContext context) {
+Future<AdvanceFormResult?> showAdvanceSheet(
+  BuildContext context, {
+  AdvanceFormResult? initialValue,
+}) {
   return showAdaptiveWorkersSheet<AdvanceFormResult>(
     context: context,
-    child: const _AdvanceSheet(),
+    child: _AdvanceSheet(initialValue: initialValue),
   );
 }
 
@@ -88,11 +91,13 @@ class AdvanceFormResult {
     required this.date,
     required this.amount,
     this.notes,
+    this.advanceId,
   });
 
   final DateTime date;
   final double amount;
   final String? notes;
+  final int? advanceId;
 }
 
 class _WorkerNameSheet extends StatelessWidget {
@@ -252,17 +257,25 @@ class _ProductionSheet extends StatelessWidget {
 }
 
 class _AdvanceSheet extends StatelessWidget {
-  const _AdvanceSheet();
+  const _AdvanceSheet({this.initialValue});
+
+  final AdvanceFormResult? initialValue;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
-    final amountController = TextEditingController();
-    final notesController = TextEditingController();
+    final dateNotifier = ValueNotifier<DateTime>(
+      initialValue?.date ?? DateTime.now(),
+    );
+    final amountController = TextEditingController(
+      text: initialValue?.amount.toString() ?? '',
+    );
+    final notesController = TextEditingController(
+      text: initialValue?.notes ?? '',
+    );
 
     return _SheetScaffold(
-      title: l10n.addAdvance,
+      title: initialValue == null ? l10n.addAdvance : l10n.editAdvance,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -307,6 +320,7 @@ class _AdvanceSheet extends StatelessWidget {
                 if (amount != null) {
                   Navigator.of(context).pop(
                     AdvanceFormResult(
+                      advanceId: initialValue?.advanceId,
                       date: dateNotifier.value,
                       amount: amount,
                       notes: notesController.text.trim().isEmpty

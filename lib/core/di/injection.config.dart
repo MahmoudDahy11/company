@@ -42,6 +42,10 @@ import 'package:company/features/clients/domain/usecases/delete_client_payment_u
     as _i740;
 import 'package:company/features/clients/domain/usecases/delete_client_usecase.dart'
     as _i502;
+import 'package:company/features/clients/domain/usecases/update_client_model_usecase.dart'
+    as _i924;
+import 'package:company/features/clients/domain/usecases/update_client_payment_usecase.dart'
+    as _i213;
 import 'package:company/features/clients/domain/usecases/watch_client_details_usecase.dart'
     as _i222;
 import 'package:company/features/clients/domain/usecases/watch_clients_usecase.dart'
@@ -66,6 +70,10 @@ import 'package:company/features/threads/data/repositories/threads_repository_im
     as _i424;
 import 'package:company/features/threads/domain/repositories/threads_repository.dart'
     as _i552;
+import 'package:company/features/threads/domain/usecases/add_or_update_purchase_usecase.dart'
+    as _i852;
+import 'package:company/features/threads/domain/usecases/add_or_update_supplier_payment_usecase.dart'
+    as _i795;
 import 'package:company/features/threads/domain/usecases/add_purchase_usecase.dart'
     as _i212;
 import 'package:company/features/threads/domain/usecases/add_supplier_payment_usecase.dart'
@@ -120,6 +128,8 @@ import 'package:company/features/workers/domain/repositories/workers_repository.
     as _i1023;
 import 'package:company/features/workers/domain/usecases/add_advance_usecase.dart'
     as _i454;
+import 'package:company/features/workers/domain/usecases/add_or_update_advance_usecase.dart'
+    as _i230;
 import 'package:company/features/workers/domain/usecases/add_or_update_production_usecase.dart'
     as _i663;
 import 'package:company/features/workers/domain/usecases/add_worker_usecase.dart'
@@ -234,6 +244,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i454.AddAdvanceUseCase>(
       () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),
     );
+    gh.factory<_i230.AddOrUpdateAdvanceUseCase>(
+      () => _i230.AddOrUpdateAdvanceUseCase(gh<_i1023.WorkersRepository>()),
+    );
     gh.factory<_i663.AddOrUpdateProductionUseCase>(
       () => _i663.AddOrUpdateProductionUseCase(gh<_i1023.WorkersRepository>()),
     );
@@ -281,16 +294,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i216.RemoteSyncApplier>(),
       ),
     );
-    gh.factory<_i105.WorkerDetailsCubit>(
-      () => _i105.WorkerDetailsCubit(
-        gh<_i455.WatchWorkerDetailsUseCase>(),
-        gh<_i663.AddOrUpdateProductionUseCase>(),
-        gh<_i970.DeleteProductionUseCase>(),
-        gh<_i454.AddAdvanceUseCase>(),
-        gh<_i1064.DeleteAdvanceUseCase>(),
-        gh<_i704.UpsertAbsentDaysUseCase>(),
-      ),
-    );
     gh.factory<_i238.AddClientModelUseCase>(
       () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
     );
@@ -309,11 +312,25 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i502.DeleteClientUseCase>(
       () => _i502.DeleteClientUseCase(gh<_i836.ClientsRepository>()),
     );
+    gh.factory<_i924.UpdateClientModelUseCase>(
+      () => _i924.UpdateClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i213.UpdateClientPaymentUseCase>(
+      () => _i213.UpdateClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
     gh.factory<_i222.WatchClientDetailsUseCase>(
       () => _i222.WatchClientDetailsUseCase(gh<_i836.ClientsRepository>()),
     );
     gh.factory<_i615.WatchClientsUseCase>(
       () => _i615.WatchClientsUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i852.AddOrUpdatePurchaseUseCase>(
+      () => _i852.AddOrUpdatePurchaseUseCase(gh<_i552.ThreadsRepository>()),
+    );
+    gh.factory<_i795.AddOrUpdateSupplierPaymentUseCase>(
+      () => _i795.AddOrUpdateSupplierPaymentUseCase(
+        gh<_i552.ThreadsRepository>(),
+      ),
     );
     gh.factory<_i212.AddPurchaseUseCase>(
       () => _i212.AddPurchaseUseCase(gh<_i552.ThreadsRepository>()),
@@ -342,6 +359,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i824.WatchThreadsOverviewUseCase>(
       () => _i824.WatchThreadsOverviewUseCase(gh<_i552.ThreadsRepository>()),
     );
+    gh.factory<_i850.SupplierDetailsCubit>(
+      () => _i850.SupplierDetailsCubit(
+        gh<_i233.WatchSupplierDetailsUseCase>(),
+        gh<_i212.AddPurchaseUseCase>(),
+        gh<_i852.AddOrUpdatePurchaseUseCase>(),
+        gh<_i1059.DeletePurchaseUseCase>(),
+        gh<_i896.AddSupplierPaymentUseCase>(),
+        gh<_i795.AddOrUpdateSupplierPaymentUseCase>(),
+        gh<_i970.DeleteSupplierPaymentUseCase>(),
+      ),
+    );
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
@@ -363,13 +391,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
     );
-    gh.factory<_i177.ClientDetailsCubit>(
-      () => _i177.ClientDetailsCubit(
-        gh<_i222.WatchClientDetailsUseCase>(),
-        gh<_i238.AddClientModelUseCase>(),
-        gh<_i686.DeleteClientModelUseCase>(),
-        gh<_i971.AddClientPaymentUseCase>(),
-        gh<_i740.DeleteClientPaymentUseCase>(),
+    gh.factory<_i105.WorkerDetailsCubit>(
+      () => _i105.WorkerDetailsCubit(
+        gh<_i455.WatchWorkerDetailsUseCase>(),
+        gh<_i663.AddOrUpdateProductionUseCase>(),
+        gh<_i970.DeleteProductionUseCase>(),
+        gh<_i454.AddAdvanceUseCase>(),
+        gh<_i230.AddOrUpdateAdvanceUseCase>(),
+        gh<_i1064.DeleteAdvanceUseCase>(),
+        gh<_i704.UpsertAbsentDaysUseCase>(),
       ),
     );
     gh.factory<_i416.ClientsCubit>(
@@ -379,20 +409,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i502.DeleteClientUseCase>(),
       ),
     );
-    gh.factory<_i850.SupplierDetailsCubit>(
-      () => _i850.SupplierDetailsCubit(
-        gh<_i233.WatchSupplierDetailsUseCase>(),
-        gh<_i212.AddPurchaseUseCase>(),
-        gh<_i1059.DeletePurchaseUseCase>(),
-        gh<_i896.AddSupplierPaymentUseCase>(),
-        gh<_i970.DeleteSupplierPaymentUseCase>(),
-      ),
-    );
     gh.factory<_i411.WomenStaffCubit>(
       () => _i411.WomenStaffCubit(
         gh<_i829.WatchStaffUseCase>(),
         gh<_i361.AddStaffUseCase>(),
         gh<_i166.DeleteStaffUseCase>(),
+      ),
+    );
+    gh.factory<_i177.ClientDetailsCubit>(
+      () => _i177.ClientDetailsCubit(
+        gh<_i222.WatchClientDetailsUseCase>(),
+        gh<_i238.AddClientModelUseCase>(),
+        gh<_i924.UpdateClientModelUseCase>(),
+        gh<_i686.DeleteClientModelUseCase>(),
+        gh<_i971.AddClientPaymentUseCase>(),
+        gh<_i213.UpdateClientPaymentUseCase>(),
+        gh<_i740.DeleteClientPaymentUseCase>(),
       ),
     );
     gh.factory<_i922.StaffDetailsCubit>(

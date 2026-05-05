@@ -121,6 +121,48 @@ class ClientsLocalDataSource {
     });
   }
 
+  Future<void> updateModel({
+    required int modelId,
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      final existing = await (_database.select(
+        _database.clientModels,
+      )..where((t) => t.id.equals(modelId))).getSingleOrNull();
+      if (existing == null) return;
+
+      await (_database.update(
+        _database.clientModels,
+      )..where((t) => t.id.equals(modelId))).write(
+        ClientModelsCompanion(
+          modelName: Value(modelName.trim()),
+          pieceCount: Value(pieceCount),
+          pricePerPiece: Value(pricePerPiece),
+          date: Value(date),
+          notes: Value(notes),
+        ),
+      );
+      await _queueSync(
+        operation: SyncQueueOperation.update,
+        tableName: 'client_models',
+        recordId: modelId,
+        payload: <String, dynamic>{
+          'id': modelId,
+          'clientId': existing.clientId,
+          'modelName': modelName.trim(),
+          'pieceCount': pieceCount,
+          'pricePerPiece': pricePerPiece,
+          'date': date.toIso8601String(),
+          'notes': notes,
+        },
+      );
+    });
+  }
+
   Future<void> deleteModel(int modelId) async {
     await _database.transaction(() async {
       final row = await (_database.select(
@@ -165,6 +207,42 @@ class ClientsLocalDataSource {
         payload: <String, dynamic>{
           'id': id,
           'clientId': clientId,
+          'amount': amount,
+          'paymentDate': paymentDate.toIso8601String(),
+          'notes': notes,
+        },
+      );
+    });
+  }
+
+  Future<void> updatePayment({
+    required int paymentId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      final existing = await (_database.select(
+        _database.clientPayments,
+      )..where((t) => t.id.equals(paymentId))).getSingleOrNull();
+      if (existing == null) return;
+
+      await (_database.update(
+        _database.clientPayments,
+      )..where((t) => t.id.equals(paymentId))).write(
+        ClientPaymentsCompanion(
+          amount: Value(amount),
+          paymentDate: Value(paymentDate),
+          notes: Value(notes),
+        ),
+      );
+      await _queueSync(
+        operation: SyncQueueOperation.update,
+        tableName: 'client_payments',
+        recordId: paymentId,
+        payload: <String, dynamic>{
+          'id': paymentId,
+          'clientId': existing.clientId,
           'amount': amount,
           'paymentDate': paymentDate.toIso8601String(),
           'notes': notes,

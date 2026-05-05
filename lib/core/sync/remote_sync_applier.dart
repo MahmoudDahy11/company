@@ -50,7 +50,6 @@ class RemoteSyncApplier {
       });
     } catch (e) {
       // Log error but don't throw - we want to continue syncing
-      // TODO: Add error logging
     }
   }
 

@@ -144,7 +144,8 @@ class _WorkerDetailsView extends StatelessWidget {
     if (result == null || !context.mounted) {
       return;
     }
-    await context.read<WorkerDetailsCubit>().addAdvance(
+    await context.read<WorkerDetailsCubit>().saveAdvance(
+      advanceId: result.advanceId,
       amount: result.amount,
       date: result.date,
       notes: result.notes,
@@ -315,9 +316,37 @@ class _ProductionTab extends StatelessWidget {
                             visualDensity: VisualDensity.compact,
                           ),
                           IconButton(
-                            onPressed: () => context
-                                .read<WorkerDetailsCubit>()
-                                .deleteProduction(item.id),
+                            onPressed: () async {
+                              final l10n = AppLocalizations.of(context)!;
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(l10n.deleteProductionTitle),
+                                  content: Text(l10n.confirmDeleteProduction),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                      ),
+                                      child: Text(l10n.delete),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true && context.mounted) {
+                                context
+                                    .read<WorkerDetailsCubit>()
+                                    .deleteProduction(item.id);
+                              }
+                            },
                             icon: const Icon(Icons.delete_outline, size: 20),
                             visualDensity: VisualDensity.compact,
                           ),
@@ -397,12 +426,78 @@ class _AdvancesTab extends StatelessWidget {
                               label: Text(l10n.carryOver),
                               visualDensity: VisualDensity.compact,
                             )
-                          : IconButton(
-                              onPressed: () => context
-                                  .read<WorkerDetailsCubit>()
-                                  .deleteAdvance(item.id),
-                              icon: const Icon(Icons.delete_outline, size: 20),
-                              visualDensity: VisualDensity.compact,
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () async {
+                                    final result = await showAdvanceSheet(
+                                      context,
+                                      initialValue: AdvanceFormResult(
+                                        advanceId: item.id,
+                                        date: item.date,
+                                        amount: item.amount,
+                                        notes: item.notes,
+                                      ),
+                                    );
+                                    if (result == null || !context.mounted) {
+                                      return;
+                                    }
+                                    await context
+                                        .read<WorkerDetailsCubit>()
+                                        .saveAdvance(
+                                          advanceId: item.id,
+                                          amount: result.amount,
+                                          date: result.date,
+                                          notes: result.notes,
+                                        );
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                                IconButton(
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: Text(l10n.deleteAdvanceTitle),
+                                        content: Text(
+                                          l10n.confirmDeleteAdvance,
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: Text(l10n.cancel),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            style: TextButton.styleFrom(
+                                              foregroundColor: Colors.red,
+                                            ),
+                                            child: Text(l10n.delete),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (confirm == true && context.mounted) {
+                                      context
+                                          .read<WorkerDetailsCubit>()
+                                          .deleteAdvance(item.id);
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    size: 20,
+                                  ),
+                                  visualDensity: VisualDensity.compact,
+                                ),
+                              ],
                             ),
                     ),
                   ],

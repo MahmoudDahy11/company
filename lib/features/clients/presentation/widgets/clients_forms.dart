@@ -56,11 +56,13 @@ class ClientPaymentFormResult {
     required this.amount,
     required this.paymentDate,
     this.notes,
+    this.paymentId,
   });
 
   final double amount;
   final DateTime paymentDate;
   final String? notes;
+  final int? paymentId;
 }
 
 Future<ClientFormResult?> showClientSheet(BuildContext context) {
@@ -77,10 +79,13 @@ Future<ClientModelFormResult?> showClientModelSheet(BuildContext context) {
   );
 }
 
-Future<ClientPaymentFormResult?> showClientPaymentSheet(BuildContext context) {
+Future<ClientPaymentFormResult?> showClientPaymentSheet(
+  BuildContext context, {
+  ClientPaymentFormResult? initialValue,
+}) {
   return showAdaptiveClientsSheet<ClientPaymentFormResult>(
     context: context,
-    child: const _ClientPaymentSheet(),
+    child: _ClientPaymentSheet(initialValue: initialValue),
   );
 }
 
@@ -223,17 +228,25 @@ class _ClientModelSheet extends StatelessWidget {
 }
 
 class _ClientPaymentSheet extends StatelessWidget {
-  const _ClientPaymentSheet();
+  const _ClientPaymentSheet({this.initialValue});
+
+  final ClientPaymentFormResult? initialValue;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final amountController = TextEditingController();
-    final notesController = TextEditingController();
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+    final amountController = TextEditingController(
+      text: initialValue?.amount.toString() ?? '',
+    );
+    final notesController = TextEditingController(
+      text: initialValue?.notes ?? '',
+    );
+    final dateNotifier = ValueNotifier<DateTime>(
+      initialValue?.paymentDate ?? DateTime.now(),
+    );
 
     return _ClientsSheetScaffold(
-      title: l10n.addPayment,
+      title: initialValue == null ? l10n.addPayment : l10n.editPayment,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -277,6 +290,7 @@ class _ClientPaymentSheet extends StatelessWidget {
                 if (amount != null) {
                   Navigator.of(context).pop(
                     ClientPaymentFormResult(
+                      paymentId: initialValue?.paymentId,
                       amount: amount,
                       paymentDate: dateNotifier.value,
                       notes: notesController.text.trim().isEmpty

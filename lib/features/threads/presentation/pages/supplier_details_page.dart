@@ -222,12 +222,77 @@ class _PurchasesTab extends StatelessWidget {
                       ),
                     ),
                     DataCell(
-                      IconButton(
-                        onPressed: () => context
-                            .read<SupplierDetailsCubit>()
-                            .deletePurchase(item.id),
-                        icon: const Icon(Icons.delete_outline, size: 20),
-                        visualDensity: VisualDensity.compact,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              final result = await showPurchaseSheet(
+                                context,
+                                initialValue: PurchaseFormResult(
+                                  purchaseId: item.id,
+                                  itemName: item.itemName,
+                                  colorNumber: item.colorNumber,
+                                  purchaseDate: item.purchaseDate,
+                                  price: item.price,
+                                  quantity: item.quantity,
+                                  unit: item.unit,
+                                  notes: item.notes,
+                                ),
+                              );
+                              if (result != null && context.mounted) {
+                                await context
+                                    .read<SupplierDetailsCubit>()
+                                    .updatePurchase(
+                                      purchaseId: item.id,
+                                      itemName: result.itemName,
+                                      colorNumber: result.colorNumber,
+                                      purchaseDate: result.purchaseDate,
+                                      price: result.price,
+                                      quantity: result.quantity,
+                                      unit: result.unit,
+                                      notes: result.notes,
+                                    );
+                              }
+                            },
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(l10n.deletePurchaseTitle),
+                                  content: Text(l10n.confirmDeletePurchase),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                      ),
+                                      child: Text(l10n.delete),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true && context.mounted) {
+                                context
+                                    .read<SupplierDetailsCubit>()
+                                    .deletePurchase(item.id);
+                              }
+                            },
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -310,12 +375,73 @@ class _PaymentsTab extends StatelessWidget {
                       ),
                     ),
                     DataCell(
-                      IconButton(
-                        onPressed: () => context
-                            .read<SupplierDetailsCubit>()
-                            .deletePayment(item.id),
-                        icon: const Icon(Icons.delete_outline, size: 20),
-                        visualDensity: VisualDensity.compact,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              final result = await showSupplierPaymentSheet(
+                                context,
+                                initialValue: SupplierPaymentFormResult(
+                                  paymentId: item.id,
+                                  amount: item.amount,
+                                  paymentDate: item.paymentDate,
+                                  notes: item.notes,
+                                ),
+                              );
+                              if (result != null && context.mounted) {
+                                await context
+                                    .read<SupplierDetailsCubit>()
+                                    .updatePayment(
+                                      paymentId: item.id,
+                                      amount: result.amount,
+                                      paymentDate: result.paymentDate,
+                                      notes: result.notes,
+                                    );
+                              }
+                            },
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(l10n.deletePaymentTitle),
+                                  content: Text(
+                                    l10n.confirmDeletePayment(
+                                      currency.format(item.amount),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                      ),
+                                      child: Text(l10n.delete),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true && context.mounted) {
+                                context
+                                    .read<SupplierDetailsCubit>()
+                                    .deletePayment(item.id);
+                              }
+                            },
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
                       ),
                     ),
                   ],

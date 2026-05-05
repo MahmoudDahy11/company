@@ -27,6 +27,14 @@ abstract class WorkersRepository {
     String? notes,
   });
 
+  Future<void> addOrUpdateAdvance({
+    int? advanceId,
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  });
+
   Future<void> deleteAdvance(int advanceId);
 
   Future<void> upsertAbsentDays({

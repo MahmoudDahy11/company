@@ -56,6 +56,29 @@ class ThreadsRepositoryImpl implements ThreadsRepository {
   );
 
   @override
+  Future<void> addOrUpdatePurchase({
+    int? purchaseId,
+    required int supplierId,
+    required String itemName,
+    required String colorNumber,
+    required DateTime purchaseDate,
+    required double price,
+    required double quantity,
+    required String unit,
+    String? notes,
+  }) => _localDataSource.addOrUpdatePurchase(
+    purchaseId: purchaseId,
+    supplierId: supplierId,
+    itemName: itemName,
+    colorNumber: colorNumber,
+    purchaseDate: purchaseDate,
+    price: price,
+    quantity: quantity,
+    unit: unit,
+    notes: notes,
+  );
+
+  @override
   Future<void> deletePurchase(int purchaseId) =>
       _localDataSource.deletePurchase(purchaseId);
 
@@ -66,6 +89,21 @@ class ThreadsRepositoryImpl implements ThreadsRepository {
     required DateTime paymentDate,
     String? notes,
   }) => _localDataSource.addPayment(
+    supplierId: supplierId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
+
+  @override
+  Future<void> addOrUpdatePayment({
+    int? paymentId,
+    required int supplierId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) => _localDataSource.addOrUpdatePayment(
+    paymentId: paymentId,
     supplierId: supplierId,
     amount: amount,
     paymentDate: paymentDate,

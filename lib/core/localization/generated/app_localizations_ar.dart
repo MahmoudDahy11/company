@@ -568,4 +568,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get lastYear => 'آخر سنة';
+
+  @override
+  String get deleteProductionTitle => 'حذف الإنتاج';
+
+  @override
+  String get confirmDeleteProduction => 'هل تريد حذف سجل الإنتاج هذا؟';
+
+  @override
+  String get deleteAdvanceTitle => 'حذف السلفة';
+
+  @override
+  String get confirmDeleteAdvance => 'هل تريد حذف سجل السلفة هذا؟';
+
+  @override
+  String get editAdvance => 'تعديل سلفة';
+
+  @override
+  String get editModel => 'تعديل موديل';
+
+  @override
+  String get editPurchase => 'تعديل شراء';
+
+  @override
+  String get editPayment => 'تعديل دفعة';
+
+  @override
+  String get deletePurchaseTitle => 'حذف الشراء';
+
+  @override
+  String get confirmDeletePurchase => 'هل تريد حذف سجل الشراء هذا؟';
 }

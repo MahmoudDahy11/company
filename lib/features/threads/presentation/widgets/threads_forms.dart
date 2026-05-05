@@ -44,6 +44,7 @@ class PurchaseFormResult {
     required this.quantity,
     required this.unit,
     this.notes,
+    this.purchaseId,
   });
 
   final String itemName;
@@ -53,6 +54,7 @@ class PurchaseFormResult {
   final double quantity;
   final String unit;
   final String? notes;
+  final int? purchaseId;
 }
 
 class SupplierPaymentFormResult {
@@ -60,11 +62,13 @@ class SupplierPaymentFormResult {
     required this.amount,
     required this.paymentDate,
     this.notes,
+    this.paymentId,
   });
 
   final double amount;
   final DateTime paymentDate;
   final String? notes;
+  final int? paymentId;
 }
 
 Future<SupplierFormResult?> showSupplierSheet(BuildContext context) {
@@ -74,19 +78,23 @@ Future<SupplierFormResult?> showSupplierSheet(BuildContext context) {
   );
 }
 
-Future<PurchaseFormResult?> showPurchaseSheet(BuildContext context) {
+Future<PurchaseFormResult?> showPurchaseSheet(
+  BuildContext context, {
+  PurchaseFormResult? initialValue,
+}) {
   return showAdaptiveThreadsSheet<PurchaseFormResult>(
     context: context,
-    child: const _PurchaseSheet(),
+    child: _PurchaseSheet(initialValue: initialValue),
   );
 }
 
 Future<SupplierPaymentFormResult?> showSupplierPaymentSheet(
-  BuildContext context,
-) {
+  BuildContext context, {
+  SupplierPaymentFormResult? initialValue,
+}) {
   return showAdaptiveThreadsSheet<SupplierPaymentFormResult>(
     context: context,
-    child: const _SupplierPaymentSheet(),
+    child: _SupplierPaymentSheet(initialValue: initialValue),
   );
 }
 
@@ -138,21 +146,37 @@ class _SupplierSheet extends StatelessWidget {
 }
 
 class _PurchaseSheet extends StatelessWidget {
-  const _PurchaseSheet();
+  const _PurchaseSheet({this.initialValue});
+
+  final PurchaseFormResult? initialValue;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final itemController = TextEditingController();
-    final colorController = TextEditingController();
-    final priceController = TextEditingController();
-    final quantityController = TextEditingController();
-    final unitController = TextEditingController();
-    final notesController = TextEditingController();
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+    final itemController = TextEditingController(
+      text: initialValue?.itemName ?? '',
+    );
+    final colorController = TextEditingController(
+      text: initialValue?.colorNumber ?? '',
+    );
+    final priceController = TextEditingController(
+      text: initialValue?.price.toString() ?? '',
+    );
+    final quantityController = TextEditingController(
+      text: initialValue?.quantity.toString() ?? '',
+    );
+    final unitController = TextEditingController(
+      text: initialValue?.unit ?? '',
+    );
+    final notesController = TextEditingController(
+      text: initialValue?.notes ?? '',
+    );
+    final dateNotifier = ValueNotifier<DateTime>(
+      initialValue?.purchaseDate ?? DateTime.now(),
+    );
 
     return _ThreadsSheetScaffold(
-      title: l10n.addPurchase,
+      title: initialValue == null ? l10n.addPurchase : l10n.editPurchase,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -224,6 +248,7 @@ class _PurchaseSheet extends StatelessWidget {
                     quantity != null) {
                   Navigator.of(context).pop(
                     PurchaseFormResult(
+                      purchaseId: initialValue?.purchaseId,
                       itemName: itemController.text.trim(),
                       colorNumber: colorController.text.trim(),
                       purchaseDate: dateNotifier.value,
@@ -247,17 +272,25 @@ class _PurchaseSheet extends StatelessWidget {
 }
 
 class _SupplierPaymentSheet extends StatelessWidget {
-  const _SupplierPaymentSheet();
+  const _SupplierPaymentSheet({this.initialValue});
+
+  final SupplierPaymentFormResult? initialValue;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final amountController = TextEditingController();
-    final notesController = TextEditingController();
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+    final amountController = TextEditingController(
+      text: initialValue?.amount.toString() ?? '',
+    );
+    final notesController = TextEditingController(
+      text: initialValue?.notes ?? '',
+    );
+    final dateNotifier = ValueNotifier<DateTime>(
+      initialValue?.paymentDate ?? DateTime.now(),
+    );
 
     return _ThreadsSheetScaffold(
-      title: l10n.addPayment,
+      title: initialValue == null ? l10n.addPayment : l10n.editPayment,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -301,6 +334,7 @@ class _SupplierPaymentSheet extends StatelessWidget {
                 if (amount != null) {
                   Navigator.of(context).pop(
                     SupplierPaymentFormResult(
+                      paymentId: initialValue?.paymentId,
                       amount: amount,
                       paymentDate: dateNotifier.value,
                       notes: notesController.text.trim().isEmpty
