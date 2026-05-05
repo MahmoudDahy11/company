@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../../../core/utils/input_validator.dart';
 
 Future<T?> showAdaptiveThreadsSheet<T>({
   required BuildContext context,
@@ -98,277 +99,368 @@ Future<SupplierPaymentFormResult?> showSupplierPaymentSheet(
   );
 }
 
-class _SupplierSheet extends StatelessWidget {
+class _SupplierSheet extends StatefulWidget {
   const _SupplierSheet();
+
+  @override
+  State<_SupplierSheet> createState() => _SupplierSheetState();
+}
+
+class _SupplierSheetState extends State<_SupplierSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
 
     return _ThreadsSheetScaffold(
       title: l10n.addSupplier,
-      child: Column(
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(labelText: l10n.supplierName),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: phoneController,
-            decoration: InputDecoration(labelText: l10n.phoneNumber),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                if (nameController.text.trim().isNotEmpty) {
-                  Navigator.of(context).pop(
-                    SupplierFormResult(
-                      name: nameController.text.trim(),
-                      phone: phoneController.text.trim().isEmpty
-                          ? null
-                          : phoneController.text.trim(),
-                    ),
-                  );
-                }
-              },
-              child: Text(l10n.save),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: l10n.supplierName),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: l10n.phoneNumber),
+              keyboardType: TextInputType.phone,
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        SupplierFormResult(
+          name: _nameController.text.trim(),
+          phone: _phoneController.text.trim().isEmpty
+              ? null
+              : _phoneController.text.trim(),
+        ),
+      );
+    }
+  }
 }
 
-class _PurchaseSheet extends StatelessWidget {
+class _PurchaseSheet extends StatefulWidget {
   const _PurchaseSheet({this.initialValue});
 
   final PurchaseFormResult? initialValue;
 
   @override
+  State<_PurchaseSheet> createState() => _PurchaseSheetState();
+}
+
+class _PurchaseSheetState extends State<_PurchaseSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _itemController;
+  late final TextEditingController _colorController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _quantityController;
+  late final TextEditingController _unitController;
+  late final TextEditingController _notesController;
+  late final ValueNotifier<DateTime> _dateNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _itemController = TextEditingController(
+      text: widget.initialValue?.itemName ?? '',
+    );
+    _colorController = TextEditingController(
+      text: widget.initialValue?.colorNumber ?? '',
+    );
+    _priceController = TextEditingController(
+      text: widget.initialValue?.price.toString() ?? '',
+    );
+    _quantityController = TextEditingController(
+      text: widget.initialValue?.quantity.toString() ?? '',
+    );
+    _unitController = TextEditingController(
+      text: widget.initialValue?.unit ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.purchaseDate ?? DateTime.now(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _itemController.dispose();
+    _colorController.dispose();
+    _priceController.dispose();
+    _quantityController.dispose();
+    _unitController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final itemController = TextEditingController(
-      text: initialValue?.itemName ?? '',
-    );
-    final colorController = TextEditingController(
-      text: initialValue?.colorNumber ?? '',
-    );
-    final priceController = TextEditingController(
-      text: initialValue?.price.toString() ?? '',
-    );
-    final quantityController = TextEditingController(
-      text: initialValue?.quantity.toString() ?? '',
-    );
-    final unitController = TextEditingController(
-      text: initialValue?.unit ?? '',
-    );
-    final notesController = TextEditingController(
-      text: initialValue?.notes ?? '',
-    );
-    final dateNotifier = ValueNotifier<DateTime>(
-      initialValue?.purchaseDate ?? DateTime.now(),
-    );
 
     return _ThreadsSheetScaffold(
-      title: initialValue == null ? l10n.addPurchase : l10n.editPurchase,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) {
-                    dateNotifier.value = picked;
-                  }
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: itemController,
-            decoration: InputDecoration(labelText: l10n.itemType),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: colorController,
-            decoration: InputDecoration(labelText: l10n.colorNumber),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: priceController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.price),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: quantityController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.quantity),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: unitController,
-            decoration: InputDecoration(labelText: l10n.unit),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final price = double.tryParse(priceController.text.trim());
-                final quantity = double.tryParse(
-                  quantityController.text.trim(),
-                );
-
-                if (itemController.text.trim().isEmpty ||
-                    colorController.text.trim().isEmpty ||
-                    unitController.text.trim().isEmpty) {
-                  return;
-                }
-
-                if (price == null || price <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.priceMustBePositive)),
-                  );
-                  return;
-                }
-
-                if (quantity == null || quantity <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.quantityMustBePositive)),
-                  );
-                  return;
-                }
-
-                Navigator.of(context).pop(
-                  PurchaseFormResult(
-                    purchaseId: initialValue?.purchaseId,
-                    itemName: itemController.text.trim(),
-                    colorNumber: colorController.text.trim(),
-                    purchaseDate: dateNotifier.value,
-                    price: price,
-                    quantity: quantity,
-                    unit: unitController.text.trim(),
-                    notes: notesController.text.trim().isEmpty
-                        ? null
-                        : notesController.text.trim(),
-                  ),
+      title: widget.initialValue == null ? l10n.addPurchase : l10n.editPurchase,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
                 );
               },
-              child: Text(l10n.save),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _itemController,
+              decoration: InputDecoration(labelText: l10n.itemType),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _colorController,
+              decoration: InputDecoration(labelText: l10n.colorNumber),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _priceController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.price),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _quantityController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.quantity),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _unitController,
+              decoration: InputDecoration(labelText: l10n.unit),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        PurchaseFormResult(
+          purchaseId: widget.initialValue?.purchaseId,
+          itemName: _itemController.text.trim(),
+          colorNumber: _colorController.text.trim(),
+          purchaseDate: _dateNotifier.value,
+          price: double.parse(_priceController.text.trim()),
+          quantity: double.parse(_quantityController.text.trim()),
+          unit: _unitController.text.trim(),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
+  }
 }
 
-class _SupplierPaymentSheet extends StatelessWidget {
+class _SupplierPaymentSheet extends StatefulWidget {
   const _SupplierPaymentSheet({this.initialValue});
 
   final SupplierPaymentFormResult? initialValue;
 
   @override
+  State<_SupplierPaymentSheet> createState() => _SupplierPaymentSheetState();
+}
+
+class _SupplierPaymentSheetState extends State<_SupplierPaymentSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _amountController;
+  late final TextEditingController _notesController;
+  late final ValueNotifier<DateTime> _dateNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController(
+      text: widget.initialValue?.amount.toString() ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.paymentDate ?? DateTime.now(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final amountController = TextEditingController(
-      text: initialValue?.amount.toString() ?? '',
-    );
-    final notesController = TextEditingController(
-      text: initialValue?.notes ?? '',
-    );
-    final dateNotifier = ValueNotifier<DateTime>(
-      initialValue?.paymentDate ?? DateTime.now(),
-    );
 
     return _ThreadsSheetScaffold(
-      title: initialValue == null ? l10n.addPayment : l10n.editPayment,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) {
-                    dateNotifier.value = picked;
-                  }
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.amount),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final amount = double.tryParse(amountController.text.trim());
-                if (amount == null || amount <= 0) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(l10n.amountMustBePositive)),
-                  );
-                  return;
-                }
-                Navigator.of(context).pop(
-                  SupplierPaymentFormResult(
-                    paymentId: initialValue?.paymentId,
-                    amount: amount,
-                    paymentDate: dateNotifier.value,
-                    notes: notesController.text.trim().isEmpty
-                        ? null
-                        : notesController.text.trim(),
-                  ),
+      title: widget.initialValue == null ? l10n.addPayment : l10n.editPayment,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
                 );
               },
-              child: Text(l10n.save),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.amount),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        SupplierPaymentFormResult(
+          paymentId: widget.initialValue?.paymentId,
+          amount: double.parse(_amountController.text.trim()),
+          paymentDate: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
   }
 }
 

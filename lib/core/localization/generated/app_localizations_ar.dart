@@ -607,4 +607,29 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get amountMustBePositive => 'يجب أن يكون المبلغ أكبر من 0';
+
+  @override
+  String get invalidEmail => 'يرجى إدخال بريد إلكتروني صالح';
+
+  @override
+  String get passwordTooShort => 'يجب أن تكون كلمة المرور 8 أحرف على الأقل';
+
+  @override
+  String get passwordTooWeak => 'يجب أن تحتوي كلمة المرور على حرف كبير ورقم';
+
+  @override
+  String get invalidPhone => 'يرجى إدخال رقم هاتف صالح';
+
+  @override
+  String get invalidNumber => 'يرجى إدخال رقم صالح';
+
+  @override
+  String valueTooSmall(Object min) {
+    return 'القيمة يجب أن تكون على الأقل $min';
+  }
+
+  @override
+  String valueTooLarge(Object max) {
+    return 'القيمة يجب ألا تزيد عن $max';
+  }
 }

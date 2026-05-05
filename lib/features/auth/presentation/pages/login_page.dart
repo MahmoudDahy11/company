@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../../../core/utils/input_validator.dart';
 import '../bloc/login_cubit.dart';
 import '../bloc/login_state.dart';
 
@@ -84,32 +85,32 @@ class _LoginViewState extends State<_LoginView> {
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
                               autofillHints: const [AutofillHints.username],
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: l10n.email,
                                 prefixIcon: const Icon(Icons.alternate_email),
                               ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return l10n.requiredField;
-                                }
-                                return null;
-                              },
+                              validator: InputValidator.multiple([
+                                (v) => InputValidator.required(context, v),
+                                (v) => InputValidator.email(context, v),
+                              ]),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             TextFormField(
                               controller: _passwordController,
                               obscureText: true,
                               autofillHints: const [AutofillHints.password],
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
                               decoration: InputDecoration(
                                 labelText: l10n.password,
                                 prefixIcon: const Icon(Icons.lock_outline),
                               ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return l10n.requiredField;
-                                }
-                                return null;
-                              },
+                              validator: InputValidator.multiple([
+                                (v) => InputValidator.required(context, v),
+                                (v) => InputValidator.password(context, v),
+                              ]),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             CheckboxListTile(

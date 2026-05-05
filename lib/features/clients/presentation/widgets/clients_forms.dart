@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../../../core/utils/input_validator.dart';
 
 Future<T?> showAdaptiveClientsSheet<T>({
   required BuildContext context,
@@ -102,6 +103,7 @@ class _ClientSheet extends StatefulWidget {
 }
 
 class _ClientSheetState extends State<_ClientSheet> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;
 
@@ -125,32 +127,40 @@ class _ClientSheetState extends State<_ClientSheet> {
 
     return _ClientsSheetScaffold(
       title: l10n.addClient,
-      child: Column(
-        children: [
-          TextField(
-            controller: _nameController,
-            decoration: InputDecoration(labelText: l10n.clientName),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _phoneController,
-            decoration: InputDecoration(labelText: l10n.phoneNumber),
-            keyboardType: TextInputType.phone,
-            onSubmitted: (_) => _save(),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ),
-        ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: l10n.clientName),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _phoneController,
+              decoration: InputDecoration(labelText: l10n.phoneNumber),
+              keyboardType: TextInputType.phone,
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _save() {
-    if (_nameController.text.trim().isNotEmpty) {
+    if (_formKey.currentState!.validate()) {
       Navigator.of(context).pop(
         ClientFormResult(
           name: _nameController.text.trim(),
@@ -173,6 +183,7 @@ class _ClientModelSheet extends StatefulWidget {
 }
 
 class _ClientModelSheetState extends State<_ClientModelSheet> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _modelController;
   late final TextEditingController _piecesController;
   late final TextEditingController _priceController;
@@ -215,77 +226,92 @@ class _ClientModelSheetState extends State<_ClientModelSheet> {
 
     return _ClientsSheetScaffold(
       title: widget.initialValue == null ? l10n.addModel : l10n.editModel,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) {
-                    _dateNotifier.value = picked;
-                  }
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _modelController,
-            decoration: InputDecoration(labelText: l10n.modelName),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _piecesController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: l10n.pieceCount),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _priceController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.pricePerPiece),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-            onSubmitted: (_) => _save(),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ),
-        ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _modelController,
+              decoration: InputDecoration(labelText: l10n.modelName),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _piecesController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: l10n.pieceCount),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _priceController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.pricePerPiece),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _save() {
-    final pieces = int.tryParse(_piecesController.text.trim());
-    final price = double.tryParse(_priceController.text.trim());
-    if (_modelController.text.trim().isNotEmpty &&
-        pieces != null &&
-        price != null) {
+    if (_formKey.currentState!.validate()) {
       Navigator.of(context).pop(
         ClientModelFormResult(
           modelId: widget.initialValue?.modelId,
           modelName: _modelController.text.trim(),
-          pieceCount: pieces,
-          pricePerPiece: price,
+          pieceCount: int.parse(_piecesController.text.trim()),
+          pricePerPiece: double.parse(_priceController.text.trim()),
           date: _dateNotifier.value,
           notes: _notesController.text.trim().isEmpty
               ? null
@@ -306,6 +332,7 @@ class _ClientPaymentSheet extends StatefulWidget {
 }
 
 class _ClientPaymentSheetState extends State<_ClientPaymentSheet> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _amountController;
   late final TextEditingController _notesController;
   late final ValueNotifier<DateTime> _dateNotifier;
@@ -338,59 +365,70 @@ class _ClientPaymentSheetState extends State<_ClientPaymentSheet> {
 
     return _ClientsSheetScaffold(
       title: widget.initialValue == null ? l10n.addPayment : l10n.editPayment,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) {
-                    _dateNotifier.value = picked;
-                  }
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.amount),
-            textInputAction: TextInputAction.next,
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: _notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-            onSubmitted: (_) => _save(),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ),
-        ],
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.amount),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _save() {
-    final amount = double.tryParse(_amountController.text.trim());
-    if (amount != null) {
+    if (_formKey.currentState!.validate()) {
       Navigator.of(context).pop(
         ClientPaymentFormResult(
           paymentId: widget.initialValue?.paymentId,
-          amount: amount,
+          amount: double.parse(_amountController.text.trim()),
           paymentDate: _dateNotifier.value,
           notes: _notesController.text.trim().isEmpty
               ? null

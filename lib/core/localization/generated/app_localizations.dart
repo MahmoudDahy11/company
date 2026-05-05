@@ -1201,6 +1201,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Amount must be greater than 0'**
   String get amountMustBePositive;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get invalidEmail;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 8 characters'**
+  String get passwordTooShort;
+
+  /// No description provided for @passwordTooWeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must contain an uppercase letter and a number'**
+  String get passwordTooWeak;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid phone number'**
+  String get invalidPhone;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get invalidNumber;
+
+  /// No description provided for @valueTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Value must be at least {min}'**
+  String valueTooSmall(Object min);
+
+  /// No description provided for @valueTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Value must be at most {max}'**
+  String valueTooLarge(Object max);
 }
 
 class _AppLocalizationsDelegate

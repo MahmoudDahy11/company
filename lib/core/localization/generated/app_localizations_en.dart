@@ -611,4 +611,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get amountMustBePositive => 'Amount must be greater than 0';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email address';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 8 characters';
+
+  @override
+  String get passwordTooWeak =>
+      'Password must contain an uppercase letter and a number';
+
+  @override
+  String get invalidPhone => 'Please enter a valid phone number';
+
+  @override
+  String get invalidNumber => 'Please enter a valid number';
+
+  @override
+  String valueTooSmall(Object min) {
+    return 'Value must be at least $min';
+  }
+
+  @override
+  String valueTooLarge(Object max) {
+    return 'Value must be at most $max';
+  }
 }

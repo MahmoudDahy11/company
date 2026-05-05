@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/localization/generated/app_localizations.dart';
 import '../../../../core/utils/app_breakpoints.dart';
 import '../../../../core/utils/app_spacing.dart';
+import '../../../../core/utils/input_validator.dart';
 
 Future<T?> showAdaptiveStaffSheet<T>({
   required BuildContext context,
@@ -71,164 +72,247 @@ Future<StaffAdvanceFormResult?> showStaffAdvanceSheet(BuildContext context) {
   );
 }
 
-class _AddStaffSheet extends StatelessWidget {
+class _AddStaffSheet extends StatefulWidget {
   const _AddStaffSheet();
+
+  @override
+  State<_AddStaffSheet> createState() => _AddStaffSheetState();
+}
+
+class _AddStaffSheetState extends State<_AddStaffSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _salaryController = TextEditingController();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _salaryController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final nameController = TextEditingController();
-    final salaryController = TextEditingController();
 
     return _StaffSheetScaffold(
       title: l10n.addStaff,
-      child: Column(
-        children: [
-          TextField(
-            controller: nameController,
-            decoration: InputDecoration(labelText: l10n.staffName),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: salaryController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.monthlySalary),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final salary = double.tryParse(salaryController.text.trim());
-                if (nameController.text.trim().isNotEmpty && salary != null) {
-                  Navigator.of(context).pop(
-                    StaffFormResult(
-                      name: nameController.text.trim(),
-                      monthlySalary: salary,
-                    ),
-                  );
-                }
-              },
-              child: Text(l10n.save),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: l10n.staffName),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: (v) => InputValidator.required(context, v),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _salaryController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.monthlySalary),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        StaffFormResult(
+          name: _nameController.text.trim(),
+          monthlySalary: double.parse(_salaryController.text.trim()),
+        ),
+      );
+    }
+  }
 }
 
-class _UpdateSalarySheet extends StatelessWidget {
+class _UpdateSalarySheet extends StatefulWidget {
   const _UpdateSalarySheet({required this.initialValue});
 
   final double initialValue;
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final controller = TextEditingController(
-      text: initialValue.toStringAsFixed(2),
-    );
-
-    return _StaffSheetScaffold(
-      title: l10n.updateSalary,
-      child: Column(
-        children: [
-          TextField(
-            controller: controller,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.monthlySalary),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final salary = double.tryParse(controller.text.trim());
-                if (salary != null) {
-                  Navigator.of(context).pop(salary);
-                }
-              },
-              child: Text(l10n.save),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  State<_UpdateSalarySheet> createState() => _UpdateSalarySheetState();
 }
 
-class _AddAdvanceSheet extends StatelessWidget {
-  const _AddAdvanceSheet();
+class _UpdateSalarySheetState extends State<_UpdateSalarySheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.initialValue.toStringAsFixed(2),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final amountController = TextEditingController();
-    final notesController = TextEditingController();
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+
+    return _StaffSheetScaffold(
+      title: l10n.updateSalary,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _controller,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.monthlySalary),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(double.parse(_controller.text.trim()));
+    }
+  }
+}
+
+class _AddAdvanceSheet extends StatefulWidget {
+  const _AddAdvanceSheet();
+
+  @override
+  State<_AddAdvanceSheet> createState() => _AddAdvanceSheetState();
+}
+
+class _AddAdvanceSheetState extends State<_AddAdvanceSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
 
     return _StaffSheetScaffold(
       title: l10n.addAdvance,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) {
-                    dateNotifier.value = picked;
-                  }
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.amount),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextField(
-            controller: notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-            maxLines: 2,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final amount = double.tryParse(amountController.text.trim());
-                if (amount != null) {
-                  Navigator.of(context).pop(
-                    StaffAdvanceFormResult(
-                      amount: amount,
-                      date: dateNotifier.value,
-                      notes: notesController.text.trim().isEmpty
-                          ? null
-                          : notesController.text.trim(),
-                    ),
-                  );
-                }
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
               },
-              child: Text(l10n.save),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+              decoration: InputDecoration(labelText: l10n.amount),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              maxLines: 2,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        StaffAdvanceFormResult(
+          amount: double.parse(_amountController.text.trim()),
+          date: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
   }
 }
 

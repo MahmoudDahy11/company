@@ -290,5 +290,22 @@
   "confirmDeletePurchase": "هل تريد حذف سجل الشراء هذا؟",
   "priceMustBePositive": "يجب أن يكون السعر أكبر من 0",
   "quantityMustBePositive": "يجب أن تكون الكمية أكبر من 0",
-  "amountMustBePositive": "يجب أن يكون المبلغ أكبر من 0"
+  "amountMustBePositive": "يجب أن يكون المبلغ أكبر من 0",
+  "invalidEmail": "يرجى إدخال بريد إلكتروني صالح",
+  "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+  "passwordTooWeak": "يجب أن تحتوي كلمة المرور على حرف كبير ورقم",
+  "invalidPhone": "يرجى إدخال رقم هاتف صالح",
+  "invalidNumber": "يرجى إدخال رقم صالح",
+  "valueTooSmall": "القيمة يجب أن تكون على الأقل {min}",
+  "@valueTooSmall": {
+    "placeholders": {
+      "min": {}
+    }
+  },
+  "valueTooLarge": "القيمة يجب ألا تزيد عن {max}",
+  "@valueTooLarge": {
+    "placeholders": {
+      "max": {}
+    }
+  }
 }

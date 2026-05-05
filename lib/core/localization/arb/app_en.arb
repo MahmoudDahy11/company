@@ -290,5 +290,22 @@
   "confirmDeletePurchase": "Do you want to delete this purchase record?",
   "priceMustBePositive": "Price must be greater than 0",
   "quantityMustBePositive": "Quantity must be greater than 0",
-  "amountMustBePositive": "Amount must be greater than 0"
+  "amountMustBePositive": "Amount must be greater than 0",
+  "invalidEmail": "Please enter a valid email address",
+  "passwordTooShort": "Password must be at least 8 characters",
+  "passwordTooWeak": "Password must contain an uppercase letter and a number",
+  "invalidPhone": "Please enter a valid phone number",
+  "invalidNumber": "Please enter a valid number",
+  "valueTooSmall": "Value must be at least {min}",
+  "@valueTooSmall": {
+    "placeholders": {
+      "min": {}
+    }
+  },
+  "valueTooLarge": "Value must be at most {max}",
+  "@valueTooLarge": {
+    "placeholders": {
+      "max": {}
+    }
+  }
 }
