@@ -81,7 +81,7 @@ class _ThreadsView extends StatelessWidget {
                                 await GetIt.I<ExcelExportService>()
                                     .exportThreads(
                                       suppliers: state.items,
-                                      allPurchases: const [],
+                                      allPurchases: state.allPurchases,
                                       month: state.selectedMonth,
                                       isArabic:
                                           Localizations.localeOf(

@@ -132,28 +132,30 @@ class ExcelExportService {
   }) async {
     final excel = Excel.createExcel();
     final monthLabel = DateFormat('yyyy-MM').format(month);
-    excel.delete('Sheet1');
 
     // Monthly detail sheet
     final detailSheet = excel[monthLabel];
+    excel.delete('Sheet1');
     final detailHeaders = isArabic
         ? [
-            'الصنف',
+            'اسم المورد',
+            'اسم الصنف',
             'رقم اللون',
-            'المورد',
             'التاريخ',
             'السعر',
             'الكمية',
             'الوحدة',
+            'الملاحظات',
           ]
         : [
-            'Item',
-            'Color No.',
             'Supplier',
+            'Item',
+            'Color',
             'Date',
             'Price',
-            'Quantity',
+            'Qty',
             'Unit',
+            'Notes',
           ];
 
     for (var col = 0; col < detailHeaders.length; col++) {
@@ -173,13 +175,20 @@ class ExcelExportService {
     var row = 1;
     for (final purchase in allPurchases) {
       final values = <CellValue>[
+        TextCellValue(supplierNameMap[purchase.supplierId] ?? ''),
         TextCellValue(purchase.itemName),
         TextCellValue(purchase.colorNumber),
-        TextCellValue(supplierNameMap[purchase.supplierId] ?? ''),
-        TextCellValue(DateFormat('yyyy-MM-dd').format(purchase.purchaseDate)),
+        DateTimeCellValue(
+          year: purchase.purchaseDate.year,
+          month: purchase.purchaseDate.month,
+          day: purchase.purchaseDate.day,
+          hour: 0,
+          minute: 0,
+        ),
         DoubleCellValue(purchase.price),
         DoubleCellValue(purchase.quantity),
         TextCellValue(purchase.unit),
+        TextCellValue(purchase.notes ?? ''),
       ];
       for (var col = 0; col < values.length; col++) {
         detailSheet
@@ -246,9 +255,9 @@ class ExcelExportService {
   }) async {
     final excel = Excel.createExcel();
     final monthLabel = DateFormat('yyyy-MM').format(month);
-    excel.delete('Sheet1');
 
     final sheet = excel[monthLabel];
+    excel.delete('Sheet1');
     final headers = isArabic
         ? ['الزبون', 'إجمالي الطلبات', 'المدفوع', 'المتبقي']
         : ['Client', 'Total Orders', 'Paid', 'Outstanding'];

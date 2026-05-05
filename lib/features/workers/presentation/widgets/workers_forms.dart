@@ -139,10 +139,7 @@ class _WorkerNameSheetState extends State<_WorkerNameSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -186,10 +183,10 @@ class _StitchRateSheetState extends State<_StitchRateSheet> {
           children: [
             TextFormField(
               controller: _controller,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              decoration:
-                  InputDecoration(labelText: l10n.ratePer100kStitches),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(labelText: l10n.ratePer100kStitches),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: InputValidator.multiple([
                 (v) => InputValidator.required(context, v),
@@ -200,10 +197,7 @@ class _StitchRateSheetState extends State<_StitchRateSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -308,10 +302,7 @@ class _ProductionSheetState extends State<_ProductionSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -406,8 +397,9 @@ class _AdvanceSheetState extends State<_AdvanceSheet> {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _amountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(labelText: l10n.amount),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: InputValidator.multiple([
@@ -424,10 +416,7 @@ class _AdvanceSheetState extends State<_AdvanceSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -500,10 +489,7 @@ class _AbsentDaysSheetState extends State<_AbsentDaysSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),

@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 
 import '../../domain/entities/supplier_details_data.dart';
 import '../../domain/entities/supplier_list_item.dart';
+import '../../domain/entities/thread_purchase.dart';
 import '../../domain/entities/threads_overview.dart';
 import '../../domain/repositories/threads_repository.dart';
 import '../datasources/threads_local_data_source.dart';
@@ -15,6 +16,10 @@ class ThreadsRepositoryImpl implements ThreadsRepository {
   @override
   Stream<List<SupplierListItem>> watchSuppliers(DateTime month) =>
       _localDataSource.watchSuppliers(month);
+
+  @override
+  Stream<List<ThreadPurchase>> watchAllPurchases(DateTime month) =>
+      _localDataSource.watchAllPurchases(month);
 
   @override
   Stream<SupplierDetailsData> watchSupplierDetails(

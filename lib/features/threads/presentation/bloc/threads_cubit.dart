@@ -6,9 +6,11 @@ import 'package:injectable/injectable.dart';
 
 import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/supplier_list_item.dart';
+import '../../domain/entities/thread_purchase.dart';
 import '../../domain/entities/threads_overview.dart';
 import '../../domain/usecases/add_supplier_usecase.dart';
 import '../../domain/usecases/delete_supplier_usecase.dart';
+import '../../domain/usecases/watch_all_purchases_usecase.dart';
 import '../../domain/usecases/watch_suppliers_usecase.dart';
 import '../../domain/usecases/watch_threads_overview_usecase.dart';
 import 'threads_state.dart';
@@ -17,21 +19,25 @@ import 'threads_state.dart';
 class ThreadsCubit extends Cubit<ThreadsState> {
   ThreadsCubit(
     this._watchSuppliersUseCase,
+    this._watchAllPurchasesUseCase,
     this._watchThreadsOverviewUseCase,
     this._addSupplierUseCase,
     this._deleteSupplierUseCase,
   ) : super(ThreadsState.initial());
 
   final WatchSuppliersUseCase _watchSuppliersUseCase;
+  final WatchAllPurchasesUseCase _watchAllPurchasesUseCase;
   final WatchThreadsOverviewUseCase _watchThreadsOverviewUseCase;
   final AddSupplierUseCase _addSupplierUseCase;
   final DeleteSupplierUseCase _deleteSupplierUseCase;
 
   StreamSubscription<List<SupplierListItem>>? _suppliersSubscription;
+  StreamSubscription<List<ThreadPurchase>>? _purchasesSubscription;
   StreamSubscription<ThreadsOverview>? _overviewSubscription;
 
   Future<void> start() async {
     _suppliersSubscription?.cancel();
+    _purchasesSubscription?.cancel();
     _overviewSubscription?.cancel();
 
     final isInitialLoad = state.items.isEmpty;
@@ -76,6 +82,10 @@ class ThreadsCubit extends Cubit<ThreadsState> {
       state.selectedMonth,
     ).listen((overview) => emit(state.copyWith(overview: overview)));
 
+    _purchasesSubscription = _watchAllPurchasesUseCase(
+      state.selectedMonth,
+    ).listen((items) => emit(state.copyWith(allPurchases: items)));
+
     return completer.future;
   }
 
@@ -115,6 +125,7 @@ class ThreadsCubit extends Cubit<ThreadsState> {
   @override
   Future<void> close() async {
     await _suppliersSubscription?.cancel();
+    await _purchasesSubscription?.cancel();
     await _overviewSubscription?.cancel();
     return super.close();
   }

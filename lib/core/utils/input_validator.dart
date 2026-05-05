@@ -33,9 +33,7 @@ class InputValidator {
   static String? email(BuildContext context, String? value) {
     if (value == null || value.isEmpty) return null;
 
-    final regex = RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    );
+    final regex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     if (!regex.hasMatch(value)) {
       return AppLocalizations.of(context)!.invalidEmail;
     }

@@ -1,9 +1,11 @@
 import '../entities/supplier_details_data.dart';
 import '../entities/supplier_list_item.dart';
+import '../entities/thread_purchase.dart';
 import '../entities/threads_overview.dart';
 
 abstract class ThreadsRepository {
   Stream<List<SupplierListItem>> watchSuppliers(DateTime month);
+  Stream<List<ThreadPurchase>> watchAllPurchases(DateTime month);
 
   Stream<SupplierDetailsData> watchSupplierDetails(
     int supplierId,

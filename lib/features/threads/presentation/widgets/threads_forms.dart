@@ -145,10 +145,7 @@ class _SupplierSheetState extends State<_SupplierSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -277,8 +274,9 @@ class _PurchaseSheetState extends State<_PurchaseSheet> {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _priceController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(labelText: l10n.price),
               textInputAction: TextInputAction.next,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -290,8 +288,9 @@ class _PurchaseSheetState extends State<_PurchaseSheet> {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _quantityController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(labelText: l10n.quantity),
               textInputAction: TextInputAction.next,
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -317,10 +316,7 @@ class _PurchaseSheetState extends State<_PurchaseSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -419,8 +415,9 @@ class _SupplierPaymentSheetState extends State<_SupplierPaymentSheet> {
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _amountController,
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(labelText: l10n.amount),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: InputValidator.multiple([
@@ -437,10 +434,7 @@ class _SupplierPaymentSheetState extends State<_SupplierPaymentSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),

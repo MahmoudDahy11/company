@@ -38,6 +38,10 @@ class ThreadsLocalDataSource {
     return _watchTrigger().asyncMap((_) => _buildOverview(month));
   }
 
+  Stream<List<ThreadPurchase>> watchAllPurchases(DateTime month) {
+    return _watchTrigger().asyncMap((_) => _buildAllPurchases(month));
+  }
+
   Future<void> addSupplier({required String name, String? phone}) async {
     await _database.transaction(() async {
       final id = await _database
@@ -579,6 +583,36 @@ class ThreadsLocalDataSource {
             payload: jsonEncode(payload),
           ),
         );
+  }
+
+  Future<List<ThreadPurchase>> _buildAllPurchases(DateTime month) async {
+    final monthRange = _monthRange(month);
+    final rows =
+        await (_database.select(_database.threadPurchases)
+              ..where(
+                (t) => t.purchaseDate.isBetweenValues(
+                  monthRange.start,
+                  monthRange.end,
+                ),
+              )
+              ..orderBy([(t) => OrderingTerm.desc(t.purchaseDate)]))
+            .get();
+
+    return rows
+        .map(
+          (row) => ThreadPurchase(
+            id: row.id,
+            supplierId: row.supplierId,
+            itemName: row.itemName,
+            colorNumber: row.colorNumber,
+            purchaseDate: row.purchaseDate,
+            price: row.price,
+            quantity: row.quantity,
+            unit: row.unit,
+            notes: row.notes,
+          ),
+        )
+        .toList();
   }
 
   ({DateTime start, DateTime end}) _monthRange(DateTime month) {

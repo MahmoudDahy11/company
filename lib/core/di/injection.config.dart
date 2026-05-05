@@ -88,6 +88,8 @@ import 'package:company/features/threads/domain/usecases/delete_supplier_payment
     as _i970;
 import 'package:company/features/threads/domain/usecases/delete_supplier_usecase.dart'
     as _i834;
+import 'package:company/features/threads/domain/usecases/watch_all_purchases_usecase.dart'
+    as _i104;
 import 'package:company/features/threads/domain/usecases/watch_supplier_details_usecase.dart'
     as _i233;
 import 'package:company/features/threads/domain/usecases/watch_suppliers_usecase.dart'
@@ -323,6 +325,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i834.DeleteSupplierUseCase>(
       () => _i834.DeleteSupplierUseCase(gh<_i552.ThreadsRepository>()),
     );
+    gh.factory<_i104.WatchAllPurchasesUseCase>(
+      () => _i104.WatchAllPurchasesUseCase(gh<_i552.ThreadsRepository>()),
+    );
     gh.factory<_i233.WatchSupplierDetailsUseCase>(
       () => _i233.WatchSupplierDetailsUseCase(gh<_i552.ThreadsRepository>()),
     );
@@ -341,6 +346,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i896.AddSupplierPaymentUseCase>(),
         gh<_i795.AddOrUpdateSupplierPaymentUseCase>(),
         gh<_i970.DeleteSupplierPaymentUseCase>(),
+      ),
+    );
+    gh.factory<_i136.ThreadsCubit>(
+      () => _i136.ThreadsCubit(
+        gh<_i63.WatchSuppliersUseCase>(),
+        gh<_i104.WatchAllPurchasesUseCase>(),
+        gh<_i824.WatchThreadsOverviewUseCase>(),
+        gh<_i850.AddSupplierUseCase>(),
+        gh<_i834.DeleteSupplierUseCase>(),
       ),
     );
     gh.factory<_i504.WatchDashboardSummaryUseCase>(
@@ -445,14 +459,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i478.AddStaffAdvanceUseCase>(),
         gh<_i732.DeleteStaffAdvanceUseCase>(),
         gh<_i282.UpdateSalaryUseCase>(),
-      ),
-    );
-    gh.factory<_i136.ThreadsCubit>(
-      () => _i136.ThreadsCubit(
-        gh<_i63.WatchSuppliersUseCase>(),
-        gh<_i824.WatchThreadsOverviewUseCase>(),
-        gh<_i850.AddSupplierUseCase>(),
-        gh<_i834.DeleteSupplierUseCase>(),
       ),
     );
     gh.factory<_i105.WorkerDetailsCubit>(
