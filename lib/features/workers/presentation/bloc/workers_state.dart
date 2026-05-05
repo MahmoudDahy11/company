@@ -6,6 +6,7 @@ class WorkersState {
     required this.items,
     required this.searchQuery,
     required this.isLoading,
+    required this.isRefreshing,
     this.errorMessage,
   });
 
@@ -14,12 +15,14 @@ class WorkersState {
     items: const <WorkerListItem>[],
     searchQuery: '',
     isLoading: true,
+    isRefreshing: false,
   );
 
   final DateTime selectedMonth;
   final List<WorkerListItem> items;
   final String searchQuery;
   final bool isLoading;
+  final bool isRefreshing;
   final String? errorMessage;
 
   List<WorkerListItem> get filteredItems {
@@ -38,6 +41,7 @@ class WorkersState {
     List<WorkerListItem>? items,
     String? searchQuery,
     bool? isLoading,
+    bool? isRefreshing,
     String? errorMessage,
   }) {
     return WorkersState(
@@ -45,6 +49,7 @@ class WorkersState {
       items: items ?? this.items,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       errorMessage: errorMessage,
     );
   }

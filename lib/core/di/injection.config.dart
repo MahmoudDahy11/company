@@ -134,6 +134,8 @@ import 'package:company/features/workers/domain/usecases/add_or_update_productio
     as _i663;
 import 'package:company/features/workers/domain/usecases/add_worker_usecase.dart'
     as _i537;
+import 'package:company/features/workers/domain/usecases/calculate_worker_salary_usecase.dart'
+    as _i787;
 import 'package:company/features/workers/domain/usecases/delete_advance_usecase.dart'
     as _i1064;
 import 'package:company/features/workers/domain/usecases/delete_production_usecase.dart'
@@ -168,6 +170,9 @@ extension GetItInjectableX on _i174.GetIt {
     await gh.factoryAsync<_i460.SharedPreferences>(
       () => registerModule.sharedPreferences,
       preResolve: true,
+    );
+    gh.factory<_i787.CalculateWorkerSalaryUseCase>(
+      () => const _i787.CalculateWorkerSalaryUseCase(),
     );
     gh.lazySingleton<_i707.AppLocaleController>(
       () => registerModule.localeController,
@@ -204,9 +209,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
       () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
     );
-    gh.lazySingleton<_i493.WorkersLocalDataSource>(
-      () => _i493.WorkersLocalDataSource(gh<_i549.AppDatabase>()),
-    );
     gh.lazySingleton<_i861.DashboardRepository>(
       () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
     );
@@ -232,58 +234,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
     );
-    gh.lazySingleton<_i1023.WorkersRepository>(
-      () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
-    );
     gh.factory<_i625.DashboardCubit>(
       () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
     );
-    gh.factory<_i454.AddAdvanceUseCase>(
-      () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i230.AddOrUpdateAdvanceUseCase>(
-      () => _i230.AddOrUpdateAdvanceUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i663.AddOrUpdateProductionUseCase>(
-      () => _i663.AddOrUpdateProductionUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i537.AddWorkerUseCase>(
-      () => _i537.AddWorkerUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i1064.DeleteAdvanceUseCase>(
-      () => _i1064.DeleteAdvanceUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i970.DeleteProductionUseCase>(
-      () => _i970.DeleteProductionUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i526.DeleteWorkerUseCase>(
-      () => _i526.DeleteWorkerUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i134.UpdateStitchRateUseCase>(
-      () => _i134.UpdateStitchRateUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i704.UpsertAbsentDaysUseCase>(
-      () => _i704.UpsertAbsentDaysUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i455.WatchWorkerDetailsUseCase>(
-      () => _i455.WatchWorkerDetailsUseCase(gh<_i1023.WorkersRepository>()),
-    );
-    gh.factory<_i511.WatchWorkersUseCase>(
-      () => _i511.WatchWorkersUseCase(gh<_i1023.WorkersRepository>()),
+    gh.lazySingleton<_i493.WorkersLocalDataSource>(
+      () => _i493.WorkersLocalDataSource(
+        gh<_i549.AppDatabase>(),
+        gh<_i787.CalculateWorkerSalaryUseCase>(),
+      ),
     );
     gh.lazySingleton<_i512.AppRouter>(
       () => _i512.AppRouter(gh<_i875.AuthController>()),
-    );
-    gh.factory<_i109.WorkersCubit>(
-      () => _i109.WorkersCubit(
-        gh<_i511.WatchWorkersUseCase>(),
-        gh<_i537.AddWorkerUseCase>(),
-        gh<_i526.DeleteWorkerUseCase>(),
-        gh<_i134.UpdateStitchRateUseCase>(),
-      ),
     );
     gh.lazySingleton<_i807.SyncService>(
       () => _i807.SyncService(
@@ -391,15 +355,48 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
     );
-    gh.factory<_i105.WorkerDetailsCubit>(
-      () => _i105.WorkerDetailsCubit(
-        gh<_i455.WatchWorkerDetailsUseCase>(),
-        gh<_i663.AddOrUpdateProductionUseCase>(),
-        gh<_i970.DeleteProductionUseCase>(),
-        gh<_i454.AddAdvanceUseCase>(),
-        gh<_i230.AddOrUpdateAdvanceUseCase>(),
-        gh<_i1064.DeleteAdvanceUseCase>(),
-        gh<_i704.UpsertAbsentDaysUseCase>(),
+    gh.lazySingleton<_i1023.WorkersRepository>(
+      () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
+    );
+    gh.factory<_i454.AddAdvanceUseCase>(
+      () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i230.AddOrUpdateAdvanceUseCase>(
+      () => _i230.AddOrUpdateAdvanceUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i663.AddOrUpdateProductionUseCase>(
+      () => _i663.AddOrUpdateProductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i537.AddWorkerUseCase>(
+      () => _i537.AddWorkerUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i1064.DeleteAdvanceUseCase>(
+      () => _i1064.DeleteAdvanceUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i970.DeleteProductionUseCase>(
+      () => _i970.DeleteProductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i526.DeleteWorkerUseCase>(
+      () => _i526.DeleteWorkerUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i134.UpdateStitchRateUseCase>(
+      () => _i134.UpdateStitchRateUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i704.UpsertAbsentDaysUseCase>(
+      () => _i704.UpsertAbsentDaysUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i455.WatchWorkerDetailsUseCase>(
+      () => _i455.WatchWorkerDetailsUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i511.WatchWorkersUseCase>(
+      () => _i511.WatchWorkersUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i109.WorkersCubit>(
+      () => _i109.WorkersCubit(
+        gh<_i511.WatchWorkersUseCase>(),
+        gh<_i537.AddWorkerUseCase>(),
+        gh<_i526.DeleteWorkerUseCase>(),
+        gh<_i134.UpdateStitchRateUseCase>(),
       ),
     );
     gh.factory<_i416.ClientsCubit>(
@@ -441,6 +438,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i824.WatchThreadsOverviewUseCase>(),
         gh<_i850.AddSupplierUseCase>(),
         gh<_i834.DeleteSupplierUseCase>(),
+      ),
+    );
+    gh.factory<_i105.WorkerDetailsCubit>(
+      () => _i105.WorkerDetailsCubit(
+        gh<_i455.WatchWorkerDetailsUseCase>(),
+        gh<_i663.AddOrUpdateProductionUseCase>(),
+        gh<_i970.DeleteProductionUseCase>(),
+        gh<_i454.AddAdvanceUseCase>(),
+        gh<_i230.AddOrUpdateAdvanceUseCase>(),
+        gh<_i1064.DeleteAdvanceUseCase>(),
+        gh<_i704.UpsertAbsentDaysUseCase>(),
       ),
     );
     return this;

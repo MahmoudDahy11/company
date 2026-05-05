@@ -104,12 +104,10 @@ class SyncService {
             },
             onError: (e) {
               // Log error but continue
-              // TODO: Add proper error logging
             },
           );
     } catch (e) {
       // Firestore might not be available on some platforms
-      // TODO: Add proper error logging
     }
   }
 

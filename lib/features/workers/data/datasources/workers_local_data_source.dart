@@ -13,11 +13,17 @@ import '../../domain/entities/worker_list_item.dart';
 import '../../domain/entities/worker_month_summary.dart';
 import '../../domain/entities/worker_production.dart';
 
+import '../../domain/usecases/calculate_worker_salary_usecase.dart';
+
 @lazySingleton
 class WorkersLocalDataSource {
-  WorkersLocalDataSource(this._database);
+  const WorkersLocalDataSource(
+    this._database,
+    this._calculateWorkerSalaryUseCase,
+  );
 
   final AppDatabase _database;
+  final CalculateWorkerSalaryUseCase _calculateWorkerSalaryUseCase;
 
   Stream<List<WorkerListItem>> watchWorkers(DateTime month) {
     return _watchWorkersTrigger().asyncMap((_) => _buildWorkerList(month));
@@ -35,16 +41,15 @@ class WorkersLocalDataSource {
           .into(_database.workers)
           .insert(WorkersCompanion.insert(name: name.trim()));
 
+      final row = await (_database.select(
+        _database.workers,
+      )..where((t) => t.id.equals(id))).getSingle();
+
       await _queueSync(
         operation: SyncQueueOperation.insert,
         tableName: 'workers',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'name': name.trim(),
-          'createdAt': DateTime.now().toIso8601String(),
-          'isActive': true,
-        },
+        payload: row.toJson(),
       );
     });
   }
@@ -66,12 +71,9 @@ class WorkersLocalDataSource {
         operation: SyncQueueOperation.update,
         tableName: 'workers',
         recordId: workerId,
-        payload: <String, dynamic>{
-          'id': existing.id,
-          'name': existing.name,
-          'createdAt': existing.createdAt.toIso8601String(),
-          'isActive': false,
-        },
+        payload: (await (_database.select(
+          _database.workers,
+        )..where((t) => t.id.equals(workerId))).getSingle()).toJson(),
       );
     });
   }
@@ -171,13 +173,9 @@ class WorkersLocalDataSource {
         operation: operation,
         tableName: 'worker_production',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'workerId': workerId,
-          'date': normalizedDate.toIso8601String(),
-          'stitchCount': await _currentStitchCount(id),
-          'notes': await _currentProductionNotes(id),
-        },
+        payload: (await (_database.select(
+          _database.workerProductionEntries,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }
@@ -229,14 +227,9 @@ class WorkersLocalDataSource {
         operation: SyncQueueOperation.insert,
         tableName: 'worker_advances',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'workerId': workerId,
-          'amount': amount,
-          'date': date.toIso8601String(),
-          'notes': notes,
-          'carriedOver': false,
-        },
+        payload: (await (_database.select(
+          _database.workerAdvances,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }
@@ -283,14 +276,9 @@ class WorkersLocalDataSource {
         operation: operation,
         tableName: 'worker_advances',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'workerId': workerId,
-          'amount': amount,
-          'date': date.toIso8601String(),
-          'notes': notes,
-          'carriedOver': false,
-        },
+        payload: (await (_database.select(
+          _database.workerAdvances,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }
@@ -361,12 +349,9 @@ class WorkersLocalDataSource {
         operation: operation,
         tableName: 'worker_absent_days',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'workerId': workerId,
-          'monthStart': normalizedMonth.toIso8601String(),
-          'absentDays': absentDays,
-        },
+        payload: (await (_database.select(
+          _database.workerAbsentDays,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }
@@ -389,11 +374,9 @@ class WorkersLocalDataSource {
         operation: SyncQueueOperation.insert,
         tableName: 'stitch_rate',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'rate': rate,
-          'effectiveFrom': effectiveFrom.toIso8601String(),
-        },
+        payload: (await (_database.select(
+          _database.stitchRates,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }
@@ -414,19 +397,65 @@ class WorkersLocalDataSource {
   }
 
   Future<List<WorkerListItem>> _buildWorkerList(DateTime month) async {
-    final workerRows =
-        await (_database.select(_database.workers)
-              ..where((table) => table.isActive.equals(true))
-              ..orderBy([(table) => OrderingTerm(expression: table.name)]))
-            .get();
+    final range = _monthRange(month);
+    final rate = await _rateForMonth(month);
 
+    final query = _database.customSelect(
+      '''
+      SELECT 
+        w.id, 
+        w.name,
+        COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
+        COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0) as current_advances,
+        COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), -1.0) as carry_in
+      FROM workers w
+      WHERE w.is_active = 1
+      ORDER BY w.name ASC
+      ''',
+      variables: [
+        Variable.withDateTime(range.start),
+        Variable.withDateTime(range.end),
+        Variable.withDateTime(range.start),
+        Variable.withDateTime(range.end),
+        Variable.withDateTime(range.start),
+      ],
+      readsFrom: {
+        _database.workers,
+        _database.workerProductionEntries,
+        _database.workerAdvances,
+      },
+    );
+
+    final rows = await query.get();
     final items = <WorkerListItem>[];
-    for (final row in workerRows) {
-      final summary = await _buildSummary(row.id, month);
+
+    for (final row in rows) {
+      final workerId = row.read<int>('id');
+      final name = row.read<String>('name');
+      final currentStitches = row.read<int>('current_stitches');
+      final currentAdvances = row.read<double>('current_advances');
+      var carryIn = row.read<double>('carry_in');
+
+      // If no carry-over record found (-1.0), calculate and potentially persist it
+      if (carryIn < 0) {
+        carryIn = await _getOrCalculateCarryIn(workerId, month);
+      }
+
+      final earnings = (currentStitches / 100000.0) * rate;
+      final summary = _calculateWorkerSalaryUseCase(
+        month: month,
+        stitchCount: currentStitches,
+        earnings: earnings,
+        advances: currentAdvances,
+        carryOver: carryIn,
+        absentDays: 0, // Not needed for list item
+        appliedRate: rate,
+      );
+
       items.add(
         WorkerListItem(
-          id: row.id,
-          name: row.name,
+          id: workerId,
+          name: name,
           totalEarnings: summary.totalEarnings,
           totalAdvances: summary.totalAdvances,
           netSalary: summary.netSalary,
@@ -527,16 +556,26 @@ class WorkersLocalDataSource {
 
   Future<WorkerMonthSummary> _buildSummary(int workerId, DateTime month) async {
     final normalizedMonth = _monthStart(month);
-    final worker = await (_database.select(
-      _database.workers,
-    )..where((table) => table.id.equals(workerId))).getSingle();
+    final range = _monthRange(normalizedMonth);
 
-    final productionRows = await (_database.select(
-      _database.workerProductionEntries,
-    )..where((table) => table.workerId.equals(workerId))).get();
-    final advanceRows = await (_database.select(
-      _database.workerAdvances,
-    )..where((table) => table.workerId.equals(workerId))).get();
+    // Get current month data ONLY (no more fetching all history)
+    final productionRows =
+        await (_database.select(_database.workerProductionEntries)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end),
+            ))
+            .get();
+
+    final advanceRows =
+        await (_database.select(_database.workerAdvances)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end) &
+                  table.carriedOver.equals(false),
+            ))
+            .get();
+
     final absentRow =
         await (_database.select(_database.workerAbsentDays)..where(
               (table) =>
@@ -545,66 +584,99 @@ class WorkersLocalDataSource {
             ))
             .getSingleOrNull();
 
-    final monthlyBalances = <DateTime, _MonthBalance>{};
-    final firstMonth = _monthStart(worker.createdAt);
-
+    // 1. Calculate current month's totals
+    int totalStitches = 0;
+    double earnings = 0;
     for (final production in productionRows) {
-      final key = _monthStart(production.date);
-      final existing = monthlyBalances[key] ?? const _MonthBalance();
-      monthlyBalances[key] = existing.copyWith(
-        stitchCount: existing.stitchCount + production.stitchCount,
-        earnings:
-            existing.earnings +
-            await _calculateProductionEarnings(
-              production.date,
-              production.stitchCount,
-            ),
+      totalStitches += production.stitchCount;
+      earnings += await _calculateProductionEarnings(
+        production.date,
+        production.stitchCount,
       );
     }
 
+    double advances = 0;
     for (final advance in advanceRows) {
-      final key = _monthStart(advance.date);
-      final existing = monthlyBalances[key] ?? const _MonthBalance();
-      monthlyBalances[key] = existing.copyWith(
-        advances: existing.advances + advance.amount,
-      );
+      advances += advance.amount;
     }
 
-    double carryIn = 0;
-    DateTime cursor = firstMonth;
-    while (!_isAfterMonth(cursor, normalizedMonth)) {
-      final data = monthlyBalances[cursor] ?? const _MonthBalance();
-      final net = data.earnings - data.advances - carryIn;
-      final nextCarry = net < 0 ? -net : 0;
+    // 2. Get Carry-over from previous month (optimized)
+    final carryIn = await _getOrCalculateCarryIn(workerId, normalizedMonth);
 
-      if (_sameMonth(cursor, normalizedMonth)) {
-        final rate = await _rateForMonth(normalizedMonth);
-        return WorkerMonthSummary(
-          month: normalizedMonth,
-          totalStitchCount: data.stitchCount,
-          totalEarnings: data.earnings,
-          totalAdvances: data.advances,
-          carryOver: carryIn,
-          absentDays: absentRow?.absentDays ?? 0,
-          netSalary: net,
-          appliedRate: rate,
-        );
-      }
+    final rate = await _rateForMonth(normalizedMonth);
 
-      carryIn = nextCarry.toDouble();
-      cursor = DateTime(cursor.year, cursor.month + 1);
-    }
-
-    return WorkerMonthSummary(
+    // 3. Use Domain UseCase for salary calculation
+    return _calculateWorkerSalaryUseCase(
       month: normalizedMonth,
-      totalStitchCount: 0,
-      totalEarnings: 0,
-      totalAdvances: 0,
+      stitchCount: totalStitches,
+      earnings: earnings,
+      advances: advances,
       carryOver: carryIn,
       absentDays: absentRow?.absentDays ?? 0,
-      netSalary: -carryIn,
-      appliedRate: await _rateForMonth(normalizedMonth),
+      appliedRate: rate,
     );
+  }
+
+  Future<double> _getOrCalculateCarryIn(int workerId, DateTime month) async {
+    final normalizedMonth = _monthStart(month);
+
+    // 1. Check for existing carry-over record for this month
+    final existing =
+        await (_database.select(_database.workerAdvances)..where(
+              (t) =>
+                  t.workerId.equals(workerId) &
+                  t.date.equals(normalizedMonth) &
+                  t.carriedOver.equals(true),
+            ))
+            .getSingleOrNull();
+
+    if (existing != null) return existing.amount.toDouble();
+
+    // 2. Fallback: If this is the worker's start month, carry-over is 0
+    final worker = await (_database.select(
+      _database.workers,
+    )..where((t) => t.id.equals(workerId))).getSingle();
+
+    if (!_isAfterMonth(normalizedMonth, _monthStart(worker.createdAt))) {
+      return 0;
+    }
+
+    // 3. Otherwise, calculate previous month's summary recursively
+    final prevMonth = DateTime(normalizedMonth.year, normalizedMonth.month - 1);
+    final prevSummary = await _buildSummary(workerId, prevMonth);
+
+    final carryOver = prevSummary.netSalary < 0 ? -prevSummary.netSalary : 0.0;
+
+    // 4. Persist this carry-over record to break the chain for future calls
+    if (carryOver > 0) {
+      await _database
+          .into(_database.workerAdvances)
+          .insert(
+            WorkerAdvancesCompanion.insert(
+              workerId: workerId,
+              amount: carryOver,
+              date: normalizedMonth,
+              notes: const Value('Carry-over'),
+              carriedOver: const Value(true),
+            ),
+          );
+
+      // Also queue sync for consistency
+      await _queueSync(
+        operation: SyncQueueOperation.insert,
+        tableName: 'worker_advances',
+        recordId: -1, // Temporary, will be handled locally
+        payload: {
+          'workerId': workerId,
+          'amount': carryOver,
+          'date': normalizedMonth.toIso8601String(),
+          'notes': 'Carry-over',
+          'carriedOver': true,
+        },
+      );
+    }
+
+    return carryOver.toDouble();
   }
 
   Future<double> _calculateProductionEarnings(
@@ -674,20 +746,6 @@ class WorkersLocalDataSource {
     return query.getSingleOrNull();
   }
 
-  Future<int> _currentStitchCount(int productionId) async {
-    final row = await (_database.select(
-      _database.workerProductionEntries,
-    )..where((table) => table.id.equals(productionId))).getSingle();
-    return row.stitchCount;
-  }
-
-  Future<String?> _currentProductionNotes(int productionId) async {
-    final row = await (_database.select(
-      _database.workerProductionEntries,
-    )..where((table) => table.id.equals(productionId))).getSingle();
-    return row.notes;
-  }
-
   String? _mergeNotes(String? currentNotes, String? incomingNotes) {
     final current = currentNotes?.trim();
     final incoming = incomingNotes?.trim();
@@ -710,35 +768,8 @@ class WorkersLocalDataSource {
     return (start: start, end: end);
   }
 
-  bool _sameMonth(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month;
-
   bool _isAfterMonth(DateTime value, DateTime target) {
     return value.year > target.year ||
         (value.year == target.year && value.month > target.month);
-  }
-}
-
-class _MonthBalance {
-  const _MonthBalance({
-    this.stitchCount = 0,
-    this.earnings = 0,
-    this.advances = 0,
-  });
-
-  final int stitchCount;
-  final double earnings;
-  final double advances;
-
-  _MonthBalance copyWith({
-    int? stitchCount,
-    double? earnings,
-    double? advances,
-  }) {
-    return _MonthBalance(
-      stitchCount: stitchCount ?? this.stitchCount,
-      earnings: earnings ?? this.earnings,
-      advances: advances ?? this.advances,
-    );
   }
 }
