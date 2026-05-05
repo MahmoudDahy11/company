@@ -20,7 +20,15 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   Future<void> start() async {
     _subscription?.cancel();
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    final isInitialLoad = state.summary == null;
+    emit(
+      state.copyWith(
+        isLoading: isInitialLoad,
+        isRefreshing: !isInitialLoad,
+        errorMessage: null,
+      ),
+    );
 
     try {
       await GetIt.I<SyncService>().forceSync();
@@ -37,6 +45,7 @@ class DashboardCubit extends Cubit<DashboardState> {
               state.copyWith(
                 summary: summary,
                 isLoading: false,
+                isRefreshing: false,
                 errorMessage: null,
               ),
             );
@@ -44,7 +53,11 @@ class DashboardCubit extends Cubit<DashboardState> {
           },
           onError: (Object error) {
             emit(
-              state.copyWith(isLoading: false, errorMessage: error.toString()),
+              state.copyWith(
+                isLoading: false,
+                isRefreshing: false,
+                errorMessage: error.toString(),
+              ),
             );
             if (!completer.isCompleted) completer.complete();
           },

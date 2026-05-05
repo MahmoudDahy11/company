@@ -1,24 +1,36 @@
 import 'dart:async';
-
+import 'dart:developer';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/dashboard_summary.dart';
 import '../../domain/entities/financial_filter.dart';
+import '../../../workers/domain/usecases/calculate_worker_salary_usecase.dart';
+import '../../../women_staff/domain/usecases/calculate_women_staff_salary_usecase.dart';
+import '../../../clients/domain/usecases/get_client_balance_usecase.dart';
 
 @lazySingleton
 class DashboardLocalDataSource {
-  DashboardLocalDataSource(this._database);
+  const DashboardLocalDataSource(
+    this._database,
+    this._calculateWorkerSalaryUseCase,
+    this._calculateWomenStaffSalaryUseCase,
+    this._getClientBalanceUseCase,
+  );
 
   final AppDatabase _database;
+  final CalculateWorkerSalaryUseCase _calculateWorkerSalaryUseCase;
+  final CalculateWomenStaffSalaryUseCase _calculateWomenStaffSalaryUseCase;
+  final GetClientBalanceUseCase _getClientBalanceUseCase;
 
   Stream<DashboardSummary> watchSummary(
     DateTime month,
     FinancialFilter financialFilter,
   ) {
-    return _watchTrigger().asyncMap(
-      (_) => _buildSummary(month, financialFilter),
+    return _watchTrigger().switchMap(
+      (_) => Stream.fromFuture(_buildSummary(month, financialFilter)),
     );
   }
 
@@ -42,174 +54,284 @@ class DashboardLocalDataSource {
             _database.clientPayments,
           },
         )
-        .watch();
+        .watch()
+        .debounceTime(const Duration(seconds: 2));
   }
 
   Future<DashboardSummary> _buildSummary(
     DateTime month,
     FinancialFilter financialFilter,
   ) async {
+    log('DEBUG: Dashboard: Building summary for $month');
     final monthRange = _monthRange(month);
-    final activeWorkers = await (_database.select(
-      _database.workers,
-    )..where((t) => t.isActive.equals(true))).get();
-    final activeWomen = await (_database.select(
-      _database.womenStaffMembers,
-    )..where((t) => t.isActive.equals(true))).get();
-    final activeClients = await (_database.select(
-      _database.clients,
-    )..where((t) => t.isActive.equals(true))).get();
-    final suppliers = await _database.select(_database.suppliers).get();
+    final rate = await _getRateForMonth(month);
+    log('DEBUG: Dashboard: Monthly rate: $rate');
 
-    double totalWorkerWages = 0;
-    final topWorkerBars = <DashboardBarPoint>[];
-    for (final worker in activeWorkers) {
-      final summary = await _workerMonthSummary(worker.id, month);
-      totalWorkerWages += summary.netSalary;
-      topWorkerBars.add(
-        DashboardBarPoint(
-          label: worker.name,
-          value: summary.totalStitchCount.toDouble(),
-        ),
-      );
-    }
-    topWorkerBars.sort((a, b) => b.value.compareTo(a.value));
+    // 1. Optimized Workers Summary (One SQL Pass)
+    log('DEBUG: Dashboard: Fetching worker totals...');
+    final workerTotals = await _database
+        .customSelect(
+          '''
+      SELECT 
+        COUNT(*) as count,
+        COALESCE(SUM(current_stitches), 0) as total_stitches,
+        COALESCE(SUM(current_advances), 0.0) as total_advances,
+        COALESCE(SUM(current_earnings), 0.0) as total_earnings,
+        COALESCE(SUM(carry_in), 0.0) as total_carry_in
+      FROM (
+        SELECT 
+          w.id,
+          COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
+          COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0.0) as current_advances,
+          COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), 0.0) as carry_in,
+          ((COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) / 100000.0) * ?) as current_earnings
+        FROM workers w
+        WHERE w.is_active = 1
+      )
+      ''',
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withReal(rate),
+          ],
+        )
+        .getSingle();
 
-    double totalWomenStaffWages = 0;
-    final womenAdvancesBars = <DashboardBarPoint>[];
-    for (final staff in activeWomen) {
-      final summary = await _womenMonthSummary(staff.id, month);
-      totalWomenStaffWages += summary.netSalary;
-      womenAdvancesBars.add(
-        DashboardBarPoint(label: staff.name, value: summary.totalAdvances),
-      );
-    }
-
-    final supplierIds = suppliers.map((s) => s.id).toList();
-    final monthThreadPurchases = supplierIds.isEmpty
-        ? <ThreadPurchase>[]
-        : await (_database.select(_database.threadPurchases)..where(
-                (t) =>
-                    t.supplierId.isIn(supplierIds) &
-                    t.purchaseDate.isBetweenValues(
-                      monthRange.start,
-                      monthRange.end,
-                    ),
-              ))
-              .get();
-    final totalThreadPurchases = monthThreadPurchases.fold<double>(
-      0,
-      (sum, row) => sum + row.price,
+    final wStitches = workerTotals.read<int?>('total_stitches') ?? 0;
+    final wEarnings = workerTotals.read<double?>('total_earnings') ?? 0.0;
+    final wAdvances = workerTotals.read<double?>('total_advances') ?? 0.0;
+    final wCarryIn = workerTotals.read<double?>('total_carry_in') ?? 0.0;
+    log(
+      'DEBUG: Dashboard: Worker Totals -> Stitches: $wStitches, Earnings: $wEarnings, Advances: $wAdvances, CarryIn: $wCarryIn',
     );
 
+    final totalWorkerWages = _calculateWorkerSalaryUseCase(
+      month: month,
+      stitchCount: wStitches,
+      earnings: wEarnings,
+      advances: wAdvances,
+      carryOver: wCarryIn,
+      absentDays: 0,
+      appliedRate: rate,
+    ).netSalary;
+    log('DEBUG: Dashboard: Total Worker Wages calculated: $totalWorkerWages');
+
+    // 2. Top Workers
+    log('DEBUG: Dashboard: Fetching top workers...');
+    final topWorkersQuery = await _database
+        .customSelect(
+          '''
+      SELECT w.name, COALESCE(SUM(e.stitch_count), 0) as total_stitches
+      FROM workers w
+      JOIN worker_production_entries e ON w.id = e.worker_id
+      WHERE w.is_active = 1 AND e.date BETWEEN ? AND ?
+      GROUP BY w.id
+      ORDER BY total_stitches DESC
+      LIMIT 5
+      ''',
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+          ],
+        )
+        .get();
+
+    final topWorkerBars = topWorkersQuery.map((row) {
+      return DashboardBarPoint(
+        label: row.read<String?>('name') ?? '',
+        value: (row.read<int?>('total_stitches') ?? 0).toDouble(),
+      );
+    }).toList();
+    log('DEBUG: Dashboard: Top workers count: ${topWorkerBars.length}');
+
+    // 3. Women Staff (Optimized)
+    log('DEBUG: Dashboard: Fetching women staff totals...');
+    final womenTotals = await _database
+        .customSelect(
+          '''
+      SELECT 
+        COALESCE(SUM(monthly_salary), 0.0) as total_salaries,
+        COALESCE(SUM(current_advances), 0.0) as total_advances,
+        COALESCE(SUM(carry_in), 0.0) as total_carry_in
+      FROM (
+        SELECT 
+          m.monthly_salary,
+          COALESCE((SELECT SUM(amount) FROM staff_advances WHERE staff_id = m.id AND date BETWEEN ? AND ?), 0.0) as current_advances,
+          COALESCE((SELECT amount FROM staff_advances WHERE staff_id = m.id AND date = ? AND carried_over = 1 LIMIT 1), 0.0) as carry_in
+        FROM women_staff_members m
+        WHERE m.is_active = 1
+      )
+      ''',
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.start),
+          ],
+        )
+        .getSingle();
+
+    final sSalaries = womenTotals.read<double?>('total_salaries') ?? 0.0;
+    final sAdvances = womenTotals.read<double?>('total_advances') ?? 0.0;
+    final sCarryIn = womenTotals.read<double?>('total_carry_in') ?? 0.0;
+    log(
+      'DEBUG: Dashboard: Staff Totals -> Salaries: $sSalaries, Advances: $sAdvances, CarryIn: $sCarryIn',
+    );
+
+    final totalWomenStaffWages = _calculateWomenStaffSalaryUseCase(
+      monthlySalary: sSalaries,
+      advances: sAdvances,
+      carryOver: sCarryIn,
+    );
+    log(
+      'DEBUG: Dashboard: Total Women Staff Wages calculated: $totalWomenStaffWages',
+    );
+
+    // 4. Thread Purchases Trend (Aggregated in Dart for cross-platform safety)
+    log('DEBUG: Dashboard: Fetching thread purchases trend...');
+    final yearStart = DateTime(month.year, 1, 1);
+    final yearEnd = DateTime(month.year, 12, 31, 23, 59, 59);
+
+    final allThreadPurchases = await (_database.select(
+      _database.threadPurchases,
+    )..where((t) => t.purchaseDate.isBetweenValues(yearStart, yearEnd))).get();
+
+    final threadLines = List.generate(12, (i) {
+      final monthIdx = i + 1;
+      final total = allThreadPurchases
+          .where((p) => p.purchaseDate.month == monthIdx)
+          .fold<double>(0, (sum, p) => sum + p.price);
+      return DashboardLinePoint(month: monthIdx, value: total);
+    });
+    log('DEBUG: Dashboard: Thread trend points: ${threadLines.length}');
+
+    // 5. Financial Summary
+    final financialRange = _financialRange(month, financialFilter);
+    log(
+      'DEBUG: Dashboard: Fetching client financials for range: $financialRange',
+    );
+
+    // Client Financials
+    final clientAnnualQuery = await _database
+        .customSelect(
+          '''
+      SELECT 
+        c.id, c.name,
+        COALESCE(SUM(m.piece_count * m.price_per_piece), 0.0) as total_work,
+        COALESCE((SELECT SUM(amount) FROM client_payments WHERE client_id = c.id AND payment_date BETWEEN ? AND ?), 0.0) as total_paid
+      FROM clients c
+      LEFT JOIN client_models m ON c.id = m.client_id AND m.date BETWEEN ? AND ?
+      WHERE c.is_active = 1
+      GROUP BY c.id
+      ORDER BY (total_work - total_paid) DESC
+      ''',
+          variables: [
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+          ],
+        )
+        .get();
+
+    double totalDueFromClients = 0;
+    final clientAnnualSummaries = <ClientAnnualSummary>[];
     final clientPiePoints = <DashboardPiePoint>[];
-    double totalClientOutstanding = 0;
-    int pendingClientBalancesCount = 0;
-    for (final client in activeClients) {
-      final summary = await _clientMonthSummary(client.id, month);
-      totalClientOutstanding += summary.outstanding;
-      if (summary.outstanding > 0) {
-        pendingClientBalancesCount++;
+
+    for (final row in clientAnnualQuery) {
+      final work = row.read<double?>('total_work') ?? 0.0;
+      final paid = row.read<double?>('total_paid') ?? 0.0;
+      final remaining = _getClientBalanceUseCase(
+        totalAmount: work,
+        totalPaid: paid,
+      );
+
+      if (remaining > 0) {
+        totalDueFromClients += remaining;
         clientPiePoints.add(
-          DashboardPiePoint(label: client.name, value: summary.outstanding),
+          DashboardPiePoint(
+            label: row.read<String?>('name') ?? '',
+            value: remaining,
+          ),
         );
       }
-    }
 
-    int suppliersWithOutstandingCount = 0;
-    for (final supplier in suppliers) {
-      final summary = await _supplierMonthSummary(supplier.id, month);
-      if (summary.outstandingBalance > 0) {
-        suppliersWithOutstandingCount++;
-      }
-    }
-
-    final workerIds = activeWorkers.map((w) => w.id).toList();
-    final absentRows = workerIds.isEmpty
-        ? <WorkerAbsentDay>[]
-        : await (_database.select(_database.workerAbsentDays)..where(
-                (t) =>
-                    t.workerId.isIn(workerIds) &
-                    t.monthStart.equals(DateTime(month.year, month.month)),
-              ))
-              .get();
-    final absentDaysCount = absentRows.fold<int>(
-      0,
-      (sum, row) => sum + row.absentDays,
-    );
-
-    final threadLines = <DashboardLinePoint>[];
-    for (var monthIndex = 1; monthIndex <= 12; monthIndex++) {
-      final start = DateTime(month.year, monthIndex);
-      final end = DateTime(month.year, monthIndex + 1, 0, 23, 59, 59, 999);
-      final rows = supplierIds.isEmpty
-          ? <ThreadPurchase>[]
-          : await (_database.select(_database.threadPurchases)..where(
-                  (t) =>
-                      t.supplierId.isIn(supplierIds) &
-                      t.purchaseDate.isBetweenValues(start, end),
-                ))
-                .get();
-      threadLines.add(
-        DashboardLinePoint(
-          month: monthIndex,
-          value: rows.fold<double>(0, (sum, row) => sum + row.price),
-        ),
-      );
-    }
-
-    // --- Financial Summary Logic ---
-    final financialRange = _financialRange(month, financialFilter);
-
-    final clientAnnualSummaries = <ClientAnnualSummary>[];
-    double totalDueFromClients = 0;
-    for (final client in activeClients) {
-      final summary = await _clientRangeSummary(client.id, financialRange);
       clientAnnualSummaries.add(
         ClientAnnualSummary(
-          clientId: client.id,
-          name: client.name,
-          totalWork: summary.totalAmount,
-          totalPaid: summary.totalPaid,
-          remaining: summary.outstanding,
+          clientId: row.read<int?>('id') ?? 0,
+          name: row.read<String?>('name') ?? '',
+          totalWork: work,
+          totalPaid: paid,
+          remaining: remaining,
         ),
       );
-      totalDueFromClients += summary.outstanding;
     }
-    // Sort: highest remaining first, zero remaining at bottom
-    clientAnnualSummaries.sort((a, b) => b.remaining.compareTo(a.remaining));
+    log('DEBUG: Dashboard: Total Due from Clients: $totalDueFromClients');
 
-    final supplierAnnualSummaries = <SupplierAnnualSummary>[];
+    // Supplier Financials
+    log('DEBUG: Dashboard: Fetching supplier financials...');
+    final supplierAnnualQuery = await _database
+        .customSelect(
+          '''
+      SELECT 
+        s.id, s.name,
+        COALESCE(SUM(p.price), 0.0) as total_purchased,
+        COALESCE((SELECT SUM(amount) FROM supplier_payments WHERE supplier_id = s.id AND payment_date BETWEEN ? AND ?), 0.0) as total_paid
+      FROM suppliers s
+      LEFT JOIN thread_purchases p ON s.id = p.supplier_id AND p.purchase_date BETWEEN ? AND ?
+      GROUP BY s.id
+      ORDER BY (total_purchased - total_paid) DESC
+      ''',
+          variables: [
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+          ],
+        )
+        .get();
+
     double totalDueToSuppliers = 0;
-    for (final supplier in suppliers) {
-      final summary = await _supplierRangeSummary(supplier.id, financialRange);
+    final supplierAnnualSummaries = <SupplierAnnualSummary>[];
+    for (final row in supplierAnnualQuery) {
+      final purchased = row.read<double?>('total_purchased') ?? 0.0;
+      final paid = row.read<double?>('total_paid') ?? 0.0;
+      final remaining = purchased - paid;
+
+      totalDueToSuppliers += remaining;
       supplierAnnualSummaries.add(
         SupplierAnnualSummary(
-          supplierId: supplier.id,
-          name: supplier.name,
-          totalPurchases: summary.totalPurchased,
-          totalPaid: summary.totalPaid,
-          remaining: summary.outstandingBalance,
+          supplierId: row.read<int?>('id') ?? 0,
+          name: row.read<String?>('name') ?? '',
+          totalPurchases: purchased,
+          totalPaid: paid,
+          remaining: remaining,
         ),
       );
-      totalDueToSuppliers += summary.outstandingBalance;
     }
-    // Sort: highest remaining first
-    supplierAnnualSummaries.sort((a, b) => b.remaining.compareTo(a.remaining));
+    log('DEBUG: Dashboard: Total Due to Suppliers: $totalDueToSuppliers');
 
+    // 6. Final Dashboard Summary Construction
+    log('DEBUG: Dashboard: Finalizing summary construction...');
     return DashboardSummary(
       totalWorkerWages: totalWorkerWages,
       totalWomenStaffWages: totalWomenStaffWages,
-      totalThreadPurchases: totalThreadPurchases,
-      totalClientOutstanding: totalClientOutstanding,
-      registeredWorkersCount: activeWorkers.length,
-      absentDaysCount: absentDaysCount,
-      pendingClientBalancesCount: pendingClientBalancesCount,
-      suppliersWithOutstandingCount: suppliersWithOutstandingCount,
-      topWorkers: topWorkerBars.take(5).toList(),
+      totalThreadPurchases: threadLines[month.month - 1].value,
+      totalClientOutstanding: totalDueFromClients,
+      registeredWorkersCount: workerTotals.read<int?>('count') ?? 0,
+      absentDaysCount: await _getAbsentDaysCount(month),
+      pendingClientBalancesCount: clientPiePoints.length,
+      suppliersWithOutstandingCount: supplierAnnualSummaries
+          .where((s) => s.remaining > 0)
+          .length,
+      topWorkers: topWorkerBars,
       threadPurchasesByMonth: threadLines,
       clientOutstandingDistribution: clientPiePoints,
-      womenAdvancesByStaff: womenAdvancesBars,
+      womenAdvancesByStaff: await _getWomenAdvancesBars(month),
       financialSummary: FinancialSummary(
         totalDueFromClients: totalDueFromClients,
         totalDueToSuppliers: totalDueToSuppliers,
@@ -219,59 +341,59 @@ class DashboardLocalDataSource {
     );
   }
 
-  Future<_ClientSummary> _clientRangeSummary(
-    int clientId,
-    ({DateTime start, DateTime end}) range,
-  ) async {
-    final models =
-        await (_database.select(_database.clientModels)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.date.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final payments =
-        await (_database.select(_database.clientPayments)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.paymentDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final totalAmount = models.fold<double>(
+  Future<double> _getRateForMonth(DateTime month) async {
+    final endOfMonth = DateTime(
+      month.year,
+      month.month + 1,
       0,
-      (sum, row) => sum + (row.pieceCount * row.pricePerPiece),
+      23,
+      59,
+      59,
+      999,
     );
-    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
-    return _ClientSummary(totalAmount: totalAmount, totalPaid: totalPaid);
+    final row =
+        await (_database.select(_database.stitchRates)
+              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(endOfMonth))
+              ..orderBy([(t) => OrderingTerm.desc(t.effectiveFrom)])
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.rate ?? 0.0;
   }
 
-  Future<_SupplierSummary> _supplierRangeSummary(
-    int supplierId,
-    ({DateTime start, DateTime end}) range,
-  ) async {
-    final purchases =
-        await (_database.select(_database.threadPurchases)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.purchaseDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final payments =
-        await (_database.select(_database.supplierPayments)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.paymentDate.isBetweenValues(range.start, range.end),
-            ))
-            .get();
-    final totalPurchased = purchases.fold<double>(
-      0,
-      (sum, row) => sum + row.price,
-    );
-    final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
-    return _SupplierSummary(
-      totalPurchased: totalPurchased,
-      totalPaid: totalPaid,
-    );
+  Future<int> _getAbsentDaysCount(DateTime month) async {
+    final normalizedMonth = DateTime(month.year, month.month);
+    final query = await _database
+        .customSelect(
+          'SELECT SUM(absent_days) as total FROM worker_absent_days WHERE month_start = ?',
+          variables: [Variable.withDateTime(normalizedMonth)],
+        )
+        .getSingle();
+    return query.read<int?>('total') ?? 0;
+  }
+
+  Future<List<DashboardBarPoint>> _getWomenAdvancesBars(DateTime month) async {
+    final range = _monthRange(month);
+    final query = await _database
+        .customSelect(
+          '''
+      SELECT m.name, COALESCE(SUM(a.amount), 0.0) as total_advances
+      FROM women_staff_members m
+      JOIN staff_advances a ON m.id = a.staff_id
+      WHERE m.is_active = 1 AND a.date BETWEEN ? AND ?
+      GROUP BY m.id
+      ''',
+          variables: [
+            Variable.withDateTime(range.start),
+            Variable.withDateTime(range.end),
+          ],
+        )
+        .get();
+    return query.map((row) {
+      return DashboardBarPoint(
+        label: row.read<String?>('name') ?? '',
+        value: row.read<double?>('total_advances') ?? 0.0,
+      );
+    }).toList();
   }
 
   ({DateTime start, DateTime end}) _financialRange(
@@ -289,199 +411,9 @@ class DashboardLocalDataSource {
     }
   }
 
-  Future<_WorkerSummary> _workerMonthSummary(
-    int workerId,
-    DateTime month,
-  ) async {
-    final normalizedMonth = DateTime(month.year, month.month);
-    final worker = await (_database.select(
-      _database.workers,
-    )..where((t) => t.id.equals(workerId))).getSingle();
-    final productions = await (_database.select(
-      _database.workerProductionEntries,
-    )..where((t) => t.workerId.equals(workerId))).get();
-    final advances = await (_database.select(
-      _database.workerAdvances,
-    )..where((t) => t.workerId.equals(workerId))).get();
-
-    final monthlyBalances = <DateTime, _WorkerSummary>{};
-    for (final production in productions) {
-      final key = DateTime(production.date.year, production.date.month);
-      final existing = monthlyBalances[key] ?? const _WorkerSummary();
-      monthlyBalances[key] = existing.copyWith(
-        totalStitchCount: existing.totalStitchCount + production.stitchCount,
-        totalEarnings:
-            existing.totalEarnings +
-            await _workerProductionEarnings(
-              production.date,
-              production.stitchCount,
-            ),
-      );
-    }
-    for (final advance in advances) {
-      final key = DateTime(advance.date.year, advance.date.month);
-      final existing = monthlyBalances[key] ?? const _WorkerSummary();
-      monthlyBalances[key] = existing.copyWith(
-        totalAdvances: existing.totalAdvances + advance.amount,
-      );
-    }
-
-    double carryIn = 0;
-    DateTime cursor = DateTime(worker.createdAt.year, worker.createdAt.month);
-    while (!_isAfterMonth(cursor, normalizedMonth)) {
-      final data = monthlyBalances[cursor] ?? const _WorkerSummary();
-      final net = data.totalEarnings - data.totalAdvances - carryIn;
-      final nextCarry = net < 0 ? -net : 0;
-      if (_sameMonth(cursor, normalizedMonth)) {
-        return data.copyWith(carryOver: carryIn, netSalary: net);
-      }
-      carryIn = nextCarry.toDouble();
-      cursor = DateTime(cursor.year, cursor.month + 1);
-    }
-    return _WorkerSummary(carryOver: carryIn, netSalary: -carryIn);
-  }
-
-  Future<double> _workerProductionEarnings(
-    DateTime date,
-    int stitchCount,
-  ) async {
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59, 999);
-    final rateRow =
-        await (_database.select(_database.stitchRates)
-              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(endOfDay))
-              ..orderBy([(t) => OrderingTerm.desc(t.effectiveFrom)])
-              ..limit(1))
-            .getSingleOrNull();
-    final rate = rateRow?.rate ?? 0;
-    return (stitchCount / 100000) * rate;
-  }
-
-  Future<_WomenSummary> _womenMonthSummary(int staffId, DateTime month) async {
-    final normalizedMonth = DateTime(month.year, month.month);
-    final member = await (_database.select(
-      _database.womenStaffMembers,
-    )..where((t) => t.id.equals(staffId))).getSingle();
-    final advances = await (_database.select(
-      _database.staffAdvances,
-    )..where((t) => t.staffId.equals(staffId))).get();
-
-    final monthlyAdvances = <DateTime, double>{};
-    for (final advance in advances) {
-      final key = DateTime(advance.date.year, advance.date.month);
-      monthlyAdvances[key] = (monthlyAdvances[key] ?? 0) + advance.amount;
-    }
-
-    double carryIn = 0;
-    DateTime cursor = DateTime(member.createdAt.year, member.createdAt.month);
-    while (!_isAfterMonth(cursor, normalizedMonth)) {
-      final totalAdvances = monthlyAdvances[cursor] ?? 0;
-      final net = member.monthlySalary - totalAdvances - carryIn;
-      final nextCarry = net < 0 ? -net : 0;
-      if (_sameMonth(cursor, normalizedMonth)) {
-        return _WomenSummary(
-          totalAdvances: totalAdvances,
-          carryOver: carryIn,
-          netSalary: net,
-        );
-      }
-      carryIn = nextCarry.toDouble();
-      cursor = DateTime(cursor.year, cursor.month + 1);
-    }
-    return _WomenSummary(
-      carryOver: carryIn,
-      netSalary: member.monthlySalary - carryIn,
-    );
-  }
-
-  Future<_ClientSummary> _clientMonthSummary(
-    int clientId,
-    DateTime month,
-  ) async {
-    final range = _monthRange(month);
-    return _clientRangeSummary(clientId, range);
-  }
-
-  Future<_SupplierSummary> _supplierMonthSummary(
-    int supplierId,
-    DateTime month,
-  ) async {
-    final range = _monthRange(month);
-    return _supplierRangeSummary(supplierId, range);
-  }
-
   ({DateTime start, DateTime end}) _monthRange(DateTime month) {
     final start = DateTime(month.year, month.month);
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
     return (start: start, end: end);
   }
-
-  bool _sameMonth(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month;
-
-  bool _isAfterMonth(DateTime value, DateTime target) {
-    return value.year > target.year ||
-        (value.year == target.year && value.month > target.month);
-  }
-}
-
-class _WorkerSummary {
-  const _WorkerSummary({
-    this.totalStitchCount = 0,
-    this.totalEarnings = 0,
-    this.totalAdvances = 0,
-    this.carryOver = 0,
-    this.netSalary = 0,
-  });
-
-  final int totalStitchCount;
-  final double totalEarnings;
-  final double totalAdvances;
-  final double carryOver;
-  final double netSalary;
-
-  _WorkerSummary copyWith({
-    int? totalStitchCount,
-    double? totalEarnings,
-    double? totalAdvances,
-    double? carryOver,
-    double? netSalary,
-  }) {
-    return _WorkerSummary(
-      totalStitchCount: totalStitchCount ?? this.totalStitchCount,
-      totalEarnings: totalEarnings ?? this.totalEarnings,
-      totalAdvances: totalAdvances ?? this.totalAdvances,
-      carryOver: carryOver ?? this.carryOver,
-      netSalary: netSalary ?? this.netSalary,
-    );
-  }
-}
-
-class _WomenSummary {
-  const _WomenSummary({
-    this.totalAdvances = 0,
-    this.carryOver = 0,
-    this.netSalary = 0,
-  });
-
-  final double totalAdvances;
-  final double carryOver;
-  final double netSalary;
-}
-
-class _ClientSummary {
-  const _ClientSummary({this.totalAmount = 0, this.totalPaid = 0});
-
-  final double totalAmount;
-  final double totalPaid;
-
-  double get outstanding => totalAmount - totalPaid;
-}
-
-class _SupplierSummary {
-  const _SupplierSummary({this.totalPurchased = 0, this.totalPaid = 0});
-
-  final double totalPurchased;
-  final double totalPaid;
-
-  double get outstandingBalance => totalPurchased - totalPaid;
 }

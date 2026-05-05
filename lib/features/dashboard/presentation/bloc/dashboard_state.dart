@@ -6,6 +6,7 @@ class DashboardState {
     required this.selectedMonth,
     required this.financialFilter,
     required this.isLoading,
+    this.isRefreshing = false,
     this.summary,
     this.errorMessage,
   });
@@ -19,6 +20,7 @@ class DashboardState {
   final DateTime selectedMonth;
   final FinancialFilter financialFilter;
   final bool isLoading;
+  final bool isRefreshing;
   final DashboardSummary? summary;
   final String? errorMessage;
 
@@ -26,6 +28,7 @@ class DashboardState {
     DateTime? selectedMonth,
     FinancialFilter? financialFilter,
     bool? isLoading,
+    bool? isRefreshing,
     DashboardSummary? summary,
     String? errorMessage,
   }) {
@@ -33,6 +36,7 @@ class DashboardState {
       selectedMonth: selectedMonth ?? this.selectedMonth,
       financialFilter: financialFilter ?? this.financialFilter,
       isLoading: isLoading ?? this.isLoading,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       summary: summary ?? this.summary,
       errorMessage: errorMessage,
     );
