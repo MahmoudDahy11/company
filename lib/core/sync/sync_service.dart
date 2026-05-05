@@ -4,6 +4,7 @@ import 'package:injectable/injectable.dart';
 
 import '../database/app_database.dart';
 import 'connectivity_service.dart';
+import 'remote_sync_applier.dart';
 import 'sync_queue_table.dart';
 import 'sync_remote_data_source.dart';
 import 'sync_status_cubit.dart';
@@ -15,29 +16,84 @@ class SyncService {
     this._connectivityService,
     this._remoteDataSource,
     this._syncStatusCubit,
+    this._remoteSyncApplier,
   );
 
   final AppDatabase _database;
   final ConnectivityService _connectivityService;
   final SyncRemoteDataSource _remoteDataSource;
   final SyncStatusCubit _syncStatusCubit;
+  final RemoteSyncApplier _remoteSyncApplier;
 
   StreamSubscription<bool>? _connectivitySubscription;
+  StreamSubscription<RemoteChangeEvent>? _remoteChangesSubscription;
   bool _isProcessing = false;
+
+  // List of all table names to watch for remote changes
+  static const List<String> _allTableNames = [
+    'workers',
+    'worker_production_entries',
+    'worker_advances',
+    'stitch_rates',
+    'worker_absent_days',
+    'women_staff_members',
+    'staff_advances',
+    'suppliers',
+    'thread_purchases',
+    'supplier_payments',
+    'clients',
+    'client_models',
+    'client_payments',
+  ];
 
   Future<void> start() async {
     _syncStatusCubit.start();
+
+    // Listen for local connectivity changes
     _connectivitySubscription ??= _connectivityService.watchConnection().listen(
       (isConnected) async {
         if (isConnected) {
           await processQueue();
+          _startRemoteChangesListener();
+        } else {
+          await _stopRemoteChangesListener();
         }
       },
     );
 
     if (await _connectivityService.isConnected()) {
       await processQueue();
+      _startRemoteChangesListener();
     }
+  }
+
+  /// Start listening to remote changes from Firestore
+  void _startRemoteChangesListener() {
+    _remoteChangesSubscription?.cancel();
+
+    try {
+      _remoteChangesSubscription = _remoteDataSource
+          .watchRemoteChanges(_allTableNames)
+          .listen(
+            (change) async {
+              // Apply the remote change to local database
+              await _remoteSyncApplier.applyRemoteChange(change);
+            },
+            onError: (e) {
+              // Log error but continue
+              // TODO: Add proper error logging
+            },
+          );
+    } catch (e) {
+      // Firestore might not be available on some platforms
+      // TODO: Add proper error logging
+    }
+  }
+
+  /// Stop listening to remote changes
+  Future<void> _stopRemoteChangesListener() async {
+    await _remoteChangesSubscription?.cancel();
+    _remoteChangesSubscription = null;
   }
 
   Future<void> processQueue() async {
@@ -88,5 +144,7 @@ class SyncService {
 
   Future<void> dispose() async {
     await _connectivitySubscription?.cancel();
+    await _remoteChangesSubscription?.cancel();
+    await _remoteDataSource.dispose();
   }
 }

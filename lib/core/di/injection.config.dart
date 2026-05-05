@@ -18,6 +18,7 @@ import 'package:company/core/firebase/firebase_provider.dart' as _i80;
 import 'package:company/core/localization/app_locale_controller.dart' as _i707;
 import 'package:company/core/router/app_router.dart' as _i512;
 import 'package:company/core/sync/connectivity_service.dart' as _i447;
+import 'package:company/core/sync/remote_sync_applier.dart' as _i216;
 import 'package:company/core/sync/sync_remote_data_source.dart' as _i671;
 import 'package:company/core/sync/sync_service.dart' as _i807;
 import 'package:company/core/sync/sync_status_cubit.dart' as _i359;
@@ -175,6 +176,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i671.SyncRemoteDataSource>(
       () => _i671.SyncRemoteDataSource(gh<_i80.FirebaseProvider>()),
     );
+    gh.lazySingleton<_i216.RemoteSyncApplier>(
+      () => _i216.RemoteSyncApplier(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
     );
@@ -268,6 +272,15 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i134.UpdateStitchRateUseCase>(),
       ),
     );
+    gh.lazySingleton<_i807.SyncService>(
+      () => _i807.SyncService(
+        gh<_i549.AppDatabase>(),
+        gh<_i447.ConnectivityService>(),
+        gh<_i671.SyncRemoteDataSource>(),
+        gh<_i359.SyncStatusCubit>(),
+        gh<_i216.RemoteSyncApplier>(),
+      ),
+    );
     gh.factory<_i105.WorkerDetailsCubit>(
       () => _i105.WorkerDetailsCubit(
         gh<_i455.WatchWorkerDetailsUseCase>(),
@@ -276,14 +289,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i454.AddAdvanceUseCase>(),
         gh<_i1064.DeleteAdvanceUseCase>(),
         gh<_i704.UpsertAbsentDaysUseCase>(),
-      ),
-    );
-    gh.lazySingleton<_i807.SyncService>(
-      () => _i807.SyncService(
-        gh<_i549.AppDatabase>(),
-        gh<_i447.ConnectivityService>(),
-        gh<_i671.SyncRemoteDataSource>(),
-        gh<_i359.SyncStatusCubit>(),
       ),
     );
     gh.factory<_i238.AddClientModelUseCase>(
