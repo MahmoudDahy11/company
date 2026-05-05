@@ -20,13 +20,79 @@ class ClientsLocalDataSource {
   final AppDatabase _database;
 
   Stream<List<ClientListItem>> watchClients(DateTime month) {
-    return _watchTrigger().asyncMap((_) => _buildClientsList(month));
+    // We use a custom select to fetch all summaries in a single query (optimized)
+    // while maintaining reactivity by watching the relevant tables.
+    final monthRange = _monthRange(month);
+
+    return _database
+        .customSelect(
+          '''
+      SELECT 
+        c.id, 
+        c.name,
+        (SELECT SUM(cm.piece_count * cm.price_per_piece) 
+         FROM client_models cm 
+         WHERE cm.client_id = c.id AND cm.date BETWEEN ? AND ?) as month_amount,
+        (SELECT SUM(cp.amount) 
+         FROM client_payments cp 
+         WHERE cp.client_id = c.id AND cp.payment_date BETWEEN ? AND ?) as month_paid,
+        (SELECT SUM(cm2.piece_count * cm2.price_per_piece) 
+         FROM client_models cm2 
+         WHERE cm2.client_id = c.id AND cm2.date <= ?) as total_amount_all_time,
+        (SELECT SUM(cp2.amount) 
+         FROM client_payments cp2 
+         WHERE cp2.client_id = c.id AND cp2.payment_date <= ?) as total_paid_all_time
+      FROM clients c
+      WHERE c.is_active = 1
+      ORDER BY c.name ASC
+      ''',
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.end),
+          ],
+          readsFrom: {
+            _database.clients,
+            _database.clientModels,
+            _database.clientPayments,
+          },
+        )
+        .watch()
+        .map((rows) {
+          return rows.map((row) {
+            final monthAmount = row.read<double?>('month_amount') ?? 0.0;
+            final monthPaid = row.read<double?>('month_paid') ?? 0.0;
+            final totalAmountAllTime =
+                row.read<double?>('total_amount_all_time') ?? 0.0;
+            final totalPaidAllTime =
+                row.read<double?>('total_paid_all_time') ?? 0.0;
+
+            return ClientListItem(
+              id: row.read<int>('id'),
+              name: row.read<String>('name'),
+              totalAmount: monthAmount,
+              totalPaid: monthPaid,
+              outstanding: totalAmountAllTime - totalPaidAllTime,
+            );
+          }).toList();
+        });
   }
 
   Stream<ClientDetailsData> watchClientDetails(int clientId, DateTime month) {
-    return _watchTrigger().asyncMap(
-      (_) => _buildClientDetails(clientId, month),
-    );
+    return _database
+        .customSelect(
+          'SELECT 1',
+          readsFrom: {
+            _database.clients,
+            _database.clientModels,
+            _database.clientPayments,
+          },
+        )
+        .watch()
+        .asyncMap((_) => _buildClientDetails(clientId, month));
   }
 
   Future<void> addClient({required String name, String? phone}) async {
@@ -41,17 +107,14 @@ class ClientsLocalDataSource {
               ),
             ),
           );
+      final client = await (_database.select(
+        _database.clients,
+      )..where((t) => t.id.equals(id))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.insert,
         tableName: 'clients',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'name': name.trim(),
-          'phone': phone?.trim(),
-          'createdAt': DateTime.now().toIso8601String(),
-          'isActive': true,
-        },
+        payload: client.toJson(),
       );
     });
   }
@@ -60,25 +123,21 @@ class ClientsLocalDataSource {
     final existing = await (_database.select(
       _database.clients,
     )..where((t) => t.id.equals(clientId))).getSingleOrNull();
-    if (existing == null) {
-      return;
-    }
+    if (existing == null) return;
 
     await _database.transaction(() async {
       await (_database.update(_database.clients)
             ..where((t) => t.id.equals(clientId)))
           .write(const ClientsCompanion(isActive: Value(false)));
+
+      final updated = await (_database.select(
+        _database.clients,
+      )..where((t) => t.id.equals(clientId))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.update,
         tableName: 'clients',
         recordId: clientId,
-        payload: <String, dynamic>{
-          'id': existing.id,
-          'name': existing.name,
-          'phone': existing.phone,
-          'createdAt': existing.createdAt.toIso8601String(),
-          'isActive': false,
-        },
+        payload: updated.toJson(),
       );
     });
   }
@@ -104,19 +163,14 @@ class ClientsLocalDataSource {
               notes: Value(notes),
             ),
           );
+      final model = await (_database.select(
+        _database.clientModels,
+      )..where((t) => t.id.equals(id))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.insert,
         tableName: 'client_models',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'clientId': clientId,
-          'modelName': modelName.trim(),
-          'pieceCount': pieceCount,
-          'pricePerPiece': pricePerPiece,
-          'date': date.toIso8601String(),
-          'notes': notes,
-        },
+        payload: model.toJson(),
       );
     });
   }
@@ -146,19 +200,15 @@ class ClientsLocalDataSource {
           notes: Value(notes),
         ),
       );
+
+      final updated = await (_database.select(
+        _database.clientModels,
+      )..where((t) => t.id.equals(modelId))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.update,
         tableName: 'client_models',
         recordId: modelId,
-        payload: <String, dynamic>{
-          'id': modelId,
-          'clientId': existing.clientId,
-          'modelName': modelName.trim(),
-          'pieceCount': pieceCount,
-          'pricePerPiece': pricePerPiece,
-          'date': date.toIso8601String(),
-          'notes': notes,
-        },
+        payload: updated.toJson(),
       );
     });
   }
@@ -168,17 +218,17 @@ class ClientsLocalDataSource {
       final row = await (_database.select(
         _database.clientModels,
       )..where((t) => t.id.equals(modelId))).getSingleOrNull();
-      if (row == null) {
-        return;
-      }
+      if (row == null) return;
+
       await (_database.delete(
         _database.clientModels,
       )..where((t) => t.id.equals(modelId))).go();
+
       await _queueSync(
         operation: SyncQueueOperation.delete,
         tableName: 'client_models',
         recordId: modelId,
-        payload: <String, dynamic>{'id': modelId, 'clientId': row.clientId},
+        payload: {'id': modelId, 'clientId': row.clientId},
       );
     });
   }
@@ -200,17 +250,14 @@ class ClientsLocalDataSource {
               notes: Value(notes),
             ),
           );
+      final payment = await (_database.select(
+        _database.clientPayments,
+      )..where((t) => t.id.equals(id))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.insert,
         tableName: 'client_payments',
         recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'clientId': clientId,
-          'amount': amount,
-          'paymentDate': paymentDate.toIso8601String(),
-          'notes': notes,
-        },
+        payload: payment.toJson(),
       );
     });
   }
@@ -236,17 +283,15 @@ class ClientsLocalDataSource {
           notes: Value(notes),
         ),
       );
+
+      final updated = await (_database.select(
+        _database.clientPayments,
+      )..where((t) => t.id.equals(paymentId))).getSingle();
       await _queueSync(
         operation: SyncQueueOperation.update,
         tableName: 'client_payments',
         recordId: paymentId,
-        payload: <String, dynamic>{
-          'id': paymentId,
-          'clientId': existing.clientId,
-          'amount': amount,
-          'paymentDate': paymentDate.toIso8601String(),
-          'notes': notes,
-        },
+        payload: updated.toJson(),
       );
     });
   }
@@ -256,54 +301,19 @@ class ClientsLocalDataSource {
       final row = await (_database.select(
         _database.clientPayments,
       )..where((t) => t.id.equals(paymentId))).getSingleOrNull();
-      if (row == null) {
-        return;
-      }
+      if (row == null) return;
+
       await (_database.delete(
         _database.clientPayments,
       )..where((t) => t.id.equals(paymentId))).go();
+
       await _queueSync(
         operation: SyncQueueOperation.delete,
         tableName: 'client_payments',
         recordId: paymentId,
-        payload: <String, dynamic>{'id': paymentId, 'clientId': row.clientId},
+        payload: {'id': paymentId, 'clientId': row.clientId},
       );
     });
-  }
-
-  Stream<List<QueryRow>> _watchTrigger() {
-    return _database
-        .customSelect(
-          'SELECT 1',
-          readsFrom: {
-            _database.clients,
-            _database.clientModels,
-            _database.clientPayments,
-          },
-        )
-        .watch();
-  }
-
-  Future<List<ClientListItem>> _buildClientsList(DateTime month) async {
-    final rows =
-        await (_database.select(_database.clients)
-              ..where((t) => t.isActive.equals(true))
-              ..orderBy([(t) => OrderingTerm(expression: t.name)]))
-            .get();
-    final result = <ClientListItem>[];
-    for (final row in rows) {
-      final summary = await _buildClientSummary(row.id, month);
-      result.add(
-        ClientListItem(
-          id: row.id,
-          name: row.name,
-          totalAmount: summary.totalAmount,
-          totalPaid: summary.totalPaid,
-          outstanding: summary.outstanding,
-        ),
-      );
-    }
-    return result;
   }
 
   Future<ClientDetailsData> _buildClientDetails(
@@ -325,6 +335,7 @@ class ClientsLocalDataSource {
               )
               ..orderBy([(t) => OrderingTerm.desc(t.date)]))
             .get();
+
     final paymentsRows =
         await (_database.select(_database.clientPayments)
               ..where(
@@ -379,35 +390,71 @@ class ClientsLocalDataSource {
     DateTime month,
   ) async {
     final monthRange = _monthRange(month);
-    final modelsRows =
-        await (_database.select(_database.clientModels)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.date.isBetweenValues(monthRange.start, monthRange.end),
-            ))
-            .get();
-    final paymentsRows =
-        await (_database.select(_database.clientPayments)..where(
-              (t) =>
-                  t.clientId.equals(clientId) &
-                  t.paymentDate.isBetweenValues(
-                    monthRange.start,
-                    monthRange.end,
-                  ),
-            ))
-            .get();
-    final totalAmount = modelsRows.fold<double>(
-      0,
-      (sum, row) => sum + (row.pieceCount * row.pricePerPiece),
-    );
-    final totalPaid = paymentsRows.fold<double>(
-      0,
-      (sum, row) => sum + row.amount,
-    );
+
+    final amountExp =
+        (_database.clientModels.pieceCount.cast<double>() *
+                _database.clientModels.pricePerPiece)
+            .sum();
+    final monthModelsQuery = _database.selectOnly(_database.clientModels)
+      ..addColumns([amountExp])
+      ..where(
+        _database.clientModels.clientId.equals(clientId) &
+            _database.clientModels.date.isBetweenValues(
+              monthRange.start,
+              monthRange.end,
+            ),
+      );
+
+    final paymentSumExp = _database.clientPayments.amount.sum();
+    final monthPaymentsQuery = _database.selectOnly(_database.clientPayments)
+      ..addColumns([paymentSumExp])
+      ..where(
+        _database.clientPayments.clientId.equals(clientId) &
+            _database.clientPayments.paymentDate.isBetweenValues(
+              monthRange.start,
+              monthRange.end,
+            ),
+      );
+
+    final totalAmountExp =
+        (_database.clientModels.pieceCount.cast<double>() *
+                _database.clientModels.pricePerPiece)
+            .sum();
+    final totalModelsQuery = _database.selectOnly(_database.clientModels)
+      ..addColumns([totalAmountExp])
+      ..where(
+        _database.clientModels.clientId.equals(clientId) &
+            _database.clientModels.date.isSmallerOrEqualValue(monthRange.end),
+      );
+
+    final totalPaymentsSumExp = _database.clientPayments.amount.sum();
+    final totalPaymentsQuery = _database.selectOnly(_database.clientPayments)
+      ..addColumns([totalPaymentsSumExp])
+      ..where(
+        _database.clientPayments.clientId.equals(clientId) &
+            _database.clientPayments.paymentDate.isSmallerOrEqualValue(
+              monthRange.end,
+            ),
+      );
+
+    final monthAmount = await monthModelsQuery
+        .map((row) => row.read(amountExp))
+        .getSingleOrNull();
+    final monthPaid = await monthPaymentsQuery
+        .map((row) => row.read(paymentSumExp))
+        .getSingleOrNull();
+    final totalAmount = await totalModelsQuery
+        .map((row) => row.read(totalAmountExp))
+        .getSingleOrNull();
+    final totalPaid = await totalPaymentsQuery
+        .map((row) => row.read(totalPaymentsSumExp))
+        .getSingleOrNull();
+
     return ClientSummary(
-      totalAmount: totalAmount,
-      totalPaid: totalPaid,
-      outstanding: totalAmount - totalPaid,
+      totalAmount: (monthAmount ?? 0.0).toDouble(),
+      totalPaid: (monthPaid ?? 0.0).toDouble(),
+      outstanding:
+          (totalAmount ?? 0.0).toDouble() - (totalPaid ?? 0.0).toDouble(),
     );
   }
 

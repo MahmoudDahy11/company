@@ -42,6 +42,7 @@ class ClientModelFormResult {
     required this.pricePerPiece,
     required this.date,
     this.notes,
+    this.modelId,
   });
 
   final String modelName;
@@ -49,6 +50,7 @@ class ClientModelFormResult {
   final double pricePerPiece;
   final DateTime date;
   final String? notes;
+  final int? modelId;
 }
 
 class ClientPaymentFormResult {
@@ -72,10 +74,13 @@ Future<ClientFormResult?> showClientSheet(BuildContext context) {
   );
 }
 
-Future<ClientModelFormResult?> showClientModelSheet(BuildContext context) {
+Future<ClientModelFormResult?> showClientModelSheet(
+  BuildContext context, {
+  ClientModelFormResult? initialValue,
+}) {
   return showAdaptiveClientsSheet<ClientModelFormResult>(
     context: context,
-    child: const _ClientModelSheet(),
+    child: _ClientModelSheet(initialValue: initialValue),
   );
 }
 
@@ -89,72 +94,132 @@ Future<ClientPaymentFormResult?> showClientPaymentSheet(
   );
 }
 
-class _ClientSheet extends StatelessWidget {
+class _ClientSheet extends StatefulWidget {
   const _ClientSheet();
+
+  @override
+  State<_ClientSheet> createState() => _ClientSheetState();
+}
+
+class _ClientSheetState extends State<_ClientSheet> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _phoneController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _phoneController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
 
     return _ClientsSheetScaffold(
       title: l10n.addClient,
       child: Column(
         children: [
           TextField(
-            controller: nameController,
+            controller: _nameController,
             decoration: InputDecoration(labelText: l10n.clientName),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: phoneController,
+            controller: _phoneController,
             decoration: InputDecoration(labelText: l10n.phoneNumber),
+            keyboardType: TextInputType.phone,
+            onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                if (nameController.text.trim().isNotEmpty) {
-                  Navigator.of(context).pop(
-                    ClientFormResult(
-                      name: nameController.text.trim(),
-                      phone: phoneController.text.trim().isEmpty
-                          ? null
-                          : phoneController.text.trim(),
-                    ),
-                  );
-                }
-              },
-              child: Text(l10n.save),
-            ),
+            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
           ),
         ],
       ),
     );
   }
+
+  void _save() {
+    if (_nameController.text.trim().isNotEmpty) {
+      Navigator.of(context).pop(
+        ClientFormResult(
+          name: _nameController.text.trim(),
+          phone: _phoneController.text.trim().isEmpty
+              ? null
+              : _phoneController.text.trim(),
+        ),
+      );
+    }
+  }
 }
 
-class _ClientModelSheet extends StatelessWidget {
-  const _ClientModelSheet();
+class _ClientModelSheet extends StatefulWidget {
+  const _ClientModelSheet({this.initialValue});
+
+  final ClientModelFormResult? initialValue;
+
+  @override
+  State<_ClientModelSheet> createState() => _ClientModelSheetState();
+}
+
+class _ClientModelSheetState extends State<_ClientModelSheet> {
+  late final TextEditingController _modelController;
+  late final TextEditingController _piecesController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _notesController;
+  late final ValueNotifier<DateTime> _dateNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _modelController = TextEditingController(
+      text: widget.initialValue?.modelName ?? '',
+    );
+    _piecesController = TextEditingController(
+      text: widget.initialValue?.pieceCount.toString() ?? '',
+    );
+    _priceController = TextEditingController(
+      text: widget.initialValue?.pricePerPiece.toString() ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.date ?? DateTime.now(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _modelController.dispose();
+    _piecesController.dispose();
+    _priceController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final modelController = TextEditingController();
-    final piecesController = TextEditingController();
-    final priceController = TextEditingController();
-    final notesController = TextEditingController();
-    final dateNotifier = ValueNotifier<DateTime>(DateTime.now());
 
     return _ClientsSheetScaffold(
-      title: l10n.addModel,
+      title: widget.initialValue == null ? l10n.addModel : l10n.editModel,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ValueListenableBuilder<DateTime>(
-            valueListenable: dateNotifier,
+            valueListenable: _dateNotifier,
             builder: (context, value, _) {
               return OutlinedButton.icon(
                 onPressed: () async {
@@ -165,7 +230,7 @@ class _ClientModelSheet extends StatelessWidget {
                     initialDate: value,
                   );
                   if (picked != null) {
-                    dateNotifier.value = picked;
+                    _dateNotifier.value = picked;
                   }
                 },
                 icon: const Icon(Icons.calendar_today_outlined),
@@ -175,83 +240,109 @@ class _ClientModelSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: modelController,
+            controller: _modelController,
             decoration: InputDecoration(labelText: l10n.modelName),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: piecesController,
+            controller: _piecesController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(labelText: l10n.pieceCount),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: priceController,
+            controller: _priceController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(labelText: l10n.pricePerPiece),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: notesController,
+            controller: _notesController,
             decoration: InputDecoration(labelText: l10n.notes),
+            onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final pieces = int.tryParse(piecesController.text.trim());
-                final price = double.tryParse(priceController.text.trim());
-                if (modelController.text.trim().isNotEmpty &&
-                    pieces != null &&
-                    price != null) {
-                  Navigator.of(context).pop(
-                    ClientModelFormResult(
-                      modelName: modelController.text.trim(),
-                      pieceCount: pieces,
-                      pricePerPiece: price,
-                      date: dateNotifier.value,
-                      notes: notesController.text.trim().isEmpty
-                          ? null
-                          : notesController.text.trim(),
-                    ),
-                  );
-                }
-              },
-              child: Text(l10n.save),
-            ),
+            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
           ),
         ],
       ),
     );
   }
+
+  void _save() {
+    final pieces = int.tryParse(_piecesController.text.trim());
+    final price = double.tryParse(_priceController.text.trim());
+    if (_modelController.text.trim().isNotEmpty &&
+        pieces != null &&
+        price != null) {
+      Navigator.of(context).pop(
+        ClientModelFormResult(
+          modelId: widget.initialValue?.modelId,
+          modelName: _modelController.text.trim(),
+          pieceCount: pieces,
+          pricePerPiece: price,
+          date: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
+  }
 }
 
-class _ClientPaymentSheet extends StatelessWidget {
+class _ClientPaymentSheet extends StatefulWidget {
   const _ClientPaymentSheet({this.initialValue});
 
   final ClientPaymentFormResult? initialValue;
 
   @override
+  State<_ClientPaymentSheet> createState() => _ClientPaymentSheetState();
+}
+
+class _ClientPaymentSheetState extends State<_ClientPaymentSheet> {
+  late final TextEditingController _amountController;
+  late final TextEditingController _notesController;
+  late final ValueNotifier<DateTime> _dateNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController(
+      text: widget.initialValue?.amount.toString() ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.paymentDate ?? DateTime.now(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final amountController = TextEditingController(
-      text: initialValue?.amount.toString() ?? '',
-    );
-    final notesController = TextEditingController(
-      text: initialValue?.notes ?? '',
-    );
-    final dateNotifier = ValueNotifier<DateTime>(
-      initialValue?.paymentDate ?? DateTime.now(),
-    );
 
     return _ClientsSheetScaffold(
-      title: initialValue == null ? l10n.addPayment : l10n.editPayment,
+      title: widget.initialValue == null ? l10n.addPayment : l10n.editPayment,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ValueListenableBuilder<DateTime>(
-            valueListenable: dateNotifier,
+            valueListenable: _dateNotifier,
             builder: (context, value, _) {
               return OutlinedButton.icon(
                 onPressed: () async {
@@ -262,7 +353,7 @@ class _ClientPaymentSheet extends StatelessWidget {
                     initialDate: value,
                   );
                   if (picked != null) {
-                    dateNotifier.value = picked;
+                    _dateNotifier.value = picked;
                   }
                 },
                 icon: const Icon(Icons.calendar_today_outlined),
@@ -272,40 +363,41 @@ class _ClientPaymentSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: amountController,
+            controller: _amountController,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(labelText: l10n.amount),
+            textInputAction: TextInputAction.next,
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
-            controller: notesController,
+            controller: _notesController,
             decoration: InputDecoration(labelText: l10n.notes),
+            onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: AppSpacing.lg),
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(
-              onPressed: () {
-                final amount = double.tryParse(amountController.text.trim());
-                if (amount != null) {
-                  Navigator.of(context).pop(
-                    ClientPaymentFormResult(
-                      paymentId: initialValue?.paymentId,
-                      amount: amount,
-                      paymentDate: dateNotifier.value,
-                      notes: notesController.text.trim().isEmpty
-                          ? null
-                          : notesController.text.trim(),
-                    ),
-                  );
-                }
-              },
-              child: Text(l10n.save),
-            ),
+            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
           ),
         ],
       ),
     );
+  }
+
+  void _save() {
+    final amount = double.tryParse(_amountController.text.trim());
+    if (amount != null) {
+      Navigator.of(context).pop(
+        ClientPaymentFormResult(
+          paymentId: widget.initialValue?.paymentId,
+          amount: amount,
+          paymentDate: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
   }
 }
 

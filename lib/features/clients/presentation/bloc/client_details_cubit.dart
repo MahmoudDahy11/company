@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/client_details_data.dart';
 import '../../domain/usecases/add_client_model_usecase.dart';
 import '../../domain/usecases/add_client_payment_usecase.dart';
@@ -38,6 +40,15 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
   void init(int clientId) {
     emit(ClientDetailsState.initial(clientId));
     _subscribe();
+  }
+
+  Future<void> refresh() async {
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
+    final completer = Completer<void>();
+    _subscribe(completer: completer);
+    return completer.future;
   }
 
   void previousMonth() {
@@ -76,7 +87,7 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
     clientId: state.clientId,
     modelName: modelName,
     pieceCount: pieceCount,
-    pricePerPiece: pricePerPiece,
+    pricePerPiece: pieceCount > 0 ? pricePerPiece : 0,
     date: date,
     notes: notes,
   );
@@ -92,7 +103,7 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
     modelId: modelId,
     modelName: modelName,
     pieceCount: pieceCount,
-    pricePerPiece: pricePerPiece,
+    pricePerPiece: pieceCount > 0 ? pricePerPiece : 0,
     date: date,
     notes: notes,
   );
@@ -125,20 +136,30 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
   Future<void> deletePayment(int paymentId) =>
       _deleteClientPaymentUseCase(paymentId);
 
-  void _subscribe() {
+  void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
     _subscription =
         _watchClientDetailsUseCase(state.clientId, state.selectedMonth).listen(
-          (details) => emit(
-            state.copyWith(
-              details: details,
-              isLoading: false,
-              errorMessage: null,
-            ),
-          ),
-          onError: (Object error) => emit(
-            state.copyWith(isLoading: false, errorMessage: error.toString()),
-          ),
+          (details) {
+            emit(
+              state.copyWith(
+                details: details,
+                isLoading: false,
+                errorMessage: null,
+              ),
+            );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(isLoading: false, errorMessage: error.toString()),
+            );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
+          },
         );
   }
 

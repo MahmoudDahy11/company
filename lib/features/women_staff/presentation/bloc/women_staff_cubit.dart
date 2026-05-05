@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
-
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/staff_list_item.dart';
 import '../../domain/usecases/add_staff_usecase.dart';
 import '../../domain/usecases/delete_staff_usecase.dart';
@@ -23,9 +24,15 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
 
   StreamSubscription<List<StaffListItem>>? _subscription;
 
-  Future<void> start() {
+  Future<void> start() async {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Perform a forced sync from the server
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
+
     final completer = Completer<void>();
     _subscription = _watchStaffUseCase(state.selectedMonth).listen(
       (items) {

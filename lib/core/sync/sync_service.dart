@@ -46,6 +46,8 @@ class SyncService {
     'client_payments',
   ];
 
+  StreamSubscription<List<SyncQueueData>>? _localQueueSubscription;
+
   Future<void> start() async {
     _syncStatusCubit.start();
 
@@ -55,8 +57,10 @@ class SyncService {
         if (isConnected) {
           await processQueue();
           _startRemoteChangesListener();
+          _startLocalQueueListener();
         } else {
           await _stopRemoteChangesListener();
+          _stopLocalQueueListener();
         }
       },
     );
@@ -64,7 +68,26 @@ class SyncService {
     if (await _connectivityService.isConnected()) {
       await processQueue();
       _startRemoteChangesListener();
+      _startLocalQueueListener();
     }
+  }
+
+  void _startLocalQueueListener() {
+    _localQueueSubscription?.cancel();
+    _localQueueSubscription = _database.watchSyncQueue().listen((entries) {
+      if (entries.any(
+        (e) =>
+            e.status == SyncQueueStatus.pending ||
+            (e.status == SyncQueueStatus.failed && e.retryCount < 3),
+      )) {
+        processQueue();
+      }
+    });
+  }
+
+  void _stopLocalQueueListener() {
+    _localQueueSubscription?.cancel();
+    _localQueueSubscription = null;
   }
 
   /// Start listening to remote changes from Firestore
@@ -94,6 +117,13 @@ class SyncService {
   Future<void> _stopRemoteChangesListener() async {
     await _remoteChangesSubscription?.cancel();
     _remoteChangesSubscription = null;
+  }
+
+  Future<void> forceSync() async {
+    if (await _connectivityService.isConnected()) {
+      await processQueue();
+      _startRemoteChangesListener();
+    }
   }
 
   Future<void> processQueue() async {
@@ -145,6 +175,7 @@ class SyncService {
   Future<void> dispose() async {
     await _connectivitySubscription?.cancel();
     await _remoteChangesSubscription?.cancel();
+    await _localQueueSubscription?.cancel();
     await _remoteDataSource.dispose();
   }
 }

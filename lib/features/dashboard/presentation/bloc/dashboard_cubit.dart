@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/dashboard_summary.dart';
 import '../../domain/entities/financial_filter.dart';
 import '../../domain/usecases/watch_dashboard_summary_usecase.dart';
@@ -16,9 +18,14 @@ class DashboardCubit extends Cubit<DashboardState> {
   final WatchDashboardSummaryUseCase _watchDashboardSummaryUseCase;
   StreamSubscription<DashboardSummary>? _subscription;
 
-  Future<void> start() {
+  Future<void> start() async {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
+
     final completer = Completer<void>();
     _subscription =
         _watchDashboardSummaryUseCase(

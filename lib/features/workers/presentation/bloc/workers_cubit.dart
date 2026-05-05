@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
-
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/usecases/add_worker_usecase.dart';
 import '../../domain/usecases/delete_worker_usecase.dart';
 import '../../domain/usecases/update_stitch_rate_usecase.dart';
@@ -25,9 +26,17 @@ class WorkersCubit extends Cubit<WorkersState> {
 
   StreamSubscription<List<dynamic>>? _subscription;
 
-  Future<void> start() {
+  Future<void> start() async {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Perform a forced sync from the server
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {
+      // Ignore sync errors here
+    }
+
     final completer = Completer<void>();
     _subscription = _watchWorkersUseCase(state.selectedMonth).listen(
       (items) {

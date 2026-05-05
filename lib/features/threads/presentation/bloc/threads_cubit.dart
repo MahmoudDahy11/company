@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/supplier_list_item.dart';
 import '../../domain/entities/threads_overview.dart';
 import '../../domain/usecases/add_supplier_usecase.dart';
@@ -28,10 +30,14 @@ class ThreadsCubit extends Cubit<ThreadsState> {
   StreamSubscription<List<SupplierListItem>>? _suppliersSubscription;
   StreamSubscription<ThreadsOverview>? _overviewSubscription;
 
-  Future<void> start() {
+  Future<void> start() async {
     _suppliersSubscription?.cancel();
     _overviewSubscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
 
     final completer = Completer<void>();
     _suppliersSubscription = _watchSuppliersUseCase(state.selectedMonth).listen(

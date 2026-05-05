@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
-
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/usecases/add_advance_usecase.dart';
 import '../../domain/usecases/add_or_update_advance_usecase.dart';
 import '../../domain/usecases/add_or_update_production_usecase.dart';
@@ -39,7 +40,10 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     _subscribe();
   }
 
-  Future<void> refresh() {
+  Future<void> refresh() async {
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
     final completer = Completer<void>();
     _subscribe(completer: completer);
     return completer.future;

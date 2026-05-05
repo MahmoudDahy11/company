@@ -155,95 +155,144 @@ class _ModelsTab extends StatelessWidget {
     );
     final models = details?.models ?? const [];
     if (models.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)!.noModelsThisMonth),
+      return RefreshIndicator(
+        onRefresh: () => context.read<ClientDetailsCubit>().refresh(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
+              child: Text(AppLocalizations.of(context)!.noModelsThisMonth),
+            ),
+          ),
+        ),
       );
     }
 
     final l10n = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return RefreshIndicator(
+      onRefresh: () => context.read<ClientDetailsCubit>().refresh(),
       child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
-          ),
-          child: DataTable(
-            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            headingRowColor: WidgetStateProperty.all(
-              Theme.of(context).colorScheme.surfaceContainerHighest,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerTheme: const DividerThemeData(thickness: 1, space: 1),
             ),
-            border: TableBorder.all(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-            columns: [
-              DataColumn(label: Text(l10n.date)),
-              DataColumn(label: Text(l10n.modelName)),
-              DataColumn(label: Text(l10n.pieceCount)),
-              DataColumn(label: Text(l10n.pricePerPiece)),
-              DataColumn(label: Text(l10n.totalAmountHeader)),
-              DataColumn(label: Text(l10n.notes)),
-              DataColumn(label: Text(l10n.actions)),
-            ],
-            rows: models.map((item) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.date))),
-                  DataCell(Text(item.modelName)),
-                  DataCell(Text(item.pieceCount.toString())),
-                  DataCell(Text(currency.format(item.pricePerPiece))),
-                  DataCell(Text(currency.format(item.total))),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+            child: DataTable(
+              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+              headingRowColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              border: TableBorder.all(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              columns: [
+                DataColumn(label: Text(l10n.date)),
+                DataColumn(label: Text(l10n.modelName)),
+                DataColumn(label: Text(l10n.pieceCount)),
+                DataColumn(label: Text(l10n.pricePerPiece)),
+                DataColumn(label: Text(l10n.totalAmountHeader)),
+                DataColumn(label: Text(l10n.notes)),
+                DataColumn(label: Text(l10n.actions)),
+              ],
+              rows: models.map((item) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.date))),
+                    DataCell(Text(item.modelName)),
+                    DataCell(Text(item.pieceCount.toString())),
+                    DataCell(Text(currency.format(item.pricePerPiece))),
+                    DataCell(Text(currency.format(item.total))),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(
-                    IconButton(
-                      onPressed: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(l10n.deleteModelTitle),
-                            content: Text(
-                              l10n.confirmDeleteModel(item.modelName),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: Text(l10n.cancel),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.red,
+                    DataCell(
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              final result = await showClientModelSheet(
+                                context,
+                                initialValue: ClientModelFormResult(
+                                  modelId: item.id,
+                                  modelName: item.modelName,
+                                  pieceCount: item.pieceCount,
+                                  pricePerPiece: item.pricePerPiece,
+                                  date: item.date,
+                                  notes: item.notes,
                                 ),
-                                child: Text(l10n.delete),
-                              ),
-                            ],
+                              );
+                              if (result != null && context.mounted) {
+                                await context
+                                    .read<ClientDetailsCubit>()
+                                    .updateModel(
+                                      modelId: item.id,
+                                      modelName: result.modelName,
+                                      pieceCount: result.pieceCount,
+                                      pricePerPiece: result.pricePerPiece,
+                                      date: result.date,
+                                      notes: result.notes,
+                                    );
+                              }
+                            },
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            visualDensity: VisualDensity.compact,
                           ),
-                        );
+                          IconButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(l10n.deleteModelTitle),
+                                  content: Text(
+                                    l10n.confirmDeleteModel(item.modelName),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                      ),
+                                      child: Text(l10n.delete),
+                                    ),
+                                  ],
+                                ),
+                              );
 
-                        if (confirm == true && context.mounted) {
-                          context.read<ClientDetailsCubit>().deleteModel(
-                            item.id,
-                          );
-                        }
-                      },
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      visualDensity: VisualDensity.compact,
+                              if (confirm == true && context.mounted) {
+                                context.read<ClientDetailsCubit>().deleteModel(
+                                  item.id,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),
@@ -263,123 +312,136 @@ class _PaymentsTab extends StatelessWidget {
     );
     final payments = details?.payments ?? const [];
     if (payments.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+      return RefreshIndicator(
+        onRefresh: () => context.read<ClientDetailsCubit>().refresh(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: Center(
+              child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+            ),
+          ),
+        ),
       );
     }
 
     final l10n = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return RefreshIndicator(
+      onRefresh: () => context.read<ClientDetailsCubit>().refresh(),
       child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
-          ),
-          child: DataTable(
-            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            headingRowColor: WidgetStateProperty.all(
-              Theme.of(context).colorScheme.surfaceContainerHighest,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerTheme: const DividerThemeData(thickness: 1, space: 1),
             ),
-            border: TableBorder.all(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-            columns: [
-              DataColumn(label: Text(l10n.date)),
-              DataColumn(label: Text(l10n.amount)),
-              DataColumn(label: Text(l10n.notes)),
-              DataColumn(label: Text(l10n.actions)),
-            ],
-            rows: payments.map((item) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
-                  DataCell(Text(currency.format(item.amount))),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+            child: DataTable(
+              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+              headingRowColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              border: TableBorder.all(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              columns: [
+                DataColumn(label: Text(l10n.date)),
+                DataColumn(label: Text(l10n.amount)),
+                DataColumn(label: Text(l10n.notes)),
+                DataColumn(label: Text(l10n.actions)),
+              ],
+              rows: payments.map((item) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
+                    DataCell(Text(currency.format(item.amount))),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            final result = await showClientPaymentSheet(
-                              context,
-                              initialValue: ClientPaymentFormResult(
-                                paymentId: item.id,
-                                amount: item.amount,
-                                paymentDate: item.paymentDate,
-                                notes: item.notes,
-                              ),
-                            );
-                            if (result != null && context.mounted) {
-                              await context
-                                  .read<ClientDetailsCubit>()
-                                  .updatePayment(
-                                    paymentId: item.id,
-                                    amount: result.amount,
-                                    paymentDate: result.paymentDate,
-                                    notes: result.notes,
-                                  );
-                            }
-                          },
-                          icon: const Icon(Icons.edit_outlined, size: 20),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            final confirm = await showDialog<bool>(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text(l10n.deletePaymentTitle),
-                                content: Text(
-                                  l10n.confirmDeletePayment(
-                                    currency.format(item.amount),
-                                  ),
+                    DataCell(
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              final result = await showClientPaymentSheet(
+                                context,
+                                initialValue: ClientPaymentFormResult(
+                                  paymentId: item.id,
+                                  amount: item.amount,
+                                  paymentDate: item.paymentDate,
+                                  notes: item.notes,
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: Text(l10n.cancel),
-                                  ),
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    style: TextButton.styleFrom(
-                                      foregroundColor: Colors.red,
-                                    ),
-                                    child: Text(l10n.delete),
-                                  ),
-                                ],
-                              ),
-                            );
-
-                            if (confirm == true && context.mounted) {
-                              context.read<ClientDetailsCubit>().deletePayment(
-                                item.id,
                               );
-                            }
-                          },
-                          icon: const Icon(Icons.delete_outline, size: 20),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ],
+                              if (result != null && context.mounted) {
+                                await context
+                                    .read<ClientDetailsCubit>()
+                                    .updatePayment(
+                                      paymentId: item.id,
+                                      amount: result.amount,
+                                      paymentDate: result.paymentDate,
+                                      notes: result.notes,
+                                    );
+                              }
+                            },
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text(l10n.deletePaymentTitle),
+                                  content: Text(
+                                    l10n.confirmDeletePayment(
+                                      currency.format(item.amount),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: Text(l10n.cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                      ),
+                                      child: Text(l10n.delete),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true && context.mounted) {
+                                context
+                                    .read<ClientDetailsCubit>()
+                                    .deletePayment(item.id);
+                              }
+                            },
+                            icon: const Icon(Icons.delete_outline, size: 20),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

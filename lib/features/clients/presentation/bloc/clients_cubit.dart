@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
-
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/client_list_item.dart';
 import '../../domain/usecases/add_client_usecase.dart';
 import '../../domain/usecases/delete_client_usecase.dart';
@@ -23,9 +24,17 @@ class ClientsCubit extends Cubit<ClientsState> {
 
   StreamSubscription<List<ClientListItem>>? _subscription;
 
-  Future<void> start() {
+  Future<void> start() async {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    // Perform a forced sync from the server
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {
+      // Ignore sync errors here, we still want to show local data
+    }
+
     final completer = Completer<void>();
     _subscription = _watchClientsUseCase(state.selectedMonth).listen(
       (items) {

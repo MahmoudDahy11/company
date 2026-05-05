@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 
+import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/supplier_details_data.dart';
 import '../../domain/usecases/add_or_update_purchase_usecase.dart';
 import '../../domain/usecases/add_or_update_supplier_payment_usecase.dart';
@@ -40,7 +42,10 @@ class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
     _subscribe();
   }
 
-  Future<void> refresh() {
+  Future<void> refresh() async {
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
     final completer = Completer<void>();
     _subscribe(completer: completer);
     return completer.future;
