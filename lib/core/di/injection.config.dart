@@ -42,6 +42,8 @@ import 'package:company/features/clients/domain/usecases/delete_client_payment_u
     as _i740;
 import 'package:company/features/clients/domain/usecases/delete_client_usecase.dart'
     as _i502;
+import 'package:company/features/clients/domain/usecases/get_client_balance_usecase.dart'
+    as _i328;
 import 'package:company/features/clients/domain/usecases/update_client_model_usecase.dart'
     as _i924;
 import 'package:company/features/clients/domain/usecases/update_client_payment_usecase.dart'
@@ -106,6 +108,8 @@ import 'package:company/features/women_staff/domain/usecases/add_staff_advance_u
     as _i478;
 import 'package:company/features/women_staff/domain/usecases/add_staff_usecase.dart'
     as _i361;
+import 'package:company/features/women_staff/domain/usecases/calculate_women_staff_salary_usecase.dart'
+    as _i362;
 import 'package:company/features/women_staff/domain/usecases/delete_staff_advance_usecase.dart'
     as _i732;
 import 'package:company/features/women_staff/domain/usecases/delete_staff_usecase.dart'
@@ -171,6 +175,12 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.sharedPreferences,
       preResolve: true,
     );
+    gh.factory<_i328.GetClientBalanceUseCase>(
+      () => const _i328.GetClientBalanceUseCase(),
+    );
+    gh.factory<_i362.CalculateWomenStaffSalaryUseCase>(
+      () => const _i362.CalculateWomenStaffSalaryUseCase(),
+    );
     gh.factory<_i787.CalculateWorkerSalaryUseCase>(
       () => const _i787.CalculateWorkerSalaryUseCase(),
     );
@@ -200,23 +210,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i788.ClientsLocalDataSource>(
       () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
-    gh.lazySingleton<_i406.DashboardLocalDataSource>(
-      () => _i406.DashboardLocalDataSource(gh<_i549.AppDatabase>()),
-    );
     gh.lazySingleton<_i906.ThreadsLocalDataSource>(
       () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
       () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
     );
-    gh.lazySingleton<_i861.DashboardRepository>(
-      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
+    gh.lazySingleton<_i406.DashboardLocalDataSource>(
+      () => _i406.DashboardLocalDataSource(
+        gh<_i549.AppDatabase>(),
+        gh<_i787.CalculateWorkerSalaryUseCase>(),
+        gh<_i362.CalculateWomenStaffSalaryUseCase>(),
+        gh<_i328.GetClientBalanceUseCase>(),
+      ),
     );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
-    );
-    gh.factory<_i504.WatchDashboardSummaryUseCase>(
-      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
     gh.lazySingleton<_i875.AuthController>(
       () => _i875.AuthController(
@@ -233,9 +242,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
-    );
-    gh.factory<_i625.DashboardCubit>(
-      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
@@ -257,6 +263,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i359.SyncStatusCubit>(),
         gh<_i216.RemoteSyncApplier>(),
       ),
+    );
+    gh.lazySingleton<_i861.DashboardRepository>(
+      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
     );
     gh.factory<_i238.AddClientModelUseCase>(
       () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
@@ -334,6 +343,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i970.DeleteSupplierPaymentUseCase>(),
       ),
     );
+    gh.factory<_i504.WatchDashboardSummaryUseCase>(
+      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
+    );
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
@@ -357,6 +369,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
+    );
+    gh.factory<_i625.DashboardCubit>(
+      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.factory<_i454.AddAdvanceUseCase>(
       () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),

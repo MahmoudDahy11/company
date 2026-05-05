@@ -67,6 +67,7 @@ dependencies:
   drift_flutter: ^0.2.8
 
   flutter_native_splash: ^2.4.1
+  rxdart: ^0.28.0
 
 dev_dependencies:
   build_runner: ^2.15.0
