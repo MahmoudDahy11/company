@@ -50,9 +50,15 @@ class DashboardLocalDataSource {
     FinancialFilter financialFilter,
   ) async {
     final monthRange = _monthRange(month);
-    final activeWorkers = await (_database.select(_database.workers)..where((t) => t.isActive.equals(true))).get();
-    final activeWomen = await (_database.select(_database.womenStaffMembers)..where((t) => t.isActive.equals(true))).get();
-    final activeClients = await (_database.select(_database.clients)..where((t) => t.isActive.equals(true))).get();
+    final activeWorkers = await (_database.select(
+      _database.workers,
+    )..where((t) => t.isActive.equals(true))).get();
+    final activeWomen = await (_database.select(
+      _database.womenStaffMembers,
+    )..where((t) => t.isActive.equals(true))).get();
+    final activeClients = await (_database.select(
+      _database.clients,
+    )..where((t) => t.isActive.equals(true))).get();
     final suppliers = await _database.select(_database.suppliers).get();
 
     double totalWorkerWages = 0;
@@ -154,18 +160,20 @@ class DashboardLocalDataSource {
 
     // --- Financial Summary Logic ---
     final financialRange = _financialRange(month, financialFilter);
-    
+
     final clientAnnualSummaries = <ClientAnnualSummary>[];
     double totalDueFromClients = 0;
     for (final client in activeClients) {
       final summary = await _clientRangeSummary(client.id, financialRange);
-      clientAnnualSummaries.add(ClientAnnualSummary(
-        clientId: client.id,
-        name: client.name,
-        totalWork: summary.totalAmount,
-        totalPaid: summary.totalPaid,
-        remaining: summary.outstanding,
-      ));
+      clientAnnualSummaries.add(
+        ClientAnnualSummary(
+          clientId: client.id,
+          name: client.name,
+          totalWork: summary.totalAmount,
+          totalPaid: summary.totalPaid,
+          remaining: summary.outstanding,
+        ),
+      );
       totalDueFromClients += summary.outstanding;
     }
     // Sort: highest remaining first, zero remaining at bottom
@@ -175,13 +183,15 @@ class DashboardLocalDataSource {
     double totalDueToSuppliers = 0;
     for (final supplier in suppliers) {
       final summary = await _supplierRangeSummary(supplier.id, financialRange);
-      supplierAnnualSummaries.add(SupplierAnnualSummary(
-        supplierId: supplier.id,
-        name: supplier.name,
-        totalPurchases: summary.totalPurchased,
-        totalPaid: summary.totalPaid,
-        remaining: summary.outstandingBalance,
-      ));
+      supplierAnnualSummaries.add(
+        SupplierAnnualSummary(
+          supplierId: supplier.id,
+          name: supplier.name,
+          totalPurchases: summary.totalPurchased,
+          totalPaid: summary.totalPaid,
+          remaining: summary.outstandingBalance,
+        ),
+      );
       totalDueToSuppliers += summary.outstandingBalance;
     }
     // Sort: highest remaining first
@@ -213,19 +223,24 @@ class DashboardLocalDataSource {
     int clientId,
     ({DateTime start, DateTime end}) range,
   ) async {
-    final models = await (_database.select(_database.clientModels)..where(
+    final models =
+        await (_database.select(_database.clientModels)..where(
               (t) =>
                   t.clientId.equals(clientId) &
                   t.date.isBetweenValues(range.start, range.end),
             ))
             .get();
-    final payments = await (_database.select(_database.clientPayments)..where(
+    final payments =
+        await (_database.select(_database.clientPayments)..where(
               (t) =>
                   t.clientId.equals(clientId) &
                   t.paymentDate.isBetweenValues(range.start, range.end),
             ))
             .get();
-    final totalAmount = models.fold<double>(0, (sum, row) => sum + (row.pieceCount * row.pricePerPiece));
+    final totalAmount = models.fold<double>(
+      0,
+      (sum, row) => sum + (row.pieceCount * row.pricePerPiece),
+    );
     final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
     return _ClientSummary(totalAmount: totalAmount, totalPaid: totalPaid);
   }
@@ -234,24 +249,35 @@ class DashboardLocalDataSource {
     int supplierId,
     ({DateTime start, DateTime end}) range,
   ) async {
-    final purchases = await (_database.select(_database.threadPurchases)..where(
+    final purchases =
+        await (_database.select(_database.threadPurchases)..where(
               (t) =>
                   t.supplierId.equals(supplierId) &
                   t.purchaseDate.isBetweenValues(range.start, range.end),
             ))
             .get();
-    final payments = await (_database.select(_database.supplierPayments)..where(
+    final payments =
+        await (_database.select(_database.supplierPayments)..where(
               (t) =>
                   t.supplierId.equals(supplierId) &
                   t.paymentDate.isBetweenValues(range.start, range.end),
             ))
             .get();
-    final totalPurchased = purchases.fold<double>(0, (sum, row) => sum + row.price);
+    final totalPurchased = purchases.fold<double>(
+      0,
+      (sum, row) => sum + row.price,
+    );
     final totalPaid = payments.fold<double>(0, (sum, row) => sum + row.amount);
-    return _SupplierSummary(totalPurchased: totalPurchased, totalPaid: totalPaid);
+    return _SupplierSummary(
+      totalPurchased: totalPurchased,
+      totalPaid: totalPaid,
+    );
   }
 
-  ({DateTime start, DateTime end}) _financialRange(DateTime month, FinancialFilter filter) {
+  ({DateTime start, DateTime end}) _financialRange(
+    DateTime month,
+    FinancialFilter filter,
+  ) {
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
     switch (filter) {
       case FinancialFilter.last3Months:

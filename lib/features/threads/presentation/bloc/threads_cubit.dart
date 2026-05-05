@@ -28,23 +28,30 @@ class ThreadsCubit extends Cubit<ThreadsState> {
   StreamSubscription<List<SupplierListItem>>? _suppliersSubscription;
   StreamSubscription<ThreadsOverview>? _overviewSubscription;
 
-  void start() {
+  Future<void> start() {
     _suppliersSubscription?.cancel();
     _overviewSubscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
 
+    final completer = Completer<void>();
     _suppliersSubscription = _watchSuppliersUseCase(state.selectedMonth).listen(
-      (items) => emit(
-        state.copyWith(items: items, isLoading: false, errorMessage: null),
-      ),
-      onError: (Object error) => emit(
-        state.copyWith(isLoading: false, errorMessage: error.toString()),
-      ),
+      (items) {
+        emit(
+          state.copyWith(items: items, isLoading: false, errorMessage: null),
+        );
+        if (!completer.isCompleted) completer.complete();
+      },
+      onError: (Object error) {
+        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        if (!completer.isCompleted) completer.complete();
+      },
     );
 
     _overviewSubscription = _watchThreadsOverviewUseCase(
       state.selectedMonth,
     ).listen((overview) => emit(state.copyWith(overview: overview)));
+
+    return completer.future;
   }
 
   Future<void> addSupplier({required String name, String? phone}) =>

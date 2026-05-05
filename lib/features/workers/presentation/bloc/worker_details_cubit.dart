@@ -36,6 +36,12 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     _subscribe();
   }
 
+  Future<void> refresh() {
+    final completer = Completer<void>();
+    _subscribe(completer: completer);
+    return completer.future;
+  }
+
   void previousMonth() {
     emit(
       state.copyWith(
@@ -106,7 +112,7 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     );
   }
 
-  void _subscribe() {
+  void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
     _subscription =
         _watchWorkerDetailsUseCase(state.workerId, state.selectedMonth).listen(
@@ -118,11 +124,17 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
                 errorMessage: null,
               ),
             );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
           },
           onError: (Object error) {
             emit(
               state.copyWith(isLoading: false, errorMessage: error.toString()),
             );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
           },
         );
   }

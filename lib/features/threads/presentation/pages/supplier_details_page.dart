@@ -159,68 +159,81 @@ class _PurchasesTab extends StatelessWidget {
     );
     final purchases = details?.purchases ?? const [];
     if (purchases.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)!.noPurchasesThisMonth),
+      return RefreshIndicator(
+        onRefresh: () => context.read<SupplierDetailsCubit>().refresh(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: Center(
+              child: Text(AppLocalizations.of(context)!.noPurchasesThisMonth),
+            ),
+          ),
+        ),
       );
     }
 
     final l10n = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return RefreshIndicator(
+      onRefresh: () => context.read<SupplierDetailsCubit>().refresh(),
       child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
-          ),
-          child: DataTable(
-            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            headingRowColor: WidgetStateProperty.all(
-              Theme.of(context).colorScheme.surfaceContainerHighest,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerTheme: const DividerThemeData(thickness: 1, space: 1),
             ),
-            border: TableBorder.all(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-            columns: [
-              DataColumn(label: Text(l10n.date)),
-              DataColumn(label: Text(l10n.itemType)),
-              DataColumn(label: Text(l10n.colorNumber)),
-              DataColumn(label: Text(l10n.price)),
-              DataColumn(label: Text(l10n.quantity)),
-              DataColumn(label: Text(l10n.notes)),
-              DataColumn(label: Text(l10n.actions)),
-            ],
-            rows: purchases.map((item) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.purchaseDate))),
-                  DataCell(Text(item.itemName)),
-                  DataCell(Text(item.colorNumber)),
-                  DataCell(Text(currency.format(item.price))),
-                  DataCell(Text('${item.quantity} ${item.unit}')),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+            child: DataTable(
+              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+              headingRowColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              border: TableBorder.all(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              columns: [
+                DataColumn(label: Text(l10n.date)),
+                DataColumn(label: Text(l10n.itemType)),
+                DataColumn(label: Text(l10n.colorNumber)),
+                DataColumn(label: Text(l10n.price)),
+                DataColumn(label: Text(l10n.quantity)),
+                DataColumn(label: Text(l10n.notes)),
+                DataColumn(label: Text(l10n.actions)),
+              ],
+              rows: purchases.map((item) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.purchaseDate))),
+                    DataCell(Text(item.itemName)),
+                    DataCell(Text(item.colorNumber)),
+                    DataCell(Text(currency.format(item.price))),
+                    DataCell(Text('${item.quantity} ${item.unit}')),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(
-                    IconButton(
-                      onPressed: () => context
-                          .read<SupplierDetailsCubit>()
-                          .deletePurchase(item.id),
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      visualDensity: VisualDensity.compact,
+                    DataCell(
+                      IconButton(
+                        onPressed: () => context
+                            .read<SupplierDetailsCubit>()
+                            .deletePurchase(item.id),
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),
@@ -240,62 +253,75 @@ class _PaymentsTab extends StatelessWidget {
     );
     final payments = details?.payments ?? const [];
     if (payments.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+      return RefreshIndicator(
+        onRefresh: () => context.read<SupplierDetailsCubit>().refresh(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.4,
+            child: Center(
+              child: Text(AppLocalizations.of(context)!.noPaymentsThisMonth),
+            ),
+          ),
+        ),
       );
     }
 
     final l10n = AppLocalizations.of(context)!;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+    return RefreshIndicator(
+      onRefresh: () => context.read<SupplierDetailsCubit>().refresh(),
       child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            dividerTheme: const DividerThemeData(thickness: 1, space: 1),
-          ),
-          child: DataTable(
-            headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
-            headingRowColor: WidgetStateProperty.all(
-              Theme.of(context).colorScheme.surfaceContainerHighest,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              dividerTheme: const DividerThemeData(thickness: 1, space: 1),
             ),
-            border: TableBorder.all(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
-            columns: [
-              DataColumn(label: Text(l10n.date)),
-              DataColumn(label: Text(l10n.amount)),
-              DataColumn(label: Text(l10n.notes)),
-              DataColumn(label: Text(l10n.actions)),
-            ],
-            rows: payments.map((item) {
-              return DataRow(
-                cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
-                  DataCell(Text(currency.format(item.amount))),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+            child: DataTable(
+              headingTextStyle: const TextStyle(fontWeight: FontWeight.bold),
+              headingRowColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              border: TableBorder.all(
+                color: Theme.of(context).dividerColor,
+                width: 1,
+              ),
+              columns: [
+                DataColumn(label: Text(l10n.date)),
+                DataColumn(label: Text(l10n.amount)),
+                DataColumn(label: Text(l10n.notes)),
+                DataColumn(label: Text(l10n.actions)),
+              ],
+              rows: payments.map((item) {
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
+                    DataCell(Text(currency.format(item.amount))),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(
-                    IconButton(
-                      onPressed: () => context
-                          .read<SupplierDetailsCubit>()
-                          .deletePayment(item.id),
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      visualDensity: VisualDensity.compact,
+                    DataCell(
+                      IconButton(
+                        onPressed: () => context
+                            .read<SupplierDetailsCubit>()
+                            .deletePayment(item.id),
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        visualDensity: VisualDensity.compact,
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }).toList(),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

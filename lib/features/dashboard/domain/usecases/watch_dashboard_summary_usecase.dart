@@ -13,6 +13,5 @@ class WatchDashboardSummaryUseCase {
   Stream<DashboardSummary> call(
     DateTime month,
     FinancialFilter financialFilter,
-  ) =>
-      _repository.watchSummary(month, financialFilter);
+  ) => _repository.watchSummary(month, financialFilter);
 }

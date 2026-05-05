@@ -46,75 +46,84 @@ class _DashboardView extends StatelessWidget {
         );
 
         return SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Builder(
-                  builder: (context) {
-                    final isMobile =
-                        MediaQuery.sizeOf(context).width <
-                        AppBreakpoints.mobile;
-                    final headerContent = [
-                      _DashboardMonthSelector(
-                        month: state.selectedMonth,
-                        onChanged: context.read<DashboardCubit>().updateMonth,
-                      ),
-                      if (isMobile) const SizedBox(height: AppSpacing.md),
-                      Text(
-                        l10n.dashboard,
-                        style:
-                            (isMobile
-                                    ? Theme.of(context).textTheme.headlineSmall
-                                    : Theme.of(
-                                        context,
-                                      ).textTheme.headlineMedium)
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ];
+          child: RefreshIndicator(
+            onRefresh: () => context.read<DashboardCubit>().start(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Builder(
+                    builder: (context) {
+                      final isMobile =
+                          MediaQuery.sizeOf(context).width <
+                          AppBreakpoints.mobile;
+                      final headerContent = [
+                        _DashboardMonthSelector(
+                          month: state.selectedMonth,
+                          onChanged: context.read<DashboardCubit>().updateMonth,
+                        ),
+                        if (isMobile) const SizedBox(height: AppSpacing.md),
+                        Text(
+                          l10n.dashboard,
+                          style:
+                              (isMobile
+                                      ? Theme.of(
+                                          context,
+                                        ).textTheme.headlineSmall
+                                      : Theme.of(
+                                          context,
+                                        ).textTheme.headlineMedium)
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ];
 
-                    if (isMobile) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                      if (isMobile) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: headerContent,
+                        );
+                      }
+
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: headerContent,
                       );
-                    }
-
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: headerContent,
-                    );
-                  },
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (state.isLoading)
-                  const Center(child: CircularProgressIndicator())
-                else if (summary == null)
-                  Center(
-                    child: Text(state.errorMessage ?? l10n.failedToLoadData),
-                  )
-                else ...[
-                  _DashboardCardsSection(summary: summary, currency: currency),
+                    },
+                  ),
                   const SizedBox(height: AppSpacing.lg),
-                  _ChartsSection(
-                    summary: summary,
-                    currency: currency,
-                    selectedMonth: state.selectedMonth,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  const Divider(),
-                  const SizedBox(height: AppSpacing.xl),
-                  _FinancialSection(
-                    summary: summary,
-                    currency: currency,
-                    currentFilter: state.financialFilter,
-                    onFilterChanged: context
-                        .read<DashboardCubit>()
-                        .updateFinancialFilter,
-                  ),
+                  if (state.isLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (summary == null)
+                    Center(
+                      child: Text(state.errorMessage ?? l10n.failedToLoadData),
+                    )
+                  else ...[
+                    _DashboardCardsSection(
+                      summary: summary,
+                      currency: currency,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _ChartsSection(
+                      summary: summary,
+                      currency: currency,
+                      selectedMonth: state.selectedMonth,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    const Divider(),
+                    const SizedBox(height: AppSpacing.xl),
+                    _FinancialSection(
+                      summary: summary,
+                      currency: currency,
+                      currentFilter: state.financialFilter,
+                      onFilterChanged: context
+                          .read<DashboardCubit>()
+                          .updateFinancialFilter,
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );

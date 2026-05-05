@@ -1,5 +1,1 @@
-enum FinancialFilter {
-  last3Months,
-  last6Months,
-  lastYear,
-}
+enum FinancialFilter { last3Months, last6Months, lastYear }

@@ -23,17 +23,23 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
 
   StreamSubscription<List<StaffListItem>>? _subscription;
 
-  void start() {
+  Future<void> start() {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+    final completer = Completer<void>();
     _subscription = _watchStaffUseCase(state.selectedMonth).listen(
-      (items) => emit(
-        state.copyWith(items: items, isLoading: false, errorMessage: null),
-      ),
-      onError: (Object error) => emit(
-        state.copyWith(isLoading: false, errorMessage: error.toString()),
-      ),
+      (items) {
+        emit(
+          state.copyWith(items: items, isLoading: false, errorMessage: null),
+        );
+        if (!completer.isCompleted) completer.complete();
+      },
+      onError: (Object error) {
+        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        if (!completer.isCompleted) completer.complete();
+      },
     );
+    return completer.future;
   }
 
   Future<void> addStaff({required String name, required double monthlySalary}) {

@@ -25,19 +25,23 @@ class WorkersCubit extends Cubit<WorkersState> {
 
   StreamSubscription<List<dynamic>>? _subscription;
 
-  void start() {
+  Future<void> start() {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+    final completer = Completer<void>();
     _subscription = _watchWorkersUseCase(state.selectedMonth).listen(
       (items) {
         emit(
           state.copyWith(items: items, isLoading: false, errorMessage: null),
         );
+        if (!completer.isCompleted) completer.complete();
       },
       onError: (Object error) {
         emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        if (!completer.isCompleted) completer.complete();
       },
     );
+    return completer.future;
   }
 
   Future<void> addWorker(String name) async {

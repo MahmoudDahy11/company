@@ -50,128 +50,141 @@ class _StaffDetailsView extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : details == null
               ? Center(child: Text(state.errorMessage ?? l10n.failedToLoadData))
-              : Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MonthSelector(
-                        month: state.selectedMonth,
-                        onPrevious: context
-                            .read<StaffDetailsCubit>()
-                            .previousMonth,
-                        onNext: context.read<StaffDetailsCubit>().nextMonth,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        l10n.registrationDate(
-                          DateFormat.yMd().format(
-                            details.staffMember.createdAt,
+              : RefreshIndicator(
+                  onRefresh: () => context.read<StaffDetailsCubit>().refresh(),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MonthSelector(
+                          month: state.selectedMonth,
+                          onPrevious: context
+                              .read<StaffDetailsCubit>()
+                              .previousMonth,
+                          onNext: context.read<StaffDetailsCubit>().nextMonth,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          l10n.registrationDate(
+                            DateFormat.yMd().format(
+                              details.staffMember.createdAt,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Wrap(
-                        spacing: AppSpacing.md,
-                        runSpacing: AppSpacing.md,
-                        children: [
-                          _SummaryCard(
-                            label: l10n.fixedSalary,
-                            value: currency.format(
-                              details.summary.monthlySalary,
-                            ),
-                          ),
-                          _SummaryCard(
-                            label: l10n.advances,
-                            value: currency.format(
-                              details.summary.totalAdvances,
-                            ),
-                          ),
-                          _SummaryCard(
-                            label: l10n.carryOver,
-                            value: currency.format(details.summary.carryOver),
-                          ),
-                          _SummaryCard(
-                            label: l10n.netSalary,
-                            value: currency.format(details.summary.netSalary),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Row(
-                        children: [
-                          FilledButton.icon(
-                            onPressed: () async {
-                              final salary = await showUpdateSalarySheet(
-                                context,
-                                initialValue: details.staffMember.monthlySalary,
-                              );
-                              if (salary != null && context.mounted) {
-                                await context
-                                    .read<StaffDetailsCubit>()
-                                    .updateSalary(salary);
-                              }
-                            },
-                            icon: const Icon(Icons.edit_outlined),
-                            label: Text(l10n.updateSalary),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          FilledButton.icon(
-                            onPressed: () async {
-                              final result = await showStaffAdvanceSheet(
-                                context,
-                              );
-                              if (result != null && context.mounted) {
-                                await context
-                                    .read<StaffDetailsCubit>()
-                                    .addAdvance(
-                                      amount: result.amount,
-                                      date: result.date,
-                                      notes: result.notes,
-                                    );
-                              }
-                            },
-                            icon: const Icon(Icons.add),
-                            label: Text(l10n.addAdvance),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      Expanded(
-                        child: details.advances.isEmpty
-                            ? Center(child: Text(l10n.noAdvancesThisMonth))
-                            : ListView.separated(
-                                itemCount: details.advances.length,
-                                separatorBuilder: (_, _) =>
-                                    const SizedBox(height: AppSpacing.md),
-                                itemBuilder: (context, index) {
-                                  final item = details.advances[index];
-                                  return Card(
-                                    child: ListTile(
-                                      contentPadding: const EdgeInsets.all(
-                                        AppSpacing.md,
-                                      ),
-                                      title: Text(currency.format(item.amount)),
-                                      subtitle: Text(
-                                        '${DateFormat.yMd().format(item.date)}'
-                                        '${item.notes == null ? '' : '\n${item.notes}'}',
-                                      ),
-                                      trailing: item.carriedOver
-                                          ? Chip(label: Text(l10n.carryOver))
-                                          : IconButton(
-                                              onPressed: () => context
-                                                  .read<StaffDetailsCubit>()
-                                                  .deleteAdvance(item.id),
-                                              icon: const Icon(
-                                                Icons.delete_outline,
-                                              ),
-                                            ),
-                                    ),
-                                  );
-                                },
+                        const SizedBox(height: AppSpacing.lg),
+                        Wrap(
+                          spacing: AppSpacing.md,
+                          runSpacing: AppSpacing.md,
+                          children: [
+                            _SummaryCard(
+                              label: l10n.fixedSalary,
+                              value: currency.format(
+                                details.summary.monthlySalary,
                               ),
-                      ),
-                    ],
+                            ),
+                            _SummaryCard(
+                              label: l10n.advances,
+                              value: currency.format(
+                                details.summary.totalAdvances,
+                              ),
+                            ),
+                            _SummaryCard(
+                              label: l10n.carryOver,
+                              value: currency.format(details.summary.carryOver),
+                            ),
+                            _SummaryCard(
+                              label: l10n.netSalary,
+                              value: currency.format(details.summary.netSalary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Row(
+                          children: [
+                            FilledButton.icon(
+                              onPressed: () async {
+                                final salary = await showUpdateSalarySheet(
+                                  context,
+                                  initialValue:
+                                      details.staffMember.monthlySalary,
+                                );
+                                if (salary != null && context.mounted) {
+                                  await context
+                                      .read<StaffDetailsCubit>()
+                                      .updateSalary(salary);
+                                }
+                              },
+                              icon: const Icon(Icons.edit_outlined),
+                              label: Text(l10n.updateSalary),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            FilledButton.icon(
+                              onPressed: () async {
+                                final result = await showStaffAdvanceSheet(
+                                  context,
+                                );
+                                if (result != null && context.mounted) {
+                                  await context
+                                      .read<StaffDetailsCubit>()
+                                      .addAdvance(
+                                        amount: result.amount,
+                                        date: result.date,
+                                        notes: result.notes,
+                                      );
+                                }
+                              },
+                              icon: const Icon(Icons.add),
+                              label: Text(l10n.addAdvance),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        if (details.advances.isEmpty)
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.xl,
+                              ),
+                              child: Text(l10n.noAdvancesThisMonth),
+                            ),
+                          )
+                        else
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: details.advances.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: AppSpacing.md),
+                            itemBuilder: (context, index) {
+                              final item = details.advances[index];
+                              return Card(
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(
+                                    AppSpacing.md,
+                                  ),
+                                  title: Text(currency.format(item.amount)),
+                                  subtitle: Text(
+                                    '${DateFormat.yMd().format(item.date)}'
+                                    '${item.notes == null ? '' : '\n${item.notes}'}',
+                                  ),
+                                  trailing: item.carriedOver
+                                      ? Chip(label: Text(l10n.carryOver))
+                                      : IconButton(
+                                          onPressed: () => context
+                                              .read<StaffDetailsCubit>()
+                                              .deleteAdvance(item.id),
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                          ),
+                                        ),
+                                ),
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   ),
                 ),
         );

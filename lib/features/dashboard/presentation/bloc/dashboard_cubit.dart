@@ -16,17 +16,33 @@ class DashboardCubit extends Cubit<DashboardState> {
   final WatchDashboardSummaryUseCase _watchDashboardSummaryUseCase;
   StreamSubscription<DashboardSummary>? _subscription;
 
-  void start() {
+  Future<void> start() {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
-    _subscription = _watchDashboardSummaryUseCase(state.selectedMonth, state.financialFilter).listen(
-      (summary) => emit(
-        state.copyWith(summary: summary, isLoading: false, errorMessage: null),
-      ),
-      onError: (Object error) => emit(
-        state.copyWith(isLoading: false, errorMessage: error.toString()),
-      ),
-    );
+    final completer = Completer<void>();
+    _subscription =
+        _watchDashboardSummaryUseCase(
+          state.selectedMonth,
+          state.financialFilter,
+        ).listen(
+          (summary) {
+            emit(
+              state.copyWith(
+                summary: summary,
+                isLoading: false,
+                errorMessage: null,
+              ),
+            );
+            if (!completer.isCompleted) completer.complete();
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(isLoading: false, errorMessage: error.toString()),
+            );
+            if (!completer.isCompleted) completer.complete();
+          },
+        );
+    return completer.future;
   }
 
   void previousMonth() {

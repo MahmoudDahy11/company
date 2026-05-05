@@ -23,17 +23,23 @@ class ClientsCubit extends Cubit<ClientsState> {
 
   StreamSubscription<List<ClientListItem>>? _subscription;
 
-  void start() {
+  Future<void> start() {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
+    final completer = Completer<void>();
     _subscription = _watchClientsUseCase(state.selectedMonth).listen(
-      (items) => emit(
-        state.copyWith(items: items, isLoading: false, errorMessage: null),
-      ),
-      onError: (Object error) => emit(
-        state.copyWith(isLoading: false, errorMessage: error.toString()),
-      ),
+      (items) {
+        emit(
+          state.copyWith(items: items, isLoading: false, errorMessage: null),
+        );
+        if (!completer.isCompleted) completer.complete();
+      },
+      onError: (Object error) {
+        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        if (!completer.isCompleted) completer.complete();
+      },
     );
+    return completer.future;
   }
 
   Future<void> addClient({required String name, String? phone}) =>

@@ -37,303 +37,319 @@ class _WomenStaffView extends StatelessWidget {
         final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Builder(
-                    builder: (context) {
-                      final isMobile =
-                          MediaQuery.sizeOf(context).width <
-                          AppBreakpoints.mobile;
+            child: RefreshIndicator(
+              onRefresh: () => context.read<WomenStaffCubit>().start(),
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Builder(
+                      builder: (context) {
+                        final isMobile =
+                            MediaQuery.sizeOf(context).width <
+                            AppBreakpoints.mobile;
 
-                      final actionButtons = [
-                        FilledButton.icon(
-                          onPressed: () async {
-                            final result = await showAddStaffSheet(context);
-                            if (result != null && context.mounted) {
-                              await context.read<WomenStaffCubit>().addStaff(
-                                name: result.name,
-                                monthlySalary: result.monthlySalary,
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                          label: Text(l10n.addStaff),
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF374151),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.lg,
-                              vertical: AppSpacing.md,
+                        final actionButtons = [
+                          FilledButton.icon(
+                            onPressed: () async {
+                              final result = await showAddStaffSheet(context);
+                              if (result != null && context.mounted) {
+                                await context.read<WomenStaffCubit>().addStaff(
+                                  name: result.name,
+                                  monthlySalary: result.monthlySalary,
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.addStaff),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: const Color(0xFF374151),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.lg,
+                                vertical: AppSpacing.md,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        OutlinedButton.icon(
-                          onPressed: () async {
-                            try {
-                              await GetIt.I<ExcelExportService>().exportPayroll(
-                                workers: const [],
-                                staff: state.items,
-                                month: state.selectedMonth,
-                                isArabic:
-                                    Localizations.localeOf(
-                                      context,
-                                    ).languageCode ==
-                                    'ar',
-                              );
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.exportSuccess)),
-                                );
+                          const SizedBox(width: AppSpacing.md),
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              try {
+                                await GetIt.I<ExcelExportService>()
+                                    .exportPayroll(
+                                      workers: const [],
+                                      staff: state.items,
+                                      month: state.selectedMonth,
+                                      isArabic:
+                                          Localizations.localeOf(
+                                            context,
+                                          ).languageCode ==
+                                          'ar',
+                                    );
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l10n.exportSuccess)),
+                                  );
+                                }
+                              } catch (_) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(l10n.exportError)),
+                                  );
+                                }
                               }
-                            } catch (_) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(l10n.exportError)),
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.download_outlined),
-                          label: Text(l10n.exportExcel),
-                        ),
-                      ];
+                            },
+                            icon: const Icon(Icons.download_outlined),
+                            label: Text(l10n.exportExcel),
+                          ),
+                        ];
 
-                      final searchAndTitle = [
-                        SizedBox(
-                          width: isMobile ? double.infinity : 250,
-                          height: 40,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: l10n.womenStaffSearchHint,
-                              prefixIcon: const Icon(Icons.search),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.md,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
+                        final searchAndTitle = [
+                          SizedBox(
+                            width: isMobile ? double.infinity : 250,
+                            height: 40,
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: l10n.womenStaffSearchHint,
+                                prefixIcon: const Icon(Icons.search),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.md,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
                               ),
+                              onChanged: context
+                                  .read<WomenStaffCubit>()
+                                  .updateSearchQuery,
                             ),
-                            onChanged: context
-                                .read<WomenStaffCubit>()
-                                .updateSearchQuery,
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.lg),
-                        Text(
-                          l10n.womenStaff,
-                          style:
-                              (isMobile
-                                      ? Theme.of(
-                                          context,
-                                        ).textTheme.headlineSmall
-                                      : Theme.of(
-                                          context,
-                                        ).textTheme.headlineMedium)
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF1F2937),
-                                  ),
-                        ),
-                      ];
+                          const SizedBox(width: AppSpacing.lg),
+                          Text(
+                            l10n.womenStaff,
+                            style:
+                                (isMobile
+                                        ? Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall
+                                        : Theme.of(
+                                            context,
+                                          ).textTheme.headlineMedium)
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1F2937),
+                                    ),
+                          ),
+                        ];
 
-                      if (isMobile) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                        if (isMobile) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [searchAndTitle.last],
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              searchAndTitle.first,
+                              const SizedBox(height: AppSpacing.md),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(children: actionButtons),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            Row(children: actionButtons),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [searchAndTitle.last],
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            searchAndTitle.first,
-                            const SizedBox(height: AppSpacing.md),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(children: actionButtons),
+                              mainAxisSize: MainAxisSize.min,
+                              children: searchAndTitle,
                             ),
                           ],
                         );
-                      }
-
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(children: actionButtons),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: searchAndTitle,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : state.filteredItems.isEmpty
-                      ? Center(child: Text(l10n.noWomenStaffYet))
-                      : Card(
-                          color: Colors.white,
-                          elevation: 0,
-                          margin: EdgeInsets.zero,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey.shade200),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(AppSpacing.lg),
-                                child: Text(
-                                  l10n.womenStaffList,
-                                  style: Theme.of(context).textTheme.titleLarge
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1F2937),
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    state.isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : state.filteredItems.isEmpty
+                        ? Center(child: Text(l10n.noWomenStaffYet))
+                        : Card(
+                            color: Colors.white,
+                            elevation: 0,
+                            margin: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: Colors.grey.shade200),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(AppSpacing.lg),
+                                  child: Text(
+                                    l10n.womenStaffList,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(0xFF1F2937),
+                                        ),
+                                  ),
+                                ),
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
+                                    border: TableBorder.all(
+                                      color: Colors.grey.shade200,
+                                      width: 1,
+                                    ),
+                                    headingRowColor: WidgetStateProperty.all(
+                                      Colors.grey.shade50,
+                                    ),
+                                    headingTextStyle: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    dataRowMaxHeight: 64,
+                                    dataRowMinHeight: 64,
+                                    columns: [
+                                      DataColumn(label: Text(l10n.name)),
+                                      DataColumn(label: Text(l10n.basicSalary)),
+                                      DataColumn(
+                                        label: Text(l10n.advancesHeader),
                                       ),
-                                ),
-                              ),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: DataTable(
-                                  border: TableBorder.all(
-                                    color: Colors.grey.shade200,
-                                    width: 1,
-                                  ),
-                                  headingRowColor: WidgetStateProperty.all(
-                                    Colors.grey.shade50,
-                                  ),
-                                  headingTextStyle: TextStyle(
-                                    color: Colors.grey.shade500,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  dataRowMaxHeight: 64,
-                                  dataRowMinHeight: 64,
-                                  columns: [
-                                    DataColumn(label: Text(l10n.name)),
-                                    DataColumn(label: Text(l10n.basicSalary)),
-                                    DataColumn(
-                                      label: Text(l10n.advancesHeader),
-                                    ),
-                                    DataColumn(
-                                      label: Text(l10n.netSalaryHeader),
-                                    ),
-                                    DataColumn(label: Text(l10n.actions)),
-                                  ],
-                                  rows: state.filteredItems.map((item) {
-                                    return DataRow(
-                                      cells: [
-                                        DataCell(Text(item.name)),
-                                        DataCell(
-                                          Text(
-                                            NumberFormat.currency(
-                                              locale: Localizations.localeOf(
-                                                context,
-                                              ).toLanguageTag(),
-                                              symbol: '',
-                                              decimalDigits: 2,
-                                            ).format(item.monthlySalary).trim(),
+                                      DataColumn(
+                                        label: Text(l10n.netSalaryHeader),
+                                      ),
+                                      DataColumn(label: Text(l10n.actions)),
+                                    ],
+                                    rows: state.filteredItems.map((item) {
+                                      return DataRow(
+                                        cells: [
+                                          DataCell(Text(item.name)),
+                                          DataCell(
+                                            Text(
+                                              NumberFormat.currency(
+                                                    locale:
+                                                        Localizations.localeOf(
+                                                          context,
+                                                        ).toLanguageTag(),
+                                                    symbol: '',
+                                                    decimalDigits: 2,
+                                                  )
+                                                  .format(item.monthlySalary)
+                                                  .trim(),
+                                            ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            NumberFormat.currency(
-                                              locale: Localizations.localeOf(
-                                                context,
-                                              ).toLanguageTag(),
-                                              symbol: '',
-                                              decimalDigits: 2,
-                                            ).format(item.totalAdvances).trim(),
+                                          DataCell(
+                                            Text(
+                                              NumberFormat.currency(
+                                                    locale:
+                                                        Localizations.localeOf(
+                                                          context,
+                                                        ).toLanguageTag(),
+                                                    symbol: '',
+                                                    decimalDigits: 2,
+                                                  )
+                                                  .format(item.totalAdvances)
+                                                  .trim(),
+                                            ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          Text(
-                                            NumberFormat.currency(
-                                              locale: Localizations.localeOf(
-                                                context,
-                                              ).toLanguageTag(),
-                                              symbol: '',
-                                              decimalDigits: 2,
-                                            ).format(item.netSalary).trim(),
+                                          DataCell(
+                                            Text(
+                                              NumberFormat.currency(
+                                                locale: Localizations.localeOf(
+                                                  context,
+                                                ).toLanguageTag(),
+                                                symbol: '',
+                                                decimalDigits: 2,
+                                              ).format(item.netSalary).trim(),
+                                            ),
                                           ),
-                                        ),
-                                        DataCell(
-                                          Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                onPressed: () async {
-                                                  final confirm = await showDialog<bool>(
-                                                    context: context,
-                                                    builder: (context) => AlertDialog(
-                                                      title: Text(
-                                                        l10n.deleteStaffTitle,
-                                                      ),
-                                                      content: Text(
-                                                        l10n.confirmDeleteStaff(
-                                                          item.name,
+                                          DataCell(
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    final confirm = await showDialog<bool>(
+                                                      context: context,
+                                                      builder: (context) => AlertDialog(
+                                                        title: Text(
+                                                          l10n.deleteStaffTitle,
                                                         ),
-                                                      ),
-                                                      actions: [
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.pop(
-                                                                context,
-                                                                false,
-                                                              ),
-                                                          child: Text(
-                                                            l10n.cancel,
+                                                        content: Text(
+                                                          l10n.confirmDeleteStaff(
+                                                            item.name,
                                                           ),
                                                         ),
-                                                        TextButton(
-                                                          onPressed: () =>
-                                                              Navigator.pop(
-                                                                context,
-                                                                true,
-                                                              ),
-                                                          style:
-                                                              TextButton.styleFrom(
-                                                                foregroundColor:
-                                                                    Colors.red,
-                                                              ),
-                                                          child: Text(
-                                                            l10n.delete,
+                                                        actions: [
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                  context,
+                                                                  false,
+                                                                ),
+                                                            child: Text(
+                                                              l10n.cancel,
+                                                            ),
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                  if (confirm == true &&
-                                                      context.mounted) {
-                                                    context
-                                                        .read<WomenStaffCubit>()
-                                                        .deleteStaff(item.id);
-                                                  }
-                                                },
-                                                icon: const Icon(
-                                                  Icons.delete_outline,
-                                                  color: Colors.red,
+                                                          TextButton(
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                  context,
+                                                                  true,
+                                                                ),
+                                                            style:
+                                                                TextButton.styleFrom(
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                ),
+                                                            child: Text(
+                                                              l10n.delete,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                    if (confirm == true &&
+                                                        context.mounted) {
+                                                      context
+                                                          .read<
+                                                            WomenStaffCubit
+                                                          >()
+                                                          .deleteStaff(item.id);
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.delete_outline,
+                                                    color: Colors.red,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                  }).toList(),
+                                        ],
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

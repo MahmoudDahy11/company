@@ -34,6 +34,12 @@ class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
     _subscribe();
   }
 
+  Future<void> refresh() {
+    final completer = Completer<void>();
+    _subscribe(completer: completer);
+    return completer.future;
+  }
+
   void previousMonth() {
     emit(
       state.copyWith(
@@ -96,23 +102,33 @@ class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
   Future<void> deletePayment(int paymentId) =>
       _deleteSupplierPaymentUseCase(paymentId);
 
-  void _subscribe() {
+  void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
     _subscription =
         _watchSupplierDetailsUseCase(
           state.supplierId,
           state.selectedMonth,
         ).listen(
-          (details) => emit(
-            state.copyWith(
-              details: details,
-              isLoading: false,
-              errorMessage: null,
-            ),
-          ),
-          onError: (Object error) => emit(
-            state.copyWith(isLoading: false, errorMessage: error.toString()),
-          ),
+          (details) {
+            emit(
+              state.copyWith(
+                details: details,
+                isLoading: false,
+                errorMessage: null,
+              ),
+            );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(isLoading: false, errorMessage: error.toString()),
+            );
+            if (completer != null && !completer.isCompleted) {
+              completer.complete();
+            }
+          },
         );
   }
 
