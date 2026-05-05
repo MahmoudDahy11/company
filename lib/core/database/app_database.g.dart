@@ -2903,6 +2903,350 @@ class StaffAdvancesCompanion extends UpdateCompanion<StaffAdvance> {
   }
 }
 
+class $StaffDeductionsTable extends StaffDeductions
+    with TableInfo<$StaffDeductionsTable, StaffDeduction> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StaffDeductionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _staffIdMeta = const VerificationMeta(
+    'staffId',
+  );
+  @override
+  late final GeneratedColumn<int> staffId = GeneratedColumn<int>(
+    'staff_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES women_staff_members (id)',
+    ),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<double> amount = GeneratedColumn<double>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, staffId, amount, date, notes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'staff_deductions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StaffDeduction> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('staff_id')) {
+      context.handle(
+        _staffIdMeta,
+        staffId.isAcceptableOrUnknown(data['staff_id']!, _staffIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_staffIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(
+        _amountMeta,
+        amount.isAcceptableOrUnknown(data['amount']!, _amountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StaffDeduction map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StaffDeduction(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      staffId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}staff_id'],
+      )!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}amount'],
+      )!,
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}date'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+    );
+  }
+
+  @override
+  $StaffDeductionsTable createAlias(String alias) {
+    return $StaffDeductionsTable(attachedDatabase, alias);
+  }
+}
+
+class StaffDeduction extends DataClass implements Insertable<StaffDeduction> {
+  final int id;
+  final int staffId;
+  final double amount;
+  final DateTime date;
+  final String? notes;
+  const StaffDeduction({
+    required this.id,
+    required this.staffId,
+    required this.amount,
+    required this.date,
+    this.notes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['staff_id'] = Variable<int>(staffId);
+    map['amount'] = Variable<double>(amount);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    return map;
+  }
+
+  StaffDeductionsCompanion toCompanion(bool nullToAbsent) {
+    return StaffDeductionsCompanion(
+      id: Value(id),
+      staffId: Value(staffId),
+      amount: Value(amount),
+      date: Value(date),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+    );
+  }
+
+  factory StaffDeduction.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StaffDeduction(
+      id: serializer.fromJson<int>(json['id']),
+      staffId: serializer.fromJson<int>(json['staffId']),
+      amount: serializer.fromJson<double>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      notes: serializer.fromJson<String?>(json['notes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'staffId': serializer.toJson<int>(staffId),
+      'amount': serializer.toJson<double>(amount),
+      'date': serializer.toJson<DateTime>(date),
+      'notes': serializer.toJson<String?>(notes),
+    };
+  }
+
+  StaffDeduction copyWith({
+    int? id,
+    int? staffId,
+    double? amount,
+    DateTime? date,
+    Value<String?> notes = const Value.absent(),
+  }) => StaffDeduction(
+    id: id ?? this.id,
+    staffId: staffId ?? this.staffId,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+    notes: notes.present ? notes.value : this.notes,
+  );
+  StaffDeduction copyWithCompanion(StaffDeductionsCompanion data) {
+    return StaffDeduction(
+      id: data.id.present ? data.id.value : this.id,
+      staffId: data.staffId.present ? data.staffId.value : this.staffId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+      notes: data.notes.present ? data.notes.value : this.notes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StaffDeduction(')
+          ..write('id: $id, ')
+          ..write('staffId: $staffId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, staffId, amount, date, notes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StaffDeduction &&
+          other.id == this.id &&
+          other.staffId == this.staffId &&
+          other.amount == this.amount &&
+          other.date == this.date &&
+          other.notes == this.notes);
+}
+
+class StaffDeductionsCompanion extends UpdateCompanion<StaffDeduction> {
+  final Value<int> id;
+  final Value<int> staffId;
+  final Value<double> amount;
+  final Value<DateTime> date;
+  final Value<String?> notes;
+  const StaffDeductionsCompanion({
+    this.id = const Value.absent(),
+    this.staffId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.notes = const Value.absent(),
+  });
+  StaffDeductionsCompanion.insert({
+    this.id = const Value.absent(),
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    this.notes = const Value.absent(),
+  }) : staffId = Value(staffId),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<StaffDeduction> custom({
+    Expression<int>? id,
+    Expression<int>? staffId,
+    Expression<double>? amount,
+    Expression<DateTime>? date,
+    Expression<String>? notes,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (staffId != null) 'staff_id': staffId,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (notes != null) 'notes': notes,
+    });
+  }
+
+  StaffDeductionsCompanion copyWith({
+    Value<int>? id,
+    Value<int>? staffId,
+    Value<double>? amount,
+    Value<DateTime>? date,
+    Value<String?>? notes,
+  }) {
+    return StaffDeductionsCompanion(
+      id: id ?? this.id,
+      staffId: staffId ?? this.staffId,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      notes: notes ?? this.notes,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (staffId.present) {
+      map['staff_id'] = Variable<int>(staffId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<double>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StaffDeductionsCompanion(')
+          ..write('id: $id, ')
+          ..write('staffId: $staffId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('notes: $notes')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SuppliersTable extends Suppliers
     with TableInfo<$SuppliersTable, Supplier> {
   @override
@@ -5291,6 +5635,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WomenStaffMembersTable womenStaffMembers =
       $WomenStaffMembersTable(this);
   late final $StaffAdvancesTable staffAdvances = $StaffAdvancesTable(this);
+  late final $StaffDeductionsTable staffDeductions = $StaffDeductionsTable(
+    this,
+  );
   late final $SuppliersTable suppliers = $SuppliersTable(this);
   late final $ThreadPurchasesTable threadPurchases = $ThreadPurchasesTable(
     this,
@@ -5314,6 +5661,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     workerAbsentDays,
     womenStaffMembers,
     staffAdvances,
+    staffDeductions,
     suppliers,
     threadPurchases,
     supplierPayments,
@@ -7267,6 +7615,29 @@ final class $$WomenStaffMembersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$StaffDeductionsTable, List<StaffDeduction>>
+  _staffDeductionsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.staffDeductions,
+    aliasName: $_aliasNameGenerator(
+      db.womenStaffMembers.id,
+      db.staffDeductions.staffId,
+    ),
+  );
+
+  $$StaffDeductionsTableProcessedTableManager get staffDeductionsRefs {
+    final manager = $$StaffDeductionsTableTableManager(
+      $_db,
+      $_db.staffDeductions,
+    ).filter((f) => f.staffId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _staffDeductionsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$WomenStaffMembersTableFilterComposer
@@ -7319,6 +7690,31 @@ class $$WomenStaffMembersTableFilterComposer
           }) => $$StaffAdvancesTableFilterComposer(
             $db: $db,
             $table: $db.staffAdvances,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> staffDeductionsRefs(
+    Expression<bool> Function($$StaffDeductionsTableFilterComposer f) f,
+  ) {
+    final $$StaffDeductionsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.staffDeductions,
+      getReferencedColumn: (t) => t.staffId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StaffDeductionsTableFilterComposer(
+            $db: $db,
+            $table: $db.staffDeductions,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7414,6 +7810,31 @@ class $$WomenStaffMembersTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> staffDeductionsRefs<T extends Object>(
+    Expression<T> Function($$StaffDeductionsTableAnnotationComposer a) f,
+  ) {
+    final $$StaffDeductionsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.staffDeductions,
+      getReferencedColumn: (t) => t.staffId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$StaffDeductionsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.staffDeductions,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$WomenStaffMembersTableTableManager
@@ -7429,7 +7850,10 @@ class $$WomenStaffMembersTableTableManager
           $$WomenStaffMembersTableUpdateCompanionBuilder,
           (WomenStaffMember, $$WomenStaffMembersTableReferences),
           WomenStaffMember,
-          PrefetchHooks Function({bool staffAdvancesRefs})
+          PrefetchHooks Function({
+            bool staffAdvancesRefs,
+            bool staffDeductionsRefs,
+          })
         > {
   $$WomenStaffMembersTableTableManager(
     _$AppDatabase db,
@@ -7483,38 +7907,63 @@ class $$WomenStaffMembersTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({staffAdvancesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (staffAdvancesRefs) db.staffAdvances,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (staffAdvancesRefs)
-                    await $_getPrefetchedData<
-                      WomenStaffMember,
-                      $WomenStaffMembersTable,
-                      StaffAdvance
-                    >(
-                      currentTable: table,
-                      referencedTable: $$WomenStaffMembersTableReferences
-                          ._staffAdvancesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$WomenStaffMembersTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).staffAdvancesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.staffId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({staffAdvancesRefs = false, staffDeductionsRefs = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (staffAdvancesRefs) db.staffAdvances,
+                    if (staffDeductionsRefs) db.staffDeductions,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (staffAdvancesRefs)
+                        await $_getPrefetchedData<
+                          WomenStaffMember,
+                          $WomenStaffMembersTable,
+                          StaffAdvance
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WomenStaffMembersTableReferences
+                              ._staffAdvancesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WomenStaffMembersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).staffAdvancesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.staffId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (staffDeductionsRefs)
+                        await $_getPrefetchedData<
+                          WomenStaffMember,
+                          $WomenStaffMembersTable,
+                          StaffDeduction
+                        >(
+                          currentTable: table,
+                          referencedTable: $$WomenStaffMembersTableReferences
+                              ._staffDeductionsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$WomenStaffMembersTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).staffDeductionsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.staffId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -7531,7 +7980,7 @@ typedef $$WomenStaffMembersTableProcessedTableManager =
       $$WomenStaffMembersTableUpdateCompanionBuilder,
       (WomenStaffMember, $$WomenStaffMembersTableReferences),
       WomenStaffMember,
-      PrefetchHooks Function({bool staffAdvancesRefs})
+      PrefetchHooks Function({bool staffAdvancesRefs, bool staffDeductionsRefs})
     >;
 typedef $$StaffAdvancesTableCreateCompanionBuilder =
     StaffAdvancesCompanion Function({
@@ -7870,6 +8319,332 @@ typedef $$StaffAdvancesTableProcessedTableManager =
       $$StaffAdvancesTableUpdateCompanionBuilder,
       (StaffAdvance, $$StaffAdvancesTableReferences),
       StaffAdvance,
+      PrefetchHooks Function({bool staffId})
+    >;
+typedef $$StaffDeductionsTableCreateCompanionBuilder =
+    StaffDeductionsCompanion Function({
+      Value<int> id,
+      required int staffId,
+      required double amount,
+      required DateTime date,
+      Value<String?> notes,
+    });
+typedef $$StaffDeductionsTableUpdateCompanionBuilder =
+    StaffDeductionsCompanion Function({
+      Value<int> id,
+      Value<int> staffId,
+      Value<double> amount,
+      Value<DateTime> date,
+      Value<String?> notes,
+    });
+
+final class $$StaffDeductionsTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $StaffDeductionsTable, StaffDeduction> {
+  $$StaffDeductionsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $WomenStaffMembersTable _staffIdTable(_$AppDatabase db) =>
+      db.womenStaffMembers.createAlias(
+        $_aliasNameGenerator(
+          db.staffDeductions.staffId,
+          db.womenStaffMembers.id,
+        ),
+      );
+
+  $$WomenStaffMembersTableProcessedTableManager get staffId {
+    final $_column = $_itemColumn<int>('staff_id')!;
+
+    final manager = $$WomenStaffMembersTableTableManager(
+      $_db,
+      $_db.womenStaffMembers,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_staffIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$StaffDeductionsTableFilterComposer
+    extends Composer<_$AppDatabase, $StaffDeductionsTable> {
+  $$StaffDeductionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$WomenStaffMembersTableFilterComposer get staffId {
+    final $$WomenStaffMembersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.staffId,
+      referencedTable: $db.womenStaffMembers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WomenStaffMembersTableFilterComposer(
+            $db: $db,
+            $table: $db.womenStaffMembers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StaffDeductionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StaffDeductionsTable> {
+  $$StaffDeductionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get amount => $composableBuilder(
+    column: $table.amount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$WomenStaffMembersTableOrderingComposer get staffId {
+    final $$WomenStaffMembersTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.staffId,
+      referencedTable: $db.womenStaffMembers,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$WomenStaffMembersTableOrderingComposer(
+            $db: $db,
+            $table: $db.womenStaffMembers,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$StaffDeductionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StaffDeductionsTable> {
+  $$StaffDeductionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  $$WomenStaffMembersTableAnnotationComposer get staffId {
+    final $$WomenStaffMembersTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.staffId,
+          referencedTable: $db.womenStaffMembers,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$WomenStaffMembersTableAnnotationComposer(
+                $db: $db,
+                $table: $db.womenStaffMembers,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$StaffDeductionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StaffDeductionsTable,
+          StaffDeduction,
+          $$StaffDeductionsTableFilterComposer,
+          $$StaffDeductionsTableOrderingComposer,
+          $$StaffDeductionsTableAnnotationComposer,
+          $$StaffDeductionsTableCreateCompanionBuilder,
+          $$StaffDeductionsTableUpdateCompanionBuilder,
+          (StaffDeduction, $$StaffDeductionsTableReferences),
+          StaffDeduction,
+          PrefetchHooks Function({bool staffId})
+        > {
+  $$StaffDeductionsTableTableManager(
+    _$AppDatabase db,
+    $StaffDeductionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StaffDeductionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StaffDeductionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StaffDeductionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> staffId = const Value.absent(),
+                Value<double> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+              }) => StaffDeductionsCompanion(
+                id: id,
+                staffId: staffId,
+                amount: amount,
+                date: date,
+                notes: notes,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int staffId,
+                required double amount,
+                required DateTime date,
+                Value<String?> notes = const Value.absent(),
+              }) => StaffDeductionsCompanion.insert(
+                id: id,
+                staffId: staffId,
+                amount: amount,
+                date: date,
+                notes: notes,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$StaffDeductionsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({staffId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (staffId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.staffId,
+                                referencedTable:
+                                    $$StaffDeductionsTableReferences
+                                        ._staffIdTable(db),
+                                referencedColumn:
+                                    $$StaffDeductionsTableReferences
+                                        ._staffIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$StaffDeductionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StaffDeductionsTable,
+      StaffDeduction,
+      $$StaffDeductionsTableFilterComposer,
+      $$StaffDeductionsTableOrderingComposer,
+      $$StaffDeductionsTableAnnotationComposer,
+      $$StaffDeductionsTableCreateCompanionBuilder,
+      $$StaffDeductionsTableUpdateCompanionBuilder,
+      (StaffDeduction, $$StaffDeductionsTableReferences),
+      StaffDeduction,
       PrefetchHooks Function({bool staffId})
     >;
 typedef $$SuppliersTableCreateCompanionBuilder =
@@ -10078,6 +10853,8 @@ class $AppDatabaseManager {
       $$WomenStaffMembersTableTableManager(_db, _db.womenStaffMembers);
   $$StaffAdvancesTableTableManager get staffAdvances =>
       $$StaffAdvancesTableTableManager(_db, _db.staffAdvances);
+  $$StaffDeductionsTableTableManager get staffDeductions =>
+      $$StaffDeductionsTableTableManager(_db, _db.staffDeductions);
   $$SuppliersTableTableManager get suppliers =>
       $$SuppliersTableTableManager(_db, _db.suppliers);
   $$ThreadPurchasesTableTableManager get threadPurchases =>

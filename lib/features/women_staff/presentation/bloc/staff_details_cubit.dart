@@ -6,7 +6,9 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/staff_details_data.dart';
 import '../../domain/usecases/add_staff_advance_usecase.dart';
+import '../../domain/usecases/add_staff_deduction_usecase.dart';
 import '../../domain/usecases/delete_staff_advance_usecase.dart';
+import '../../domain/usecases/delete_staff_deduction_usecase.dart';
 import '../../domain/usecases/update_salary_usecase.dart';
 import '../../domain/usecases/watch_staff_details_usecase.dart';
 import 'staff_details_state.dart';
@@ -17,12 +19,16 @@ class StaffDetailsCubit extends Cubit<StaffDetailsState> {
     this._watchStaffDetailsUseCase,
     this._addStaffAdvanceUseCase,
     this._deleteStaffAdvanceUseCase,
+    this._addStaffDeductionUseCase,
+    this._deleteStaffDeductionUseCase,
     this._updateSalaryUseCase,
   ) : super(StaffDetailsState.initial(0));
 
   final WatchStaffDetailsUseCase _watchStaffDetailsUseCase;
   final AddStaffAdvanceUseCase _addStaffAdvanceUseCase;
   final DeleteStaffAdvanceUseCase _deleteStaffAdvanceUseCase;
+  final AddStaffDeductionUseCase _addStaffDeductionUseCase;
+  final DeleteStaffDeductionUseCase _deleteStaffDeductionUseCase;
   final UpdateSalaryUseCase _updateSalaryUseCase;
 
   StreamSubscription<StaffDetailsData>? _subscription;
@@ -82,6 +88,23 @@ class StaffDetailsCubit extends Cubit<StaffDetailsState> {
 
   Future<void> deleteAdvance(int advanceId) {
     return _deleteStaffAdvanceUseCase(advanceId);
+  }
+
+  Future<void> addDeduction({
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _addStaffDeductionUseCase(
+      staffId: state.staffId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  Future<void> deleteDeduction(int deductionId) {
+    return _deleteStaffDeductionUseCase(deductionId);
   }
 
   Future<void> updateSalary(double monthlySalary) {

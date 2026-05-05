@@ -91,6 +91,12 @@ class _StaffDetailsView extends StatelessWidget {
                               ),
                             ),
                             _SummaryCard(
+                              label: l10n.deductions,
+                              value: currency.format(
+                                details.summary.totalDeductions,
+                              ),
+                            ),
+                            _SummaryCard(
                               label: l10n.carryOver,
                               value: currency.format(details.summary.carryOver),
                             ),
@@ -138,51 +144,123 @@ class _StaffDetailsView extends StatelessWidget {
                               icon: const Icon(Icons.add),
                               label: Text(l10n.addAdvance),
                             ),
+                            const SizedBox(width: AppSpacing.sm),
+                            FilledButton.icon(
+                              onPressed: () async {
+                                final result = await showStaffDeductionSheet(
+                                  context,
+                                );
+                                if (result != null && context.mounted) {
+                                  await context
+                                      .read<StaffDetailsCubit>()
+                                      .addDeduction(
+                                        amount: result.amount,
+                                        date: result.date,
+                                        notes: result.notes,
+                                      );
+                                }
+                              },
+                              icon: const Icon(Icons.remove_circle_outline),
+                              label: Text(l10n.addDeduction),
+                            ),
                           ],
                         ),
                         const SizedBox(height: AppSpacing.lg),
-                        if (details.advances.isEmpty)
+                        if (details.advances.isEmpty &&
+                            details.deductions.isEmpty)
                           Center(
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
                                 vertical: AppSpacing.xl,
                               ),
-                              child: Text(l10n.noAdvancesThisMonth),
+                              child: Text(l10n.noData),
                             ),
                           )
-                        else
-                          ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: details.advances.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(height: AppSpacing.md),
-                            itemBuilder: (context, index) {
-                              final item = details.advances[index];
-                              return Card(
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(
-                                    AppSpacing.md,
-                                  ),
-                                  title: Text(currency.format(item.amount)),
-                                  subtitle: Text(
-                                    '${DateFormat.yMd().format(item.date)}'
-                                    '${item.notes == null ? '' : '\n${item.notes}'}',
-                                  ),
-                                  trailing: item.carriedOver
-                                      ? Chip(label: Text(l10n.carryOver))
-                                      : IconButton(
-                                          onPressed: () => context
-                                              .read<StaffDetailsCubit>()
-                                              .deleteAdvance(item.id),
-                                          icon: const Icon(
-                                            Icons.delete_outline,
+                        else ...[
+                          if (details.advances.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                l10n.advances,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: details.advances.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.md),
+                              itemBuilder: (context, index) {
+                                final item = details.advances[index];
+                                return Card(
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(
+                                      AppSpacing.md,
+                                    ),
+                                    title: Text(currency.format(item.amount)),
+                                    subtitle: Text(
+                                      '${DateFormat.yMd().format(item.date)}'
+                                      '${item.notes == null ? '' : '\n${item.notes}'}',
+                                    ),
+                                    trailing: item.carriedOver
+                                        ? Chip(label: Text(l10n.carryOver))
+                                        : IconButton(
+                                            onPressed: () => context
+                                                .read<StaffDetailsCubit>()
+                                                .deleteAdvance(item.id),
+                                            icon: const Icon(
+                                              Icons.delete_outline,
+                                            ),
                                           ),
-                                        ),
-                                ),
-                              );
-                            },
-                          ),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                          ],
+                          if (details.deductions.isNotEmpty) ...[
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                l10n.deductions,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ),
+                            ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: details.deductions.length,
+                              separatorBuilder: (_, _) =>
+                                  const SizedBox(height: AppSpacing.md),
+                              itemBuilder: (context, index) {
+                                final item = details.deductions[index];
+                                return Card(
+                                  child: ListTile(
+                                    contentPadding: const EdgeInsets.all(
+                                      AppSpacing.md,
+                                    ),
+                                    title: Text(currency.format(item.amount)),
+                                    subtitle: Text(
+                                      '${DateFormat.yMd().format(item.date)}'
+                                      '${item.notes == null ? '' : '\n${item.notes}'}',
+                                    ),
+                                    trailing: IconButton(
+                                      onPressed: () => context
+                                          .read<StaffDetailsCubit>()
+                                          .deleteDeduction(item.id),
+                                      icon: const Icon(Icons.delete_outline),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ],
                       ],
                     ),
                   ),

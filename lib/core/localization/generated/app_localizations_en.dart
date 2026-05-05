@@ -637,4 +637,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String valueTooLarge(Object max) {
     return 'Value must be at most $max';
   }
+
+  @override
+  String get deductions => 'Deductions';
+
+  @override
+  String get addDeduction => 'Add Deduction';
+
+  @override
+  String get noDeductionsThisMonth => 'No deductions for this month';
+
+  @override
+  String get deleteDeductionTitle => 'Delete Deduction';
+
+  @override
+  String get confirmDeleteDeduction =>
+      'Do you want to delete this deduction record?';
 }

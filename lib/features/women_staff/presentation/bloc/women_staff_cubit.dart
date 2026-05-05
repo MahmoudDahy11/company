@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/staff_list_item.dart';
+import '../../domain/usecases/add_staff_advance_usecase.dart';
+import '../../domain/usecases/add_staff_deduction_usecase.dart';
 import '../../domain/usecases/add_staff_usecase.dart';
 import '../../domain/usecases/delete_staff_usecase.dart';
 import '../../domain/usecases/watch_staff_usecase.dart';
@@ -16,11 +18,15 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
     this._watchStaffUseCase,
     this._addStaffUseCase,
     this._deleteStaffUseCase,
+    this._addStaffAdvanceUseCase,
+    this._addStaffDeductionUseCase,
   ) : super(WomenStaffState.initial());
 
   final WatchStaffUseCase _watchStaffUseCase;
   final AddStaffUseCase _addStaffUseCase;
   final DeleteStaffUseCase _deleteStaffUseCase;
+  final AddStaffAdvanceUseCase _addStaffAdvanceUseCase;
+  final AddStaffDeductionUseCase _addStaffDeductionUseCase;
 
   StreamSubscription<List<StaffListItem>>? _subscription;
 
@@ -55,6 +61,34 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
 
   Future<void> deleteStaff(int staffId) {
     return _deleteStaffUseCase(staffId);
+  }
+
+  Future<void> addAdvance({
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _addStaffAdvanceUseCase(
+      staffId: staffId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  Future<void> addDeduction({
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _addStaffDeductionUseCase(
+      staffId: staffId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
   }
 
   void updateSearchQuery(String value) {

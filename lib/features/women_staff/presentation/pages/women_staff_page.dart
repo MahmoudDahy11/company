@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/export/excel_export_service.dart';
@@ -10,6 +11,7 @@ import '../../../../core/utils/app_spacing.dart';
 import '../bloc/women_staff_cubit.dart';
 import '../bloc/women_staff_state.dart';
 import '../widgets/women_staff_forms.dart';
+import 'staff_details_page.dart';
 
 class WomenStaffPage extends StatelessWidget {
   const WomenStaffPage({super.key});
@@ -228,6 +230,7 @@ class _WomenStaffView extends StatelessWidget {
                                       DataColumn(
                                         label: Text(l10n.advancesHeader),
                                       ),
+                                      DataColumn(label: Text(l10n.deductions)),
                                       DataColumn(
                                         label: Text(l10n.netSalaryHeader),
                                       ),
@@ -268,6 +271,20 @@ class _WomenStaffView extends StatelessWidget {
                                           DataCell(
                                             Text(
                                               NumberFormat.currency(
+                                                    locale:
+                                                        Localizations.localeOf(
+                                                          context,
+                                                        ).toLanguageTag(),
+                                                    symbol: '',
+                                                    decimalDigits: 2,
+                                                  )
+                                                  .format(item.totalDeductions)
+                                                  .trim(),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              NumberFormat.currency(
                                                 locale: Localizations.localeOf(
                                                   context,
                                                 ).toLanguageTag(),
@@ -280,6 +297,76 @@ class _WomenStaffView extends StatelessWidget {
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    final result =
+                                                        await showStaffAdvanceSheet(
+                                                          context,
+                                                        );
+                                                    if (result != null &&
+                                                        context.mounted) {
+                                                      await context
+                                                          .read<
+                                                            WomenStaffCubit
+                                                          >()
+                                                          .addAdvance(
+                                                            staffId: item.id,
+                                                            amount:
+                                                                result.amount,
+                                                            date: result.date,
+                                                            notes: result.notes,
+                                                          );
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.add_circle_outline,
+                                                    color: Colors.teal,
+                                                  ),
+                                                  tooltip: l10n.addAdvance,
+                                                ),
+                                                IconButton(
+                                                  onPressed: () async {
+                                                    final result =
+                                                        await showStaffDeductionSheet(
+                                                          context,
+                                                        );
+                                                    if (result != null &&
+                                                        context.mounted) {
+                                                      await context
+                                                          .read<
+                                                            WomenStaffCubit
+                                                          >()
+                                                          .addDeduction(
+                                                            staffId: item.id,
+                                                            amount:
+                                                                result.amount,
+                                                            date: result.date,
+                                                            notes: result.notes,
+                                                          );
+                                                    }
+                                                  },
+                                                  icon: const Icon(
+                                                    Icons.remove_circle_outline,
+                                                    color: Colors.orange,
+                                                  ),
+                                                  tooltip: l10n.addDeduction,
+                                                ),
+                                                IconButton(
+                                                  onPressed: () =>
+                                                      context.pushNamed(
+                                                        StaffDetailsPage
+                                                            .routeName,
+                                                        pathParameters: {
+                                                          'staffId': item.id
+                                                              .toString(),
+                                                        },
+                                                      ),
+                                                  icon: const Icon(
+                                                    Icons.visibility_outlined,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  tooltip: l10n.details,
+                                                ),
                                                 IconButton(
                                                   onPressed: () async {
                                                     final confirm = await showDialog<bool>(
@@ -336,6 +423,7 @@ class _WomenStaffView extends StatelessWidget {
                                                     Icons.delete_outline,
                                                     color: Colors.red,
                                                   ),
+                                                  tooltip: l10n.delete,
                                                 ),
                                               ],
                                             ),

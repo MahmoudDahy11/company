@@ -72,6 +72,13 @@ Future<StaffAdvanceFormResult?> showStaffAdvanceSheet(BuildContext context) {
   );
 }
 
+Future<StaffAdvanceFormResult?> showStaffDeductionSheet(BuildContext context) {
+  return showAdaptiveStaffSheet<StaffAdvanceFormResult>(
+    context: context,
+    child: const _AddDeductionSheet(),
+  );
+}
+
 class _AddStaffSheet extends StatefulWidget {
   const _AddStaffSheet();
 
@@ -240,6 +247,103 @@ class _AddAdvanceSheetState extends State<_AddAdvanceSheet> {
 
     return _StaffSheetScaffold(
       title: l10n.addAdvance,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(labelText: l10n.amount),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              maxLines: 2,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        StaffAdvanceFormResult(
+          amount: double.parse(_amountController.text.trim()),
+          date: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
+  }
+}
+
+class _AddDeductionSheet extends StatefulWidget {
+  const _AddDeductionSheet();
+
+  @override
+  State<_AddDeductionSheet> createState() => _AddDeductionSheetState();
+}
+
+class _AddDeductionSheetState extends State<_AddDeductionSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _notesController = TextEditingController();
+  final _dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return _StaffSheetScaffold(
+      title: l10n.addDeduction,
       child: Form(
         key: _formKey,
         child: Column(

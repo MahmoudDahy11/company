@@ -25,3 +25,15 @@ class StaffAdvances extends Table {
 
   BoolColumn get carriedOver => boolean().withDefault(const Constant(false))();
 }
+
+class StaffDeductions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  IntColumn get staffId => integer().references(WomenStaffMembers, #id)();
+
+  RealColumn get amount => real()();
+
+  DateTimeColumn get date => dateTime()();
+
+  TextColumn get notes => text().nullable()();
+}

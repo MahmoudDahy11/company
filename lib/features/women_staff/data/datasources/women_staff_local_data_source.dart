@@ -4,9 +4,11 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../core/database/app_database.dart' hide StaffAdvance;
+import '../../../../core/database/app_database.dart'
+    hide StaffAdvance, StaffDeduction;
 import '../../../../core/sync/sync_queue_table.dart';
 import '../../domain/entities/staff_advance.dart';
+import '../../domain/entities/staff_deduction.dart';
 import '../../domain/entities/staff_details_data.dart';
 import '../../domain/entities/staff_list_item.dart';
 import '../../domain/entities/staff_member.dart';
@@ -172,11 +174,73 @@ class WomenStaffLocalDataSource {
     });
   }
 
+  Future<void> addDeduction({
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      final id = await _database
+          .into(_database.staffDeductions)
+          .insert(
+            StaffDeductionsCompanion.insert(
+              staffId: staffId,
+              amount: amount,
+              date: date,
+              notes: Value(notes),
+            ),
+          );
+
+      await _queueSync(
+        operation: SyncQueueOperation.insert,
+        tableName: 'staff_deductions',
+        recordId: id,
+        payload: <String, dynamic>{
+          'id': id,
+          'staffId': staffId,
+          'amount': amount,
+          'date': date.toIso8601String(),
+          'notes': notes,
+        },
+      );
+    });
+  }
+
+  Future<void> deleteDeduction(int deductionId) async {
+    final existing = await (_database.select(
+      _database.staffDeductions,
+    )..where((table) => table.id.equals(deductionId))).getSingleOrNull();
+    if (existing == null) {
+      return;
+    }
+
+    await _database.transaction(() async {
+      await (_database.delete(
+        _database.staffDeductions,
+      )..where((table) => table.id.equals(deductionId))).go();
+
+      await _queueSync(
+        operation: SyncQueueOperation.delete,
+        tableName: 'staff_deductions',
+        recordId: deductionId,
+        payload: <String, dynamic>{
+          'id': deductionId,
+          'staffId': existing.staffId,
+        },
+      );
+    });
+  }
+
   Stream<List<QueryRow>> _watchTrigger() {
     return _database
         .customSelect(
           'SELECT 1',
-          readsFrom: {_database.womenStaffMembers, _database.staffAdvances},
+          readsFrom: {
+            _database.womenStaffMembers,
+            _database.staffAdvances,
+            _database.staffDeductions,
+          },
         )
         .watch();
   }
@@ -197,6 +261,8 @@ class WomenStaffLocalDataSource {
           name: row.name,
           monthlySalary: summary.monthlySalary,
           totalAdvances: summary.totalAdvances,
+          totalDeductions: summary.totalDeductions,
+          carryOver: summary.carryOver,
           netSalary: summary.netSalary,
         ),
       );
@@ -249,6 +315,31 @@ class WomenStaffLocalDataSource {
       ),
     ];
 
+    final deductionsRows =
+        await (_database.select(_database.staffDeductions)
+              ..where(
+                (table) =>
+                    table.staffId.equals(staffId) &
+                    table.date.isBetweenValues(
+                      monthRange.start,
+                      monthRange.end,
+                    ),
+              )
+              ..orderBy([(table) => OrderingTerm.desc(table.date)]))
+            .get();
+
+    final deductions = deductionsRows
+        .map(
+          (row) => StaffDeduction(
+            id: row.id,
+            staffId: row.staffId,
+            amount: row.amount,
+            date: row.date,
+            notes: row.notes,
+          ),
+        )
+        .toList();
+
     return StaffDetailsData(
       staffMember: StaffMember(
         id: member.id,
@@ -259,6 +350,7 @@ class WomenStaffLocalDataSource {
       ),
       summary: summary,
       advances: advances,
+      deductions: deductions,
     );
   }
 
@@ -270,20 +362,29 @@ class WomenStaffLocalDataSource {
     final advancesRows = await (_database.select(
       _database.staffAdvances,
     )..where((table) => table.staffId.equals(staffId))).get();
+    final deductionsRows = await (_database.select(
+      _database.staffDeductions,
+    )..where((table) => table.staffId.equals(staffId))).get();
 
     final monthlyAdvances = <DateTime, double>{};
+    final monthlyDeductions = <DateTime, double>{};
     final firstMonth = _monthStart(member.createdAt);
 
     for (final advance in advancesRows) {
       final key = _monthStart(advance.date);
       monthlyAdvances[key] = (monthlyAdvances[key] ?? 0) + advance.amount;
     }
+    for (final deduction in deductionsRows) {
+      final key = _monthStart(deduction.date);
+      monthlyDeductions[key] = (monthlyDeductions[key] ?? 0) + deduction.amount;
+    }
 
     double carryIn = 0;
     DateTime cursor = firstMonth;
     while (!_isAfterMonth(cursor, normalizedMonth)) {
       final advances = monthlyAdvances[cursor] ?? 0;
-      final net = member.monthlySalary - advances - carryIn;
+      final deductions = monthlyDeductions[cursor] ?? 0;
+      final net = member.monthlySalary - advances - deductions - carryIn;
       final nextCarry = net < 0 ? -net : 0;
 
       if (_sameMonth(cursor, normalizedMonth)) {
@@ -291,6 +392,7 @@ class WomenStaffLocalDataSource {
           month: normalizedMonth,
           monthlySalary: member.monthlySalary,
           totalAdvances: advances,
+          totalDeductions: deductions,
           carryOver: carryIn,
           netSalary: net,
         );
@@ -304,6 +406,7 @@ class WomenStaffLocalDataSource {
       month: normalizedMonth,
       monthlySalary: member.monthlySalary,
       totalAdvances: 0,
+      totalDeductions: 0,
       carryOver: carryIn,
       netSalary: member.monthlySalary - carryIn,
     );

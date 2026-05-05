@@ -61,4 +61,24 @@ class WomenStaffRepositoryImpl implements WomenStaffRepository {
   Future<void> deleteAdvance(int advanceId) {
     return _localDataSource.deleteAdvance(advanceId);
   }
+
+  @override
+  Future<void> addDeduction({
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _localDataSource.addDeduction(
+      staffId: staffId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  @override
+  Future<void> deleteDeduction(int deductionId) {
+    return _localDataSource.deleteDeduction(deductionId);
+  }
 }

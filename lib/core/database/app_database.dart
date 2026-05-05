@@ -23,6 +23,7 @@ part 'app_database.g.dart';
     WorkerAbsentDays,
     WomenStaffMembers,
     StaffAdvances,
+    StaffDeductions,
     Suppliers,
     ThreadPurchases,
     SupplierPayments,
@@ -35,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -63,6 +64,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(clients);
         await m.createTable(clientModels);
         await m.createTable(clientPayments);
+      }
+      if (from < 6) {
+        await m.createTable(staffDeductions);
       }
     },
   );

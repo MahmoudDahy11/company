@@ -23,4 +23,13 @@ abstract class WomenStaffRepository {
   });
 
   Future<void> deleteAdvance(int advanceId);
+
+  Future<void> addDeduction({
+    required int staffId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  });
+
+  Future<void> deleteDeduction(int deductionId);
 }

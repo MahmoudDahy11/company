@@ -1243,6 +1243,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Value must be at most {max}'**
   String valueTooLarge(Object max);
+
+  /// No description provided for @deductions.
+  ///
+  /// In en, this message translates to:
+  /// **'Deductions'**
+  String get deductions;
+
+  /// No description provided for @addDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Deduction'**
+  String get addDeduction;
+
+  /// No description provided for @noDeductionsThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'No deductions for this month'**
+  String get noDeductionsThisMonth;
+
+  /// No description provided for @deleteDeductionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Deduction'**
+  String get deleteDeductionTitle;
+
+  /// No description provided for @confirmDeleteDeduction.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to delete this deduction record?'**
+  String get confirmDeleteDeduction;
 }
 
 class _AppLocalizationsDelegate

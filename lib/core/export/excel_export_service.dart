@@ -52,6 +52,7 @@ class ExcelExportService {
             'النوع',
             'إجمالي الغرز / الراتب',
             'السلف',
+            'الخصومات',
             'الترحيل',
             'الصافي',
           ]
@@ -60,6 +61,7 @@ class ExcelExportService {
             'Type',
             'Earnings / Salary',
             'Advances',
+            'Deductions',
             'Carry-over',
             'Net Salary',
           ];
@@ -81,6 +83,7 @@ class ExcelExportService {
         TextCellValue(isArabic ? 'عامل' : 'Worker'),
         DoubleCellValue(worker.totalEarnings),
         DoubleCellValue(worker.totalAdvances),
+        DoubleCellValue(0), // workers don't have deductions yet
         DoubleCellValue(0), // carry-over not available in list item
         DoubleCellValue(worker.netSalary),
       ];
@@ -101,7 +104,8 @@ class ExcelExportService {
         TextCellValue(isArabic ? 'موظفة' : 'Staff'),
         DoubleCellValue(member.monthlySalary),
         DoubleCellValue(member.totalAdvances),
-        DoubleCellValue(0),
+        DoubleCellValue(member.totalDeductions),
+        DoubleCellValue(member.carryOver),
         DoubleCellValue(member.netSalary),
       ];
       for (var col = 0; col < values.length; col++) {

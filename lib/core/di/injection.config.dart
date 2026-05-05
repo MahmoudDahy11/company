@@ -108,12 +108,16 @@ import 'package:company/features/women_staff/domain/repositories/women_staff_rep
     as _i640;
 import 'package:company/features/women_staff/domain/usecases/add_staff_advance_usecase.dart'
     as _i478;
+import 'package:company/features/women_staff/domain/usecases/add_staff_deduction_usecase.dart'
+    as _i977;
 import 'package:company/features/women_staff/domain/usecases/add_staff_usecase.dart'
     as _i361;
 import 'package:company/features/women_staff/domain/usecases/calculate_women_staff_salary_usecase.dart'
     as _i362;
 import 'package:company/features/women_staff/domain/usecases/delete_staff_advance_usecase.dart'
     as _i732;
+import 'package:company/features/women_staff/domain/usecases/delete_staff_deduction_usecase.dart'
+    as _i72;
 import 'package:company/features/women_staff/domain/usecases/delete_staff_usecase.dart'
     as _i166;
 import 'package:company/features/women_staff/domain/usecases/update_salary_usecase.dart'
@@ -363,11 +367,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
+    gh.factory<_i977.AddStaffDeductionUseCase>(
+      () => _i977.AddStaffDeductionUseCase(gh<_i640.WomenStaffRepository>()),
+    );
     gh.factory<_i361.AddStaffUseCase>(
       () => _i361.AddStaffUseCase(gh<_i640.WomenStaffRepository>()),
     );
     gh.factory<_i732.DeleteStaffAdvanceUseCase>(
       () => _i732.DeleteStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i72.DeleteStaffDeductionUseCase>(
+      () => _i72.DeleteStaffDeductionUseCase(gh<_i640.WomenStaffRepository>()),
     );
     gh.factory<_i166.DeleteStaffUseCase>(
       () => _i166.DeleteStaffUseCase(gh<_i640.WomenStaffRepository>()),
@@ -380,6 +390,16 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
+    );
+    gh.factory<_i922.StaffDetailsCubit>(
+      () => _i922.StaffDetailsCubit(
+        gh<_i81.WatchStaffDetailsUseCase>(),
+        gh<_i478.AddStaffAdvanceUseCase>(),
+        gh<_i732.DeleteStaffAdvanceUseCase>(),
+        gh<_i977.AddStaffDeductionUseCase>(),
+        gh<_i72.DeleteStaffDeductionUseCase>(),
+        gh<_i282.UpdateSalaryUseCase>(),
+      ),
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
@@ -435,13 +455,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i502.DeleteClientUseCase>(),
       ),
     );
-    gh.factory<_i411.WomenStaffCubit>(
-      () => _i411.WomenStaffCubit(
-        gh<_i829.WatchStaffUseCase>(),
-        gh<_i361.AddStaffUseCase>(),
-        gh<_i166.DeleteStaffUseCase>(),
-      ),
-    );
     gh.factory<_i177.ClientDetailsCubit>(
       () => _i177.ClientDetailsCubit(
         gh<_i222.WatchClientDetailsUseCase>(),
@@ -453,12 +466,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i740.DeleteClientPaymentUseCase>(),
       ),
     );
-    gh.factory<_i922.StaffDetailsCubit>(
-      () => _i922.StaffDetailsCubit(
-        gh<_i81.WatchStaffDetailsUseCase>(),
+    gh.factory<_i411.WomenStaffCubit>(
+      () => _i411.WomenStaffCubit(
+        gh<_i829.WatchStaffUseCase>(),
+        gh<_i361.AddStaffUseCase>(),
+        gh<_i166.DeleteStaffUseCase>(),
         gh<_i478.AddStaffAdvanceUseCase>(),
-        gh<_i732.DeleteStaffAdvanceUseCase>(),
-        gh<_i282.UpdateSalaryUseCase>(),
+        gh<_i977.AddStaffDeductionUseCase>(),
       ),
     );
     gh.factory<_i105.WorkerDetailsCubit>(

@@ -126,7 +126,7 @@
   },
   "noAdvancesThisMonth": "لا توجد سلف لهذا الشهر",
   "addProduction": "إضافة إنتاج",
-  "addAdvance": "إضافة سلفة",
+  "addAdvance": "اضافه سلفه",
   "addPayment": "إضافة دفعة",
   "addPurchase": "إضافة شراء",
   "addModel": "إضافة موديل",
@@ -307,5 +307,10 @@
     "placeholders": {
       "max": {}
     }
-  }
+  },
+  "deductions": "الخصومات",
+  "addDeduction": "خصم",
+  "noDeductionsThisMonth": "لا توجد خصومات لهذا الشهر",
+  "deleteDeductionTitle": "حذف الخصم",
+  "confirmDeleteDeduction": "هل تريد حذف سجل الخصم هذا؟"
 }

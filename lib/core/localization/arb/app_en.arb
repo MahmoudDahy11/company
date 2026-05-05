@@ -307,5 +307,10 @@
     "placeholders": {
       "max": {}
     }
-  }
+  },
+  "deductions": "Deductions",
+  "addDeduction": "Add Deduction",
+  "noDeductionsThisMonth": "No deductions for this month",
+  "deleteDeductionTitle": "Delete Deduction",
+  "confirmDeleteDeduction": "Do you want to delete this deduction record?"
 }

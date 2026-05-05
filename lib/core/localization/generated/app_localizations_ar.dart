@@ -256,7 +256,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addProduction => 'إضافة إنتاج';
 
   @override
-  String get addAdvance => 'إضافة سلفة';
+  String get addAdvance => 'اضافه سلفه';
 
   @override
   String get addPayment => 'إضافة دفعة';
@@ -632,4 +632,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String valueTooLarge(Object max) {
     return 'القيمة يجب ألا تزيد عن $max';
   }
+
+  @override
+  String get deductions => 'الخصومات';
+
+  @override
+  String get addDeduction => 'خصم';
+
+  @override
+  String get noDeductionsThisMonth => 'لا توجد خصومات لهذا الشهر';
+
+  @override
+  String get deleteDeductionTitle => 'حذف الخصم';
+
+  @override
+  String get confirmDeleteDeduction => 'هل تريد حذف سجل الخصم هذا؟';
 }
