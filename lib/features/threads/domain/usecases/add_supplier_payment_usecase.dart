@@ -14,6 +14,8 @@ class AddSupplierPaymentUseCase {
     required DateTime paymentDate,
     String? notes,
   }) {
+    if (amount <= 0) throw ArgumentError('Amount must be greater than 0');
+
     return _repository.addPayment(
       supplierId: supplierId,
       amount: amount,

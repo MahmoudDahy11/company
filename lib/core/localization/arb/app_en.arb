@@ -287,5 +287,8 @@
   "editPurchase": "Edit Purchase",
   "editPayment": "Edit Payment",
   "deletePurchaseTitle": "Delete Purchase",
-  "confirmDeletePurchase": "Do you want to delete this purchase record?"
+  "confirmDeletePurchase": "Do you want to delete this purchase record?",
+  "priceMustBePositive": "Price must be greater than 0",
+  "quantityMustBePositive": "Quantity must be greater than 0",
+  "amountMustBePositive": "Amount must be greater than 0"
 }

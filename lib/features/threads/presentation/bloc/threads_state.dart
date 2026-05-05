@@ -8,6 +8,7 @@ class ThreadsState {
     required this.overview,
     required this.searchQuery,
     required this.isLoading,
+    required this.isRefreshing,
     this.errorMessage,
   });
 
@@ -22,6 +23,7 @@ class ThreadsState {
     ),
     searchQuery: '',
     isLoading: true,
+    isRefreshing: false,
   );
 
   final DateTime selectedMonth;
@@ -29,6 +31,7 @@ class ThreadsState {
   final ThreadsOverview overview;
   final String searchQuery;
   final bool isLoading;
+  final bool isRefreshing;
   final String? errorMessage;
 
   List<SupplierListItem> get filteredItems {
@@ -47,6 +50,7 @@ class ThreadsState {
     ThreadsOverview? overview,
     String? searchQuery,
     bool? isLoading,
+    bool? isRefreshing,
     String? errorMessage,
   }) {
     return ThreadsState(
@@ -55,6 +59,7 @@ class ThreadsState {
       overview: overview ?? this.overview,
       searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
+      isRefreshing: isRefreshing ?? this.isRefreshing,
       errorMessage: errorMessage,
     );
   }

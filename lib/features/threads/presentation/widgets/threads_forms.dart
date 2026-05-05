@@ -241,26 +241,41 @@ class _PurchaseSheet extends StatelessWidget {
                 final quantity = double.tryParse(
                   quantityController.text.trim(),
                 );
-                if (itemController.text.trim().isNotEmpty &&
-                    colorController.text.trim().isNotEmpty &&
-                    unitController.text.trim().isNotEmpty &&
-                    price != null &&
-                    quantity != null) {
-                  Navigator.of(context).pop(
-                    PurchaseFormResult(
-                      purchaseId: initialValue?.purchaseId,
-                      itemName: itemController.text.trim(),
-                      colorNumber: colorController.text.trim(),
-                      purchaseDate: dateNotifier.value,
-                      price: price,
-                      quantity: quantity,
-                      unit: unitController.text.trim(),
-                      notes: notesController.text.trim().isEmpty
-                          ? null
-                          : notesController.text.trim(),
-                    ),
-                  );
+
+                if (itemController.text.trim().isEmpty ||
+                    colorController.text.trim().isEmpty ||
+                    unitController.text.trim().isEmpty) {
+                  return;
                 }
+
+                if (price == null || price <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.priceMustBePositive)),
+                  );
+                  return;
+                }
+
+                if (quantity == null || quantity <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.quantityMustBePositive)),
+                  );
+                  return;
+                }
+
+                Navigator.of(context).pop(
+                  PurchaseFormResult(
+                    purchaseId: initialValue?.purchaseId,
+                    itemName: itemController.text.trim(),
+                    colorNumber: colorController.text.trim(),
+                    purchaseDate: dateNotifier.value,
+                    price: price,
+                    quantity: quantity,
+                    unit: unitController.text.trim(),
+                    notes: notesController.text.trim().isEmpty
+                        ? null
+                        : notesController.text.trim(),
+                  ),
+                );
               },
               child: Text(l10n.save),
             ),
@@ -331,18 +346,22 @@ class _SupplierPaymentSheet extends StatelessWidget {
             child: FilledButton(
               onPressed: () {
                 final amount = double.tryParse(amountController.text.trim());
-                if (amount != null) {
-                  Navigator.of(context).pop(
-                    SupplierPaymentFormResult(
-                      paymentId: initialValue?.paymentId,
-                      amount: amount,
-                      paymentDate: dateNotifier.value,
-                      notes: notesController.text.trim().isEmpty
-                          ? null
-                          : notesController.text.trim(),
-                    ),
+                if (amount == null || amount <= 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.amountMustBePositive)),
                   );
+                  return;
                 }
+                Navigator.of(context).pop(
+                  SupplierPaymentFormResult(
+                    paymentId: initialValue?.paymentId,
+                    amount: amount,
+                    paymentDate: dateNotifier.value,
+                    notes: notesController.text.trim().isEmpty
+                        ? null
+                        : notesController.text.trim(),
+                  ),
+                );
               },
               child: Text(l10n.save),
             ),

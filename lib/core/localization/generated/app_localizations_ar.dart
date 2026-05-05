@@ -598,4 +598,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmDeletePurchase => 'هل تريد حذف سجل الشراء هذا؟';
+
+  @override
+  String get priceMustBePositive => 'يجب أن يكون السعر أكبر من 0';
+
+  @override
+  String get quantityMustBePositive => 'يجب أن تكون الكمية أكبر من 0';
+
+  @override
+  String get amountMustBePositive => 'يجب أن يكون المبلغ أكبر من 0';
 }

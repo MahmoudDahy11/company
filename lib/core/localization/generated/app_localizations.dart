@@ -1183,6 +1183,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Do you want to delete this purchase record?'**
   String get confirmDeletePurchase;
+
+  /// No description provided for @priceMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Price must be greater than 0'**
+  String get priceMustBePositive;
+
+  /// No description provided for @quantityMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity must be greater than 0'**
+  String get quantityMustBePositive;
+
+  /// No description provided for @amountMustBePositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount must be greater than 0'**
+  String get amountMustBePositive;
 }
 
 class _AppLocalizationsDelegate

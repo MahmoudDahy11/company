@@ -602,4 +602,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get confirmDeletePurchase =>
       'Do you want to delete this purchase record?';
+
+  @override
+  String get priceMustBePositive => 'Price must be greater than 0';
+
+  @override
+  String get quantityMustBePositive => 'Quantity must be greater than 0';
+
+  @override
+  String get amountMustBePositive => 'Amount must be greater than 0';
 }

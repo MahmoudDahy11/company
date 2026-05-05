@@ -33,7 +33,15 @@ class ThreadsCubit extends Cubit<ThreadsState> {
   Future<void> start() async {
     _suppliersSubscription?.cancel();
     _overviewSubscription?.cancel();
-    emit(state.copyWith(isLoading: true, errorMessage: null));
+
+    final isInitialLoad = state.items.isEmpty;
+    emit(
+      state.copyWith(
+        isLoading: isInitialLoad,
+        isRefreshing: !isInitialLoad,
+        errorMessage: null,
+      ),
+    );
 
     try {
       await GetIt.I<SyncService>().forceSync();
@@ -43,12 +51,23 @@ class ThreadsCubit extends Cubit<ThreadsState> {
     _suppliersSubscription = _watchSuppliersUseCase(state.selectedMonth).listen(
       (items) {
         emit(
-          state.copyWith(items: items, isLoading: false, errorMessage: null),
+          state.copyWith(
+            items: items,
+            isLoading: false,
+            isRefreshing: false,
+            errorMessage: null,
+          ),
         );
         if (!completer.isCompleted) completer.complete();
       },
       onError: (Object error) {
-        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            isRefreshing: false,
+            errorMessage: error.toString(),
+          ),
+        );
         if (!completer.isCompleted) completer.complete();
       },
     );

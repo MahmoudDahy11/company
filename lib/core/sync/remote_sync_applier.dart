@@ -356,11 +356,18 @@ class RemoteSyncApplier {
 
   Future<void> _applySupplierChange(RemoteChangeEvent change) async {
     if (change.operation == SyncQueueOperation.delete) {
-      // Mark as deleted or actually delete
       final existing = await (_database.select(
         _database.suppliers,
       )..where((t) => t.id.equals(change.recordId))).getSingleOrNull();
+
       if (existing != null) {
+        // Cascade delete related records locally
+        await (_database.delete(
+          _database.threadPurchases,
+        )..where((t) => t.supplierId.equals(change.recordId))).go();
+        await (_database.delete(
+          _database.supplierPayments,
+        )..where((t) => t.supplierId.equals(change.recordId))).go();
         await (_database.delete(
           _database.suppliers,
         )..where((t) => t.id.equals(change.recordId))).go();

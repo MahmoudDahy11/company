@@ -19,6 +19,9 @@ class AddOrUpdatePurchaseUseCase {
     required String unit,
     String? notes,
   }) {
+    if (price <= 0) throw ArgumentError('Price must be greater than 0');
+    if (quantity <= 0) throw ArgumentError('Quantity must be greater than 0');
+
     return _repository.addOrUpdatePurchase(
       purchaseId: purchaseId,
       supplierId: supplierId,

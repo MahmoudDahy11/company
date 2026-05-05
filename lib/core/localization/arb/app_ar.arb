@@ -287,5 +287,8 @@
   "editPurchase": "تعديل شراء",
   "editPayment": "تعديل دفعة",
   "deletePurchaseTitle": "حذف الشراء",
-  "confirmDeletePurchase": "هل تريد حذف سجل الشراء هذا؟"
+  "confirmDeletePurchase": "هل تريد حذف سجل الشراء هذا؟",
+  "priceMustBePositive": "يجب أن يكون السعر أكبر من 0",
+  "quantityMustBePositive": "يجب أن تكون الكمية أكبر من 0",
+  "amountMustBePositive": "يجب أن يكون المبلغ أكبر من 0"
 }

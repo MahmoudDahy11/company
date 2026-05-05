@@ -67,46 +67,23 @@ class ThreadsLocalDataSource {
 
   Future<void> deleteSupplier(int supplierId) async {
     await _database.transaction(() async {
-      final purchaseRows = await (_database.select(
+      // 1. Delete all related thread purchases locally
+      await (_database.delete(
         _database.threadPurchases,
-      )..where((t) => t.supplierId.equals(supplierId))).get();
-      final paymentRows = await (_database.select(
+      )..where((t) => t.supplierId.equals(supplierId))).go();
+
+      // 2. Delete all related supplier payments locally
+      await (_database.delete(
         _database.supplierPayments,
-      )..where((t) => t.supplierId.equals(supplierId))).get();
+      )..where((t) => t.supplierId.equals(supplierId))).go();
 
-      for (final purchase in purchaseRows) {
-        await (_database.delete(
-          _database.threadPurchases,
-        )..where((t) => t.id.equals(purchase.id))).go();
-        await _queueSync(
-          operation: SyncQueueOperation.delete,
-          tableName: 'thread_purchases',
-          recordId: purchase.id,
-          payload: <String, dynamic>{
-            'id': purchase.id,
-            'supplierId': purchase.supplierId,
-          },
-        );
-      }
-
-      for (final payment in paymentRows) {
-        await (_database.delete(
-          _database.supplierPayments,
-        )..where((t) => t.id.equals(payment.id))).go();
-        await _queueSync(
-          operation: SyncQueueOperation.delete,
-          tableName: 'supplier_payments',
-          recordId: payment.id,
-          payload: <String, dynamic>{
-            'id': payment.id,
-            'supplierId': payment.supplierId,
-          },
-        );
-      }
-
+      // 3. Delete the supplier locally
       await (_database.delete(
         _database.suppliers,
       )..where((t) => t.id.equals(supplierId))).go();
+
+      // 4. Queue a single sync event for the supplier.
+      // The RemoteSyncApplier and server-side logic should handle cascading deletions.
       await _queueSync(
         operation: SyncQueueOperation.delete,
         tableName: 'suppliers',
@@ -374,23 +351,40 @@ class ThreadsLocalDataSource {
   }
 
   Future<List<SupplierListItem>> _buildSupplierList(DateTime month) async {
-    final rows = await (_database.select(
-      _database.suppliers,
-    )..orderBy([(t) => OrderingTerm(expression: t.name)])).get();
-    final result = <SupplierListItem>[];
-    for (final row in rows) {
-      final summary = await _buildSupplierSummary(row.id, month);
-      result.add(
-        SupplierListItem(
-          id: row.id,
-          name: row.name,
-          totalPurchased: summary.totalPurchased,
-          totalPaid: summary.totalPaid,
-          outstandingBalance: summary.outstandingBalance,
-        ),
+    final monthRange = _monthRange(month);
+    final query = '''
+      SELECT 
+        s.id, 
+        s.name,
+        (SELECT SUM(price) FROM thread_purchases WHERE supplier_id = s.id AND purchase_date BETWEEN ? AND ?) as total_purchased,
+        (SELECT SUM(amount) FROM supplier_payments WHERE supplier_id = s.id AND payment_date BETWEEN ? AND ?) as total_paid
+      FROM suppliers s
+      ORDER BY s.name
+    ''';
+
+    final rows = await _database
+        .customSelect(
+          query,
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+          ],
+        )
+        .get();
+
+    return rows.map((row) {
+      final totalPurchased = row.read<double?>('total_purchased') ?? 0.0;
+      final totalPaid = row.read<double?>('total_paid') ?? 0.0;
+      return SupplierListItem(
+        id: row.read<int>('id'),
+        name: row.read<String>('name'),
+        totalPurchased: totalPurchased,
+        totalPaid: totalPaid,
+        outstandingBalance: totalPurchased - totalPaid,
       );
-    }
-    return result;
+    }).toList();
   }
 
   Future<SupplierDetailsData> _buildSupplierDetails(
