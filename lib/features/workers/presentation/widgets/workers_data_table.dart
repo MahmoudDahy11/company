@@ -53,6 +53,7 @@ class WorkersDataTable extends StatelessWidget {
                 DataColumn(label: Text(l10n.name)),
                 DataColumn(label: Text(l10n.netSalaryHeader)),
                 DataColumn(label: Text(l10n.advancesHeader)),
+                DataColumn(label: Text(l10n.deductions)),
                 DataColumn(label: Text(l10n.absentDaysHeader)),
                 DataColumn(label: Text(l10n.actions)),
               ],
@@ -82,7 +83,8 @@ class WorkersDataTable extends StatelessWidget {
         DataCell(Text(item.name)),
         DataCell(Text(fmt.format(item.netSalary).trim())),
         DataCell(Text(fmt.format(item.totalAdvances).trim())),
-        const DataCell(Text('0')),
+        DataCell(Text(fmt.format(item.totalDeductions).trim())),
+        DataCell(Text(item.absentDays.toString())),
         DataCell(
           Row(
             mainAxisSize: MainAxisSize.min,

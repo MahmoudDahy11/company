@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'absent_days_form.dart';
 import 'advance_form.dart';
+import 'deduction_form.dart';
 import 'production_form.dart';
 import 'stitch_rate_form.dart';
 import 'worker_name_form.dart';
@@ -38,6 +39,13 @@ Future<AdvanceFormResult?> showAdvanceSheet(
   return showAdaptiveWorkersSheet<AdvanceFormResult>(
     context: context,
     child: AdvanceForm(initialValue: initialValue),
+  );
+}
+
+Future<DeductionFormResult?> showDeductionSheet(BuildContext context) {
+  return showAdaptiveWorkersSheet<DeductionFormResult>(
+    context: context,
+    child: const DeductionForm(),
   );
 }
 

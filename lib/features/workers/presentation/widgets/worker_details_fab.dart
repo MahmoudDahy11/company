@@ -7,11 +7,13 @@ class WorkerDetailsFab extends StatelessWidget {
     super.key,
     required this.onAddProduction,
     required this.onAddAdvance,
+    required this.onAddDeduction,
     required this.onAbsentDays,
   });
 
   final VoidCallback onAddProduction;
   final VoidCallback onAddAdvance;
+  final VoidCallback onAddDeduction;
   final VoidCallback onAbsentDays;
 
   @override
@@ -23,6 +25,7 @@ class WorkerDetailsFab extends StatelessWidget {
       itemBuilder: (context) => [
         PopupMenuItem(value: onAddProduction, child: Text(l10n.addProduction)),
         PopupMenuItem(value: onAddAdvance, child: Text(l10n.addAdvance)),
+        PopupMenuItem(value: onAddDeduction, child: Text(l10n.addDeduction)),
         PopupMenuItem(value: onAbsentDays, child: Text(l10n.absentDays)),
       ],
     );

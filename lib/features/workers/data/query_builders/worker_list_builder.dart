@@ -47,11 +47,12 @@ class WorkerListBuilder {
 
     final query = _database.customSelect(
       '''
-      SELECT 
+      SELECT
         w.id, w.name,
         COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
         COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0) as current_advances,
         COALESCE((SELECT SUM(amount) FROM worker_deductions WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_deductions,
+        COALESCE((SELECT absent_days FROM worker_absent_days WHERE worker_id = w.id AND month_start = ?), 0) as current_absent_days,
         COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), -1.0) as carry_in
       FROM workers w
       WHERE w.is_active = 1
@@ -65,11 +66,13 @@ class WorkerListBuilder {
         Variable.withDateTime(range.start),
         Variable.withDateTime(range.end),
         Variable.withDateTime(range.start),
+        Variable.withDateTime(range.start),
       ],
       readsFrom: {
         _database.workers,
         _database.workerProductionEntries,
         _database.workerAdvances,
+        _database.workerAbsentDays,
       },
     );
 
@@ -82,6 +85,7 @@ class WorkerListBuilder {
       final currentStitches = row.read<int>('current_stitches');
       final currentAdvances = row.read<double>('current_advances');
       final currentDeductions = row.read<double>('current_deductions');
+      final currentAbsentDays = row.read<int>('current_absent_days');
       var carryIn = row.read<double>('carry_in');
 
       if (carryIn < 0) {
@@ -96,7 +100,7 @@ class WorkerListBuilder {
         advances: currentAdvances,
         deductions: currentDeductions,
         carryOver: carryIn,
-        absentDays: 0,
+        absentDays: currentAbsentDays,
         appliedRate: rate,
       );
 

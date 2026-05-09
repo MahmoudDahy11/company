@@ -5,8 +5,10 @@ import 'package:injectable/injectable.dart';
 import '../../../../core/sync/sync_service.dart';
 import '../../domain/usecases/add_or_update_advance_usecase.dart';
 import '../../domain/usecases/add_or_update_production_usecase.dart';
+import '../../domain/usecases/add_worker_deduction_usecase.dart';
 import '../../domain/usecases/delete_advance_usecase.dart';
 import '../../domain/usecases/delete_production_usecase.dart';
+import '../../domain/usecases/delete_worker_deduction_usecase.dart';
 import '../../domain/usecases/upsert_absent_days_usecase.dart';
 import '../../domain/usecases/watch_worker_details_usecase.dart';
 import 'worker_details_state.dart';
@@ -19,6 +21,8 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
     this._deleteProductionUseCase,
     this._addOrUpdateAdvanceUseCase,
     this._deleteAdvanceUseCase,
+    this._addWorkerDeductionUseCase,
+    this._deleteWorkerDeductionUseCase,
     this._upsertAbsentDaysUseCase,
   ) : super(WorkerDetailsState.initial(0));
 
@@ -27,6 +31,8 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
   final DeleteProductionUseCase _deleteProductionUseCase;
   final AddOrUpdateAdvanceUseCase _addOrUpdateAdvanceUseCase;
   final DeleteAdvanceUseCase _deleteAdvanceUseCase;
+  final AddWorkerDeductionUseCase _addWorkerDeductionUseCase;
+  final DeleteWorkerDeductionUseCase _deleteWorkerDeductionUseCase;
   final UpsertAbsentDaysUseCase _upsertAbsentDaysUseCase;
 
   StreamSubscription<dynamic>? _subscription;
@@ -102,6 +108,20 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
 
   Future<void> deleteAdvance(int advanceId) => _deleteAdvanceUseCase(advanceId);
 
+  Future<void> addDeduction({
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) => _addWorkerDeductionUseCase(
+    workerId: state.workerId,
+    amount: amount,
+    date: date,
+    notes: notes,
+  );
+
+  Future<void> deleteDeduction(int deductionId) =>
+      _deleteWorkerDeductionUseCase(deductionId);
+
   Future<void> saveAbsentDays(int absentDays) => _upsertAbsentDaysUseCase(
     workerId: state.workerId,
     month: state.selectedMonth,
@@ -120,15 +140,17 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
                 errorMessage: null,
               ),
             );
-            if (completer != null && !completer.isCompleted)
+            if (completer != null && !completer.isCompleted) {
               completer.complete();
+            }
           },
           onError: (Object error) {
             emit(
               state.copyWith(isLoading: false, errorMessage: error.toString()),
             );
-            if (completer != null && !completer.isCompleted)
+            if (completer != null && !completer.isCompleted) {
               completer.complete();
+            }
           },
         );
   }

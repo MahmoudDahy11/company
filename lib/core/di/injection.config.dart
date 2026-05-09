@@ -614,6 +614,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i970.DeleteProductionUseCase>(),
         gh<_i230.AddOrUpdateAdvanceUseCase>(),
         gh<_i1064.DeleteAdvanceUseCase>(),
+        gh<_i686.AddWorkerDeductionUseCase>(),
+        gh<_i81.DeleteWorkerDeductionUseCase>(),
         gh<_i704.UpsertAbsentDaysUseCase>(),
       ),
     );

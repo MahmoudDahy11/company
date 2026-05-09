@@ -15,7 +15,7 @@ class CalculateWorkerSalaryUseCase {
     required int absentDays,
     required double appliedRate,
   }) {
-    final netSalary = earnings - advances - carryOver - deductions;
+    final netSalary = earnings + advances + carryOver - deductions;
 
     return WorkerMonthSummary(
       month: month,

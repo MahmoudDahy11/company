@@ -85,8 +85,9 @@ class WorkerAdvancesTab extends StatelessWidget {
                                           notes: item.notes,
                                         ),
                                       );
-                                      if (result == null || !context.mounted)
+                                      if (result == null || !context.mounted) {
                                         return;
+                                      }
                                       await context
                                           .read<WorkerDetailsCubit>()
                                           .saveAdvance(

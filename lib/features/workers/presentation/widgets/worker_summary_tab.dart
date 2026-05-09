@@ -28,6 +28,7 @@ class WorkerSummaryTab extends StatelessWidget {
       ),
       (label: l10n.earnings, value: currency.format(summary.totalEarnings)),
       (label: l10n.advances, value: currency.format(summary.totalAdvances)),
+      (label: l10n.deductions, value: currency.format(summary.totalDeductions)),
       (label: l10n.carryOver, value: currency.format(summary.carryOver)),
       (label: l10n.absentDays, value: summary.absentDays.toString()),
       (label: l10n.netSalary, value: currency.format(summary.netSalary)),
