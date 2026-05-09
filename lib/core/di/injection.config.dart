@@ -249,10 +249,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i406.DashboardLocalDataSource>(
       () => _i406.DashboardLocalDataSource(
         gh<_i549.AppDatabase>(),
-        gh<_i787.CalculateWorkerSalaryUseCase>(),
         gh<_i362.CalculateWomenStaffSalaryUseCase>(),
         gh<_i328.GetClientBalanceUseCase>(),
       ),
+    );
+    gh.lazySingleton<_i861.DashboardRepository>(
+      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
     );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
@@ -261,6 +263,9 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i579.MaintenanceFaultRecordsRepositoryImpl(
         gh<_i618.MaintenanceFaultRecordsLocalDataSource>(),
       ),
+    );
+    gh.factory<_i504.WatchDashboardSummaryUseCase>(
+      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
     gh.lazySingleton<_i875.AuthController>(
       () => _i875.AuthController(
@@ -277,6 +282,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
+    );
+    gh.factory<_i625.DashboardCubit>(
+      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
@@ -298,9 +306,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i359.SyncStatusCubit>(),
         gh<_i216.RemoteSyncApplier>(),
       ),
-    );
-    gh.lazySingleton<_i861.DashboardRepository>(
-      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
     );
     gh.factory<_i238.AddClientModelUseCase>(
       () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
@@ -410,9 +415,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i834.DeleteSupplierUseCase>(),
       ),
     );
-    gh.factory<_i504.WatchDashboardSummaryUseCase>(
-      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
-    );
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
@@ -452,9 +454,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i1023.WorkersRepository>(
       () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
-    );
-    gh.factory<_i625.DashboardCubit>(
-      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
     gh.factory<_i965.MaintenanceFaultRecordsCubit>(
       () => _i965.MaintenanceFaultRecordsCubit(

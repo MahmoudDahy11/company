@@ -239,7 +239,14 @@ class _WomenStaffView extends StatelessWidget {
                                     rows: state.filteredItems.map((item) {
                                       return DataRow(
                                         cells: [
-                                          DataCell(Text(item.name)),
+                                          DataCell(
+                                            ConstrainedBox(
+                                              constraints: const BoxConstraints(
+                                                minWidth: 140,
+                                              ),
+                                              child: Text(item.name),
+                                            ),
+                                          ),
                                           DataCell(
                                             Text(
                                               NumberFormat.currency(

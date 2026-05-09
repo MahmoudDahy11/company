@@ -7,7 +7,6 @@ import 'package:rxdart/rxdart.dart';
 import '../../../../core/database/app_database.dart';
 import '../../domain/entities/dashboard_summary.dart';
 import '../../domain/entities/financial_filter.dart';
-import '../../../workers/domain/usecases/calculate_worker_salary_usecase.dart';
 import '../../../women_staff/domain/usecases/calculate_women_staff_salary_usecase.dart';
 import '../../../clients/domain/usecases/get_client_balance_usecase.dart';
 
@@ -15,13 +14,11 @@ import '../../../clients/domain/usecases/get_client_balance_usecase.dart';
 class DashboardLocalDataSource {
   const DashboardLocalDataSource(
     this._database,
-    this._calculateWorkerSalaryUseCase,
     this._calculateWomenStaffSalaryUseCase,
     this._getClientBalanceUseCase,
   );
 
   final AppDatabase _database;
-  final CalculateWorkerSalaryUseCase _calculateWorkerSalaryUseCase;
   final CalculateWomenStaffSalaryUseCase _calculateWomenStaffSalaryUseCase;
   final GetClientBalanceUseCase _getClientBalanceUseCase;
 
@@ -107,25 +104,13 @@ class DashboardLocalDataSource {
         )
         .getSingle();
 
-    final wStitches = workerTotals.read<int?>('total_stitches') ?? 0;
     final wEarnings = workerTotals.read<double?>('total_earnings') ?? 0.0;
-    final wAdvances = workerTotals.read<double?>('total_advances') ?? 0.0;
     final wDeductions = workerTotals.read<double?>('total_deductions') ?? 0.0;
-    final wCarryIn = workerTotals.read<double?>('total_carry_in') ?? 0.0;
     log(
-      'DEBUG: Dashboard: Worker Totals -> Stitches: $wStitches, Earnings: $wEarnings, Advances: $wAdvances, Deductions: $wDeductions, CarryIn: $wCarryIn',
+      'DEBUG: Dashboard: Worker Totals -> Earnings: $wEarnings, Deductions: $wDeductions',
     );
 
-    final totalWorkerWages = _calculateWorkerSalaryUseCase(
-      month: month,
-      stitchCount: wStitches,
-      earnings: wEarnings,
-      advances: wAdvances,
-      deductions: wDeductions,
-      carryOver: wCarryIn,
-      absentDays: 0,
-      appliedRate: rate,
-    ).netSalary;
+    final totalWorkerWages = wEarnings - wDeductions;
     log('DEBUG: Dashboard: Total Worker Wages calculated: $totalWorkerWages');
 
     // 2. Top Workers
@@ -392,25 +377,11 @@ class DashboardLocalDataSource {
         )
         .getSingle();
 
-    final wyStitches = workerYearTotals.read<int?>('total_stitches') ?? 0;
     final wyEarnings = workerYearTotals.read<double?>('total_earnings') ?? 0.0;
-    final wyAdvances =
-        workerYearTotals.read<double?>('total_advances') ?? 0.0;
     final wyDeductions =
         workerYearTotals.read<double?>('total_deductions') ?? 0.0;
-    final wyCarryIn =
-        workerYearTotals.read<double?>('total_carry_in') ?? 0.0;
 
-    final totalWorkerWagesYear = _calculateWorkerSalaryUseCase(
-      month: month,
-      stitchCount: wyStitches,
-      earnings: wyEarnings,
-      advances: wyAdvances,
-      deductions: wyDeductions,
-      carryOver: wyCarryIn,
-      absentDays: 0,
-      appliedRate: yearRate,
-    ).netSalary;
+    final totalWorkerWagesYear = wyEarnings - wyDeductions;
     log(
       'DEBUG: Dashboard: Total Worker Wages (Year): $totalWorkerWagesYear',
     );
