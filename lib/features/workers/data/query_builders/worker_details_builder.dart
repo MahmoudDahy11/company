@@ -2,9 +2,10 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/database/app_database.dart'
-    hide Worker, WorkerAdvance;
+    hide Worker, WorkerAdvance, WorkerDeduction;
 import '../../domain/entities/worker.dart';
 import '../../domain/entities/worker_advance.dart';
+import '../../domain/entities/worker_deduction.dart';
 import '../../domain/entities/worker_details_data.dart';
 import '../../domain/entities/worker_production.dart';
 import '../helpers/worker_date_utils.dart';
@@ -53,11 +54,10 @@ class WorkerDetailsBuilder {
           date: row.date,
           stitchCount: row.stitchCount,
           notes: row.notes,
-          dailyEarnings:
-              await _earningsHelper.calculateProductionEarnings(
-                row.date,
-                row.stitchCount,
-              ),
+          dailyEarnings: await _earningsHelper.calculateProductionEarnings(
+            row.date,
+            row.stitchCount,
+          ),
         ),
       );
     }
@@ -94,6 +94,28 @@ class WorkerDetailsBuilder {
       ),
     ];
 
+    final deductionRows =
+        await (_database.select(_database.workerDeductions)
+              ..where(
+                (table) =>
+                    table.workerId.equals(workerId) &
+                    table.date.isBetweenValues(range.start, range.end),
+              )
+              ..orderBy([(table) => OrderingTerm.desc(table.date)]))
+            .get();
+
+    final deductions = deductionRows
+        .map(
+          (row) => WorkerDeduction(
+            id: row.id,
+            workerId: row.workerId,
+            amount: row.amount,
+            date: row.date,
+            notes: row.notes,
+          ),
+        )
+        .toList();
+
     return WorkerDetailsData(
       worker: Worker(
         id: workerRow.id,
@@ -104,6 +126,7 @@ class WorkerDetailsBuilder {
       summary: summary,
       productions: productions,
       advances: advances,
+      deductions: deductions,
     );
   }
 }

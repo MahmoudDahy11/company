@@ -34,9 +34,17 @@ class WorkerDetailsHeader extends StatelessWidget {
             onNext: context.read<WorkerDetailsCubit>().nextMonth,
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(l10n.registrationDate(DateFormat.yMd().format(details.worker.createdAt))),
+          Text(
+            l10n.registrationDate(
+              DateFormat.yMd().format(details.worker.createdAt),
+            ),
+          ),
           const SizedBox(height: AppSpacing.sm),
-          Text(l10n.currentRatePer100k(currency.format(details.summary.appliedRate))),
+          Text(
+            l10n.currentRatePer100k(
+              currency.format(details.summary.appliedRate),
+            ),
+          ),
         ],
       ),
     );

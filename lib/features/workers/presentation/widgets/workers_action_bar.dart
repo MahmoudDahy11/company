@@ -30,7 +30,8 @@ class WorkersActionBar extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: const Color(0xFF374151),
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg, vertical: AppSpacing.md,
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
         ),
       ),
@@ -40,20 +41,21 @@ class WorkersActionBar extends StatelessWidget {
           try {
             final state = context.read<WorkersCubit>().state;
             await GetIt.I<ExcelExportService>().exportPayroll(
-              workers: state.items, staff: const [],
+              workers: state.items,
+              staff: const [],
               month: state.selectedMonth,
               isArabic: Localizations.localeOf(context).languageCode == 'ar',
             );
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.exportSuccess)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.exportSuccess)));
             }
           } catch (_) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.exportError)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.exportError)));
             }
           }
         },

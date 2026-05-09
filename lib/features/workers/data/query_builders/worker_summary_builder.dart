@@ -10,7 +10,9 @@ import '../helpers/worker_sync_helper.dart';
 @injectable
 class WorkerSummaryBuilder {
   WorkerSummaryBuilder(
-    this._database, this._earningsHelper, this._calculateWorkerSalaryUseCase,
+    this._database,
+    this._earningsHelper,
+    this._calculateWorkerSalaryUseCase,
   );
 
   final AppDatabase _database;
@@ -21,28 +23,46 @@ class WorkerSummaryBuilder {
     final normalizedMonth = monthStart(month);
     final range = monthRange(normalizedMonth);
 
-    final productionRows = await (_database.select(_database.workerProductionEntries)..where(
-      (table) => table.workerId.equals(workerId) &
-          table.date.isBetweenValues(range.start, range.end),
-    )).get();
+    final productionRows =
+        await (_database.select(_database.workerProductionEntries)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end),
+            ))
+            .get();
 
-    final advanceRows = await (_database.select(_database.workerAdvances)..where(
-      (table) => table.workerId.equals(workerId) &
-          table.date.isBetweenValues(range.start, range.end) &
-          table.carriedOver.equals(false),
-    )).get();
+    final advanceRows =
+        await (_database.select(_database.workerAdvances)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end) &
+                  table.carriedOver.equals(false),
+            ))
+            .get();
 
-    final absentRow = await (_database.select(_database.workerAbsentDays)..where(
-      (table) => table.workerId.equals(workerId) &
-          table.monthStart.equals(normalizedMonth),
-    )).getSingleOrNull();
+    final absentRow =
+        await (_database.select(_database.workerAbsentDays)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.monthStart.equals(normalizedMonth),
+            ))
+            .getSingleOrNull();
+
+    final deductionRows =
+        await (_database.select(_database.workerDeductions)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end),
+            ))
+            .get();
 
     int totalStitches = 0;
     double earnings = 0;
     for (final production in productionRows) {
       totalStitches += production.stitchCount;
       earnings += await _earningsHelper.calculateProductionEarnings(
-        production.date, production.stitchCount,
+        production.date,
+        production.stitchCount,
       );
     }
 
@@ -51,27 +71,42 @@ class WorkerSummaryBuilder {
       advances += advance.amount;
     }
 
+    double deductions = 0;
+    for (final deduction in deductionRows) {
+      deductions += deduction.amount;
+    }
+
     final carryIn = await getOrCalculateCarryIn(workerId, normalizedMonth);
     final rate = await _earningsHelper.rateForMonth(normalizedMonth);
 
     return _calculateWorkerSalaryUseCase(
-      month: normalizedMonth, stitchCount: totalStitches, earnings: earnings,
-      advances: advances, carryOver: carryIn,
-      absentDays: absentRow?.absentDays ?? 0, appliedRate: rate,
+      month: normalizedMonth,
+      stitchCount: totalStitches,
+      earnings: earnings,
+      advances: advances,
+      deductions: deductions,
+      carryOver: carryIn,
+      absentDays: absentRow?.absentDays ?? 0,
+      appliedRate: rate,
     );
   }
 
   Future<double> getOrCalculateCarryIn(int workerId, DateTime month) async {
     final normalizedMonth = monthStart(month);
-    final existing = await (_database.select(_database.workerAdvances)..where(
-      (t) => t.workerId.equals(workerId) &
-          t.date.equals(normalizedMonth) & t.carriedOver.equals(true),
-    )).getSingleOrNull();
+    final existing =
+        await (_database.select(_database.workerAdvances)..where(
+              (t) =>
+                  t.workerId.equals(workerId) &
+                  t.date.equals(normalizedMonth) &
+                  t.carriedOver.equals(true),
+            ))
+            .getSingleOrNull();
 
     if (existing != null) return existing.amount.toDouble();
 
-    final worker = await (_database.select(_database.workers)
-      ..where((t) => t.id.equals(workerId))).getSingle();
+    final worker = await (_database.select(
+      _database.workers,
+    )..where((t) => t.id.equals(workerId))).getSingle();
 
     if (!isAfterMonth(normalizedMonth, monthStart(worker.createdAt))) return 0;
 
@@ -80,19 +115,28 @@ class WorkerSummaryBuilder {
     final carryOver = prevSummary.netSalary < 0 ? -prevSummary.netSalary : 0.0;
 
     if (carryOver > 0) {
-      await _database.into(_database.workerAdvances).insert(
-        WorkerAdvancesCompanion.insert(
-          workerId: workerId, amount: carryOver, date: normalizedMonth,
-          notes: const Value('Carry-over'), carriedOver: const Value(true),
-        ),
-      );
-      await queueSync(_database,
-        operation: SyncQueueOperation.insert, tableName: 'worker_advances',
+      await _database
+          .into(_database.workerAdvances)
+          .insert(
+            WorkerAdvancesCompanion.insert(
+              workerId: workerId,
+              amount: carryOver,
+              date: normalizedMonth,
+              notes: const Value('Carry-over'),
+              carriedOver: const Value(true),
+            ),
+          );
+      await queueSync(
+        _database,
+        operation: SyncQueueOperation.insert,
+        tableName: 'worker_advances',
         recordId: -1,
         payload: {
-          'workerId': workerId, 'amount': carryOver,
+          'workerId': workerId,
+          'amount': carryOver,
           'date': normalizedMonth.toIso8601String(),
-          'notes': 'Carry-over', 'carriedOver': true,
+          'notes': 'Carry-over',
+          'carriedOver': true,
         },
       );
     }

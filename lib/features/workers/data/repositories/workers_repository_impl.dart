@@ -23,16 +23,21 @@ class WorkersRepositoryImpl implements WorkersRepository {
   Future<void> addWorker(String name) => _dataSource.addWorker(name);
 
   @override
-  Future<void> deleteWorker(int workerId) =>
-      _dataSource.deleteWorker(workerId);
+  Future<void> deleteWorker(int workerId) => _dataSource.deleteWorker(workerId);
 
   @override
   Future<void> addOrUpdateProduction({
-    int? productionId, required int workerId,
-    required DateTime date, required int stitchCount, String? notes,
+    int? productionId,
+    required int workerId,
+    required DateTime date,
+    required int stitchCount,
+    String? notes,
   }) => _dataSource.addOrUpdateProduction(
-    productionId: productionId, workerId: workerId,
-    date: date, stitchCount: stitchCount, notes: notes,
+    productionId: productionId,
+    workerId: workerId,
+    date: date,
+    stitchCount: stitchCount,
+    notes: notes,
   );
 
   @override
@@ -41,19 +46,30 @@ class WorkersRepositoryImpl implements WorkersRepository {
 
   @override
   Future<void> addAdvance({
-    required int workerId, required double amount,
-    required DateTime date, String? notes,
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
   }) => _dataSource.addAdvance(
-    workerId: workerId, amount: amount, date: date, notes: notes,
+    workerId: workerId,
+    amount: amount,
+    date: date,
+    notes: notes,
   );
 
   @override
   Future<void> addOrUpdateAdvance({
-    int? advanceId, required int workerId, required double amount,
-    required DateTime date, String? notes,
+    int? advanceId,
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
   }) => _dataSource.addOrUpdateAdvance(
-    advanceId: advanceId, workerId: workerId,
-    amount: amount, date: date, notes: notes,
+    advanceId: advanceId,
+    workerId: workerId,
+    amount: amount,
+    date: date,
+    notes: notes,
   );
 
   @override
@@ -67,7 +83,7 @@ class WorkersRepositoryImpl implements WorkersRepository {
     required DateTime date,
     String? notes,
   }) {
-    return _localDataSource.addDeduction(
+    return _dataSource.addDeduction(
       workerId: workerId,
       amount: amount,
       date: date,
@@ -77,19 +93,23 @@ class WorkersRepositoryImpl implements WorkersRepository {
 
   @override
   Future<void> deleteDeduction(int deductionId) {
-    return _localDataSource.deleteDeduction(deductionId);
+    return _dataSource.deleteDeduction(deductionId);
   }
 
   @override
   Future<void> upsertAbsentDays({
-    required int workerId, required DateTime month,
+    required int workerId,
+    required DateTime month,
     required int absentDays,
   }) => _dataSource.upsertAbsentDays(
-    workerId: workerId, month: month, absentDays: absentDays,
+    workerId: workerId,
+    month: month,
+    absentDays: absentDays,
   );
 
   @override
   Future<void> updateStitchRate({
-    required double rate, required DateTime effectiveFrom,
+    required double rate,
+    required DateTime effectiveFrom,
   }) => _dataSource.updateStitchRate(rate: rate, effectiveFrom: effectiveFrom);
 }

@@ -12,8 +12,11 @@ class WorkerProductionDataSource {
   final AppDatabase _database;
 
   Future<void> addOrUpdateProduction({
-    int? productionId, required int workerId, required DateTime date,
-    required int stitchCount, String? notes,
+    int? productionId,
+    required int workerId,
+    required DateTime date,
+    required int stitchCount,
+    String? notes,
   }) async {
     final normalizedDate = dayStart(date);
     await _database.transaction(() async {
@@ -21,59 +24,93 @@ class WorkerProductionDataSource {
         await _insertNew(workerId, normalizedDate, stitchCount, notes);
       } else {
         await _updateExisting(
-          productionId, workerId, normalizedDate, stitchCount, notes,
+          productionId,
+          workerId,
+          normalizedDate,
+          stitchCount,
+          notes,
         );
       }
     });
   }
 
-  Future<void> _insertNew(int workerId, DateTime date, int stitchCount, String? notes) async {
+  Future<void> _insertNew(
+    int workerId,
+    DateTime date,
+    int stitchCount,
+    String? notes,
+  ) async {
     final existing = await findProductionForDay(
-      _database, workerId: workerId, date: date,
+      _database,
+      workerId: workerId,
+      date: date,
     );
     if (existing == null) {
-      final id = await _database.into(_database.workerProductionEntries)
-          .insert(WorkerProductionEntriesCompanion.insert(
-            workerId: workerId, date: date,
-            stitchCount: stitchCount, notes: Value(notes),
-          ));
+      final id = await _database
+          .into(_database.workerProductionEntries)
+          .insert(
+            WorkerProductionEntriesCompanion.insert(
+              workerId: workerId,
+              date: date,
+              stitchCount: stitchCount,
+              notes: Value(notes),
+            ),
+          );
       await _syncAfterWrite(SyncQueueOperation.insert, id);
     } else {
-      await (_database.update(_database.workerProductionEntries)
-            ..where((table) => table.id.equals(existing.id)))
-          .write(WorkerProductionEntriesCompanion(
-            date: Value(date),
-            stitchCount: Value(existing.stitchCount + stitchCount),
-            notes: Value(mergeNotes(existing.notes, notes)),
-          ));
+      await (_database.update(
+        _database.workerProductionEntries,
+      )..where((table) => table.id.equals(existing.id))).write(
+        WorkerProductionEntriesCompanion(
+          date: Value(date),
+          stitchCount: Value(existing.stitchCount + stitchCount),
+          notes: Value(mergeNotes(existing.notes, notes)),
+        ),
+      );
       await _syncAfterWrite(SyncQueueOperation.update, existing.id);
     }
   }
 
-  Future<void> _updateExisting(int productionId, int workerId, DateTime date, int stitchCount, String? notes) async {
+  Future<void> _updateExisting(
+    int productionId,
+    int workerId,
+    DateTime date,
+    int stitchCount,
+    String? notes,
+  ) async {
     final forDay = await findProductionForDay(
-      _database, workerId: workerId, date: date, excludingId: productionId,
+      _database,
+      workerId: workerId,
+      date: date,
+      excludingId: productionId,
     );
     if (forDay == null) {
-      await (_database.update(_database.workerProductionEntries)
-            ..where((table) => table.id.equals(productionId)))
-          .write(WorkerProductionEntriesCompanion(
-            workerId: Value(workerId), date: Value(date),
-            stitchCount: Value(stitchCount), notes: Value(notes),
-          ));
+      await (_database.update(
+        _database.workerProductionEntries,
+      )..where((table) => table.id.equals(productionId))).write(
+        WorkerProductionEntriesCompanion(
+          workerId: Value(workerId),
+          date: Value(date),
+          stitchCount: Value(stitchCount),
+          notes: Value(notes),
+        ),
+      );
       await _syncAfterWrite(SyncQueueOperation.update, productionId);
     } else {
-      await (_database.update(_database.workerProductionEntries)
-            ..where((table) => table.id.equals(forDay.id)))
-          .write(WorkerProductionEntriesCompanion(
-            date: Value(date),
-            stitchCount: Value(forDay.stitchCount + stitchCount),
-            notes: Value(mergeNotes(forDay.notes, notes)),
-          ));
-      await (_database.delete(_database.workerProductionEntries)
-            ..where((table) => table.id.equals(productionId)))
-          .go();
-      await queueSync(_database,
+      await (_database.update(
+        _database.workerProductionEntries,
+      )..where((table) => table.id.equals(forDay.id))).write(
+        WorkerProductionEntriesCompanion(
+          date: Value(date),
+          stitchCount: Value(forDay.stitchCount + stitchCount),
+          notes: Value(mergeNotes(forDay.notes, notes)),
+        ),
+      );
+      await (_database.delete(
+        _database.workerProductionEntries,
+      )..where((table) => table.id.equals(productionId))).go();
+      await queueSync(
+        _database,
         operation: SyncQueueOperation.delete,
         tableName: 'worker_production',
         recordId: productionId,
@@ -84,28 +121,37 @@ class WorkerProductionDataSource {
   }
 
   Future<void> deleteProduction(int productionId) async {
-    final existing = await (_database.select(_database.workerProductionEntries)
-      ..where((table) => table.id.equals(productionId))).getSingleOrNull();
+    final existing = await (_database.select(
+      _database.workerProductionEntries,
+    )..where((table) => table.id.equals(productionId))).getSingleOrNull();
     if (existing == null) return;
     await _database.transaction(() async {
-      await (_database.delete(_database.workerProductionEntries)
-            ..where((table) => table.id.equals(productionId)))
-          .go();
-      await queueSync(_database,
+      await (_database.delete(
+        _database.workerProductionEntries,
+      )..where((table) => table.id.equals(productionId))).go();
+      await queueSync(
+        _database,
         operation: SyncQueueOperation.delete,
-        tableName: 'worker_production', recordId: productionId,
-        payload: <String, dynamic>{'id': productionId, 'workerId': existing.workerId},
+        tableName: 'worker_production',
+        recordId: productionId,
+        payload: <String, dynamic>{
+          'id': productionId,
+          'workerId': existing.workerId,
+        },
       );
     });
   }
 
   Future<void> _syncAfterWrite(SyncQueueOperation op, int id) async {
-    final row = await (_database.select(_database.workerProductionEntries)
-          ..where((t) => t.id.equals(id)))
-        .getSingle();
-    await queueSync(_database,
-      operation: op, tableName: 'worker_production',
-      recordId: id, payload: row.toJson(),
+    final row = await (_database.select(
+      _database.workerProductionEntries,
+    )..where((t) => t.id.equals(id))).getSingle();
+    await queueSync(
+      _database,
+      operation: op,
+      tableName: 'worker_production',
+      recordId: id,
+      payload: row.toJson(),
     );
   }
 }

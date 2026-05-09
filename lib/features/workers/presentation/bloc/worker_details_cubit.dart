@@ -37,55 +37,100 @@ class WorkerDetailsCubit extends Cubit<WorkerDetailsState> {
   }
 
   Future<void> refresh() async {
-    try { await GetIt.I<SyncService>().forceSync(); } catch (_) {}
+    try {
+      await GetIt.I<SyncService>().forceSync();
+    } catch (_) {}
     final completer = Completer<void>();
     _subscribe(completer: completer);
     return completer.future;
   }
 
   void previousMonth() {
-    emit(state.copyWith(
-      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month - 1),
-      isLoading: true,
-    ));
+    emit(
+      state.copyWith(
+        selectedMonth: DateTime(
+          state.selectedMonth.year,
+          state.selectedMonth.month - 1,
+        ),
+        isLoading: true,
+      ),
+    );
     _subscribe();
   }
 
   void nextMonth() {
-    emit(state.copyWith(
-      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month + 1),
-      isLoading: true,
-    ));
+    emit(
+      state.copyWith(
+        selectedMonth: DateTime(
+          state.selectedMonth.year,
+          state.selectedMonth.month + 1,
+        ),
+        isLoading: true,
+      ),
+    );
     _subscribe();
   }
 
-  Future<void> saveProduction({int? productionId, required DateTime date, required int stitchCount, String? notes}) =>
-      _addOrUpdateProductionUseCase(productionId: productionId, workerId: state.workerId, date: date, stitchCount: stitchCount, notes: notes);
+  Future<void> saveProduction({
+    int? productionId,
+    required DateTime date,
+    required int stitchCount,
+    String? notes,
+  }) => _addOrUpdateProductionUseCase(
+    productionId: productionId,
+    workerId: state.workerId,
+    date: date,
+    stitchCount: stitchCount,
+    notes: notes,
+  );
 
   Future<void> deleteProduction(int productionId) =>
       _deleteProductionUseCase(productionId);
 
-  Future<void> saveAdvance({int? advanceId, required double amount, required DateTime date, String? notes}) =>
-      _addOrUpdateAdvanceUseCase(advanceId: advanceId, workerId: state.workerId, amount: amount, date: date, notes: notes);
+  Future<void> saveAdvance({
+    int? advanceId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) => _addOrUpdateAdvanceUseCase(
+    advanceId: advanceId,
+    workerId: state.workerId,
+    amount: amount,
+    date: date,
+    notes: notes,
+  );
 
-  Future<void> deleteAdvance(int advanceId) =>
-      _deleteAdvanceUseCase(advanceId);
+  Future<void> deleteAdvance(int advanceId) => _deleteAdvanceUseCase(advanceId);
 
-  Future<void> saveAbsentDays(int absentDays) =>
-      _upsertAbsentDaysUseCase(workerId: state.workerId, month: state.selectedMonth, absentDays: absentDays);
+  Future<void> saveAbsentDays(int absentDays) => _upsertAbsentDaysUseCase(
+    workerId: state.workerId,
+    month: state.selectedMonth,
+    absentDays: absentDays,
+  );
 
   void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
-    _subscription = _watchWorkerDetailsUseCase(state.workerId, state.selectedMonth).listen(
-      (details) {
-        emit(state.copyWith(details: details, isLoading: false, errorMessage: null));
-        if (completer != null && !completer.isCompleted) completer.complete();
-      },
-      onError: (Object error) {
-        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
-        if (completer != null && !completer.isCompleted) completer.complete();
-      },
-    );
+    _subscription =
+        _watchWorkerDetailsUseCase(state.workerId, state.selectedMonth).listen(
+          (details) {
+            emit(
+              state.copyWith(
+                details: details,
+                isLoading: false,
+                errorMessage: null,
+              ),
+            );
+            if (completer != null && !completer.isCompleted)
+              completer.complete();
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(isLoading: false, errorMessage: error.toString()),
+            );
+            if (completer != null && !completer.isCompleted)
+              completer.complete();
+          },
+        );
   }
 
   @override

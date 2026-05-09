@@ -33,6 +33,7 @@ class WorkerListBuilder {
             _database.workers,
             _database.workerProductionEntries,
             _database.workerAdvances,
+            _database.workerDeductions,
             _database.stitchRates,
             _database.workerAbsentDays,
           },
@@ -50,12 +51,15 @@ class WorkerListBuilder {
         w.id, w.name,
         COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
         COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0) as current_advances,
+        COALESCE((SELECT SUM(amount) FROM worker_deductions WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_deductions,
         COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), -1.0) as carry_in
       FROM workers w
       WHERE w.is_active = 1
       ORDER BY w.name ASC
       ''',
       variables: [
+        Variable.withDateTime(range.start),
+        Variable.withDateTime(range.end),
         Variable.withDateTime(range.start),
         Variable.withDateTime(range.end),
         Variable.withDateTime(range.start),
@@ -77,13 +81,11 @@ class WorkerListBuilder {
       final name = row.read<String>('name');
       final currentStitches = row.read<int>('current_stitches');
       final currentAdvances = row.read<double>('current_advances');
+      final currentDeductions = row.read<double>('current_deductions');
       var carryIn = row.read<double>('carry_in');
 
       if (carryIn < 0) {
-        carryIn = await _summaryBuilder.getOrCalculateCarryIn(
-          workerId,
-          month,
-        );
+        carryIn = await _summaryBuilder.getOrCalculateCarryIn(workerId, month);
       }
 
       final earnings = (currentStitches / 100000.0) * rate;
@@ -92,6 +94,7 @@ class WorkerListBuilder {
         stitchCount: currentStitches,
         earnings: earnings,
         advances: currentAdvances,
+        deductions: currentDeductions,
         carryOver: carryIn,
         absentDays: 0,
         appliedRate: rate,
@@ -103,6 +106,8 @@ class WorkerListBuilder {
           name: name,
           totalEarnings: summary.totalEarnings,
           totalAdvances: summary.totalAdvances,
+          totalDeductions: summary.totalDeductions,
+          absentDays: summary.absentDays,
           netSalary: summary.netSalary,
         ),
       );

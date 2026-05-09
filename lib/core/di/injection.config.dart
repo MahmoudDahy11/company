@@ -66,22 +66,28 @@ import 'package:company/features/dashboard/domain/usecases/watch_dashboard_summa
     as _i504;
 import 'package:company/features/dashboard/presentation/bloc/dashboard_cubit.dart'
     as _i625;
-import 'package:company/features/maintenance_fault_records/data/datasources/maintenance_fault_records_local_data_source.dart'
-    as _i618;
-import 'package:company/features/maintenance_fault_records/data/repositories/maintenance_fault_records_repository_impl.dart'
-    as _i579;
-import 'package:company/features/maintenance_fault_records/domain/repositories/maintenance_fault_records_repository.dart'
-    as _i914;
-import 'package:company/features/maintenance_fault_records/domain/usecases/add_maintenance_fault_record_usecase.dart'
-    as _i408;
-import 'package:company/features/maintenance_fault_records/domain/usecases/delete_maintenance_fault_record_usecase.dart'
-    as _i146;
-import 'package:company/features/maintenance_fault_records/domain/usecases/update_maintenance_fault_record_usecase.dart'
-    as _i1059;
-import 'package:company/features/maintenance_fault_records/domain/usecases/watch_maintenance_fault_records_usecase.dart'
-    as _i444;
-import 'package:company/features/maintenance_fault_records/presentation/bloc/maintenance_fault_records_cubit.dart'
-    as _i965;
+import 'package:company/features/maintenance/data/datasources/maintenance_fault_records_local_data_source.dart'
+    as _i632;
+import 'package:company/features/maintenance/data/repositories/maintenance_fault_records_repository_impl.dart'
+    as _i745;
+import 'package:company/features/maintenance/domain/repositories/maintenance_fault_records_repository.dart'
+    as _i432;
+import 'package:company/features/maintenance/domain/usecases/add_maintenance_fault_record_usecase.dart'
+    as _i279;
+import 'package:company/features/maintenance/domain/usecases/delete_maintenance_fault_record_usecase.dart'
+    as _i43;
+import 'package:company/features/maintenance/domain/usecases/update_maintenance_fault_record_usecase.dart'
+    as _i781;
+import 'package:company/features/maintenance/domain/usecases/watch_maintenance_fault_records_usecase.dart'
+    as _i464;
+import 'package:company/features/maintenance/presentation/bloc/maintenance_fault_records_cubit.dart'
+    as _i1018;
+import 'package:company/features/threads/data/datasources/payments_local_data_source.dart'
+    as _i941;
+import 'package:company/features/threads/data/datasources/purchases_local_data_source.dart'
+    as _i973;
+import 'package:company/features/threads/data/datasources/suppliers_local_data_source.dart'
+    as _i983;
 import 'package:company/features/threads/data/datasources/threads_local_data_source.dart'
     as _i906;
 import 'package:company/features/threads/data/repositories/threads_repository_impl.dart'
@@ -172,6 +178,8 @@ import 'package:company/features/workers/domain/usecases/add_or_update_advance_u
     as _i230;
 import 'package:company/features/workers/domain/usecases/add_or_update_production_usecase.dart'
     as _i663;
+import 'package:company/features/workers/domain/usecases/add_worker_deduction_usecase.dart'
+    as _i686;
 import 'package:company/features/workers/domain/usecases/add_worker_usecase.dart'
     as _i537;
 import 'package:company/features/workers/domain/usecases/calculate_worker_salary_usecase.dart'
@@ -180,6 +188,8 @@ import 'package:company/features/workers/domain/usecases/delete_advance_usecase.
     as _i1064;
 import 'package:company/features/workers/domain/usecases/delete_production_usecase.dart'
     as _i970;
+import 'package:company/features/workers/domain/usecases/delete_worker_deduction_usecase.dart'
+    as _i81;
 import 'package:company/features/workers/domain/usecases/delete_worker_usecase.dart'
     as _i526;
 import 'package:company/features/workers/domain/usecases/update_stitch_rate_usecase.dart'
@@ -246,12 +256,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
     );
-    gh.lazySingleton<_i618.MaintenanceFaultRecordsLocalDataSource>(
+    gh.lazySingleton<_i632.MaintenanceFaultRecordsLocalDataSource>(
       () =>
-          _i618.MaintenanceFaultRecordsLocalDataSource(gh<_i549.AppDatabase>()),
+          _i632.MaintenanceFaultRecordsLocalDataSource(gh<_i549.AppDatabase>()),
     );
-    gh.lazySingleton<_i906.ThreadsLocalDataSource>(
-      () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
+    gh.lazySingleton<_i941.PaymentsLocalDataSource>(
+      () => _i941.PaymentsLocalDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.lazySingleton<_i973.PurchasesLocalDataSource>(
+      () => _i973.PurchasesLocalDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.lazySingleton<_i983.SuppliersLocalDataSource>(
+      () => _i983.SuppliersLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
       () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
@@ -268,17 +284,50 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i406.DashboardLocalDataSource>(
       () => _i406.DashboardLocalDataSource(
         gh<_i549.AppDatabase>(),
-        gh<_i787.CalculateWorkerSalaryUseCase>(),
         gh<_i362.CalculateWomenStaffSalaryUseCase>(),
         gh<_i328.GetClientBalanceUseCase>(),
       ),
     );
+    gh.lazySingleton<_i861.DashboardRepository>(
+      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
+    );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
     );
-    gh.lazySingleton<_i914.MaintenanceFaultRecordsRepository>(
-      () => _i579.MaintenanceFaultRecordsRepositoryImpl(
-        gh<_i618.MaintenanceFaultRecordsLocalDataSource>(),
+    gh.lazySingleton<_i432.MaintenanceFaultRecordsRepository>(
+      () => _i745.MaintenanceFaultRecordsRepositoryImpl(
+        gh<_i632.MaintenanceFaultRecordsLocalDataSource>(),
+      ),
+    );
+    gh.lazySingleton<_i906.ThreadsLocalDataSource>(
+      () => _i906.ThreadsLocalDataSource(
+        gh<_i549.AppDatabase>(),
+        gh<_i983.SuppliersLocalDataSource>(),
+        gh<_i973.PurchasesLocalDataSource>(),
+        gh<_i941.PaymentsLocalDataSource>(),
+      ),
+    );
+    gh.factory<_i504.WatchDashboardSummaryUseCase>(
+      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
+    );
+    gh.factory<_i279.AddMaintenanceFaultRecordUseCase>(
+      () => _i279.AddMaintenanceFaultRecordUseCase(
+        gh<_i432.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i43.DeleteMaintenanceFaultRecordUseCase>(
+      () => _i43.DeleteMaintenanceFaultRecordUseCase(
+        gh<_i432.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i781.UpdateMaintenanceFaultRecordUseCase>(
+      () => _i781.UpdateMaintenanceFaultRecordUseCase(
+        gh<_i432.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i464.WatchMaintenanceFaultRecordsUseCase>(
+      () => _i464.WatchMaintenanceFaultRecordsUseCase(
+        gh<_i432.MaintenanceFaultRecordsRepository>(),
       ),
     );
     gh.lazySingleton<_i875.AuthController>(
@@ -294,6 +343,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
     );
+    gh.factory<_i625.DashboardCubit>(
+      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
+    );
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
     );
@@ -307,6 +359,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i788.ClientsLocalDataSource>(
       () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
+    gh.factory<_i1018.MaintenanceFaultRecordsCubit>(
+      () => _i1018.MaintenanceFaultRecordsCubit(
+        gh<_i464.WatchMaintenanceFaultRecordsUseCase>(),
+        gh<_i279.AddMaintenanceFaultRecordUseCase>(),
+        gh<_i781.UpdateMaintenanceFaultRecordUseCase>(),
+        gh<_i43.DeleteMaintenanceFaultRecordUseCase>(),
+      ),
+    );
     gh.lazySingleton<_i512.AppRouter>(
       () => _i512.AppRouter(gh<_i875.AuthController>()),
     );
@@ -319,34 +379,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i216.RemoteSyncApplier>(),
       ),
     );
-    gh.lazySingleton<_i861.DashboardRepository>(
-      () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
-    );
     gh.factory<_i691.WorkerDetailsBuilder>(
       () => _i691.WorkerDetailsBuilder(
         gh<_i549.AppDatabase>(),
         gh<_i600.WorkerEarningsHelper>(),
         gh<_i591.WorkerSummaryBuilder>(),
-      ),
-    );
-    gh.factory<_i408.AddMaintenanceFaultRecordUseCase>(
-      () => _i408.AddMaintenanceFaultRecordUseCase(
-        gh<_i914.MaintenanceFaultRecordsRepository>(),
-      ),
-    );
-    gh.factory<_i146.DeleteMaintenanceFaultRecordUseCase>(
-      () => _i146.DeleteMaintenanceFaultRecordUseCase(
-        gh<_i914.MaintenanceFaultRecordsRepository>(),
-      ),
-    );
-    gh.factory<_i1059.UpdateMaintenanceFaultRecordUseCase>(
-      () => _i1059.UpdateMaintenanceFaultRecordUseCase(
-        gh<_i914.MaintenanceFaultRecordsRepository>(),
-      ),
-    );
-    gh.factory<_i444.WatchMaintenanceFaultRecordsUseCase>(
-      () => _i444.WatchMaintenanceFaultRecordsUseCase(
-        gh<_i914.MaintenanceFaultRecordsRepository>(),
       ),
     );
     gh.factory<_i852.AddOrUpdatePurchaseUseCase>(
@@ -387,17 +424,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i824.WatchThreadsOverviewUseCase>(
       () => _i824.WatchThreadsOverviewUseCase(gh<_i552.ThreadsRepository>()),
     );
-    gh.factory<_i850.SupplierDetailsCubit>(
-      () => _i850.SupplierDetailsCubit(
-        gh<_i233.WatchSupplierDetailsUseCase>(),
-        gh<_i212.AddPurchaseUseCase>(),
-        gh<_i852.AddOrUpdatePurchaseUseCase>(),
-        gh<_i1059.DeletePurchaseUseCase>(),
-        gh<_i896.AddSupplierPaymentUseCase>(),
-        gh<_i795.AddOrUpdateSupplierPaymentUseCase>(),
-        gh<_i970.DeleteSupplierPaymentUseCase>(),
-      ),
-    );
     gh.factory<_i136.ThreadsCubit>(
       () => _i136.ThreadsCubit(
         gh<_i63.WatchSuppliersUseCase>(),
@@ -406,9 +432,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i850.AddSupplierUseCase>(),
         gh<_i834.DeleteSupplierUseCase>(),
       ),
-    );
-    gh.factory<_i504.WatchDashboardSummaryUseCase>(
-      () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
     gh.factory<_i378.WorkerListBuilder>(
       () => _i378.WorkerListBuilder(
@@ -458,15 +481,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i282.UpdateSalaryUseCase>(),
       ),
     );
-    gh.factory<_i625.DashboardCubit>(
-      () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
-    );
-    gh.factory<_i965.MaintenanceFaultRecordsCubit>(
-      () => _i965.MaintenanceFaultRecordsCubit(
-        gh<_i444.WatchMaintenanceFaultRecordsUseCase>(),
-        gh<_i408.AddMaintenanceFaultRecordUseCase>(),
-        gh<_i1059.UpdateMaintenanceFaultRecordUseCase>(),
-        gh<_i146.DeleteMaintenanceFaultRecordUseCase>(),
+    gh.factory<_i850.SupplierDetailsCubit>(
+      () => _i850.SupplierDetailsCubit(
+        gh<_i233.WatchSupplierDetailsUseCase>(),
+        gh<_i852.AddOrUpdatePurchaseUseCase>(),
+        gh<_i1059.DeletePurchaseUseCase>(),
+        gh<_i795.AddOrUpdateSupplierPaymentUseCase>(),
+        gh<_i970.DeleteSupplierPaymentUseCase>(),
       ),
     );
     gh.lazySingleton<_i493.WorkersLocalDataSource>(
@@ -548,6 +569,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i663.AddOrUpdateProductionUseCase>(
       () => _i663.AddOrUpdateProductionUseCase(gh<_i1023.WorkersRepository>()),
     );
+    gh.factory<_i686.AddWorkerDeductionUseCase>(
+      () => _i686.AddWorkerDeductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
     gh.factory<_i537.AddWorkerUseCase>(
       () => _i537.AddWorkerUseCase(gh<_i1023.WorkersRepository>()),
     );
@@ -556,6 +580,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i970.DeleteProductionUseCase>(
       () => _i970.DeleteProductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i81.DeleteWorkerDeductionUseCase>(
+      () => _i81.DeleteWorkerDeductionUseCase(gh<_i1023.WorkersRepository>()),
     );
     gh.factory<_i526.DeleteWorkerUseCase>(
       () => _i526.DeleteWorkerUseCase(gh<_i1023.WorkersRepository>()),

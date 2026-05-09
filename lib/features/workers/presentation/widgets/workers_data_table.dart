@@ -18,7 +18,9 @@ class WorkersDataTable extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Card(
-      color: Colors.white, elevation: 0, margin: EdgeInsets.zero,
+      color: Colors.white,
+      elevation: 0,
+      margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(color: Colors.grey.shade200),
@@ -28,9 +30,11 @@ class WorkersDataTable extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Text(l10n.workersList,
+            child: Text(
+              l10n.workersList,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold, color: const Color(0xFF1F2937),
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1F2937),
               ),
             ),
           ),
@@ -40,9 +44,11 @@ class WorkersDataTable extends StatelessWidget {
               border: TableBorder.all(color: Colors.grey.shade200, width: 1),
               headingRowColor: WidgetStateProperty.all(Colors.grey.shade50),
               headingTextStyle: TextStyle(
-                color: Colors.grey.shade500, fontWeight: FontWeight.bold,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.bold,
               ),
-              dataRowMaxHeight: 64, dataRowMinHeight: 64,
+              dataRowMaxHeight: 64,
+              dataRowMinHeight: 64,
               columns: [
                 DataColumn(label: Text(l10n.name)),
                 DataColumn(label: Text(l10n.netSalaryHeader)),
@@ -50,8 +56,12 @@ class WorkersDataTable extends StatelessWidget {
                 DataColumn(label: Text(l10n.absentDaysHeader)),
                 DataColumn(label: Text(l10n.actions)),
               ],
-              rows: context.watch<WorkersCubit>().state.filteredItems
-                  .map((item) => _buildRow(context, item)).toList(),
+              rows: context
+                  .watch<WorkersCubit>()
+                  .state
+                  .filteredItems
+                  .map((item) => _buildRow(context, item))
+                  .toList(),
             ),
           ),
         ],
@@ -63,33 +73,38 @@ class WorkersDataTable extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final fmt = NumberFormat.currency(
       locale: Localizations.localeOf(context).toLanguageTag(),
-      symbol: '', decimalDigits: 2,
+      symbol: '',
+      decimalDigits: 2,
     );
 
-    return DataRow(cells: [
-      DataCell(Text(item.name)),
-      DataCell(Text(fmt.format(item.netSalary).trim())),
-      DataCell(Text(fmt.format(item.totalAdvances).trim())),
-      const DataCell(Text('0')),
-      DataCell(Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          OutlinedButton(
-            onPressed: () => context.push(WorkersPage.detailsPath(item.id)),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF1F2937),
-              side: BorderSide(color: Colors.grey.shade300),
-            ),
-            child: Text(l10n.details),
+    return DataRow(
+      cells: [
+        DataCell(Text(item.name)),
+        DataCell(Text(fmt.format(item.netSalary).trim())),
+        DataCell(Text(fmt.format(item.totalAdvances).trim())),
+        const DataCell(Text('0')),
+        DataCell(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              OutlinedButton(
+                onPressed: () => context.push(WorkersPage.detailsPath(item.id)),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1F2937),
+                  side: BorderSide(color: Colors.grey.shade300),
+                ),
+                child: Text(l10n.details),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              IconButton(
+                onPressed: () => _confirmDelete(context, item),
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+              ),
+            ],
           ),
-          const SizedBox(width: AppSpacing.sm),
-          IconButton(
-            onPressed: () => _confirmDelete(context, item),
-            icon: const Icon(Icons.delete_outline, color: Colors.red),
-          ),
-        ],
-      )),
-    ]);
+        ),
+      ],
+    );
   }
 
   Future<void> _confirmDelete(BuildContext context, WorkerListItem item) async {

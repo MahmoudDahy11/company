@@ -51,8 +51,8 @@ class _WorkersView extends StatelessWidget {
                     state.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : state.filteredItems.isEmpty
-                            ? Center(child: Text(l10n.noWorkersYet))
-                            : const WorkersDataTable(),
+                        ? Center(child: Text(l10n.noWorkersYet))
+                        : const WorkersDataTable(),
                   ],
                 ),
               ),

@@ -16,10 +16,14 @@ class WorkersHeader extends StatelessWidget {
 
     final title = Text(
       l10n.workers,
-      style: (isMobile
-              ? Theme.of(context).textTheme.headlineSmall
-              : Theme.of(context).textTheme.headlineMedium)
-          ?.copyWith(fontWeight: FontWeight.bold, color: const Color(0xFF1F2937)),
+      style:
+          (isMobile
+                  ? Theme.of(context).textTheme.headlineSmall
+                  : Theme.of(context).textTheme.headlineMedium)
+              ?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1F2937),
+              ),
     );
 
     final searchField = SizedBox(

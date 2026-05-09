@@ -33,7 +33,9 @@ class _StitchRateFormState extends State<StitchRateForm> {
           children: [
             TextFormField(
               controller: _controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               decoration: InputDecoration(labelText: l10n.ratePer100kStitches),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: InputValidator.multiple([

@@ -29,9 +29,9 @@ class WorkerRateDataSource {
         operation: SyncQueueOperation.insert,
         tableName: 'stitch_rate',
         recordId: id,
-        payload: (await (_database.select(_database.stitchRates)
-              ..where((t) => t.id.equals(id)))
-            .getSingle()).toJson(),
+        payload: (await (_database.select(
+          _database.stitchRates,
+        )..where((t) => t.id.equals(id))).getSingle()).toJson(),
       );
     });
   }

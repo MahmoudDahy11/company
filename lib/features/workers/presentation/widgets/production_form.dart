@@ -7,8 +7,10 @@ import 'workers_sheet_scaffold.dart';
 
 class ProductionFormResult {
   const ProductionFormResult({
-    required this.date, required this.stitchCount,
-    this.notes, this.productionId,
+    required this.date,
+    required this.stitchCount,
+    this.notes,
+    this.productionId,
   });
   final DateTime date;
   final int stitchCount;
@@ -32,9 +34,15 @@ class _ProductionFormState extends State<ProductionForm> {
   @override
   void initState() {
     super.initState();
-    _stitchesController = TextEditingController(text: widget.initialValue?.stitchCount.toString() ?? '');
-    _notesController = TextEditingController(text: widget.initialValue?.notes ?? '');
-    _dateNotifier = ValueNotifier<DateTime>(widget.initialValue?.date ?? DateTime.now());
+    _stitchesController = TextEditingController(
+      text: widget.initialValue?.stitchCount.toString() ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.date ?? DateTime.now(),
+    );
   }
 
   @override
@@ -49,58 +57,70 @@ class _ProductionFormState extends State<ProductionForm> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return WorkersSheetScaffold(
-      title: widget.initialValue == null ? l10n.addProduction : l10n.editProduction,
+      title: widget.initialValue == null
+          ? l10n.addProduction
+          : l10n.editProduction,
       child: Form(
         key: _formKey,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _dateNotifier,
-            builder: (context, value, _) => OutlinedButton.icon(
-              onPressed: () async {
-                final picked = await showDatePicker(
-                  context: context, firstDate: DateTime(2020),
-                  lastDate: DateTime(2100), initialDate: value,
-                );
-                if (picked != null) _dateNotifier.value = picked;
-              },
-              icon: const Icon(Icons.calendar_today_outlined),
-              label: Text(DateFormat.yMd().format(value)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) => OutlinedButton.icon(
+                onPressed: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime(2100),
+                    initialDate: value,
+                  );
+                  if (picked != null) _dateNotifier.value = picked;
+                },
+                icon: const Icon(Icons.calendar_today_outlined),
+                label: Text(DateFormat.yMd().format(value)),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextFormField(
-            controller: _stitchesController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: l10n.stitchCount),
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: InputValidator.multiple([
-              (v) => InputValidator.required(context, v),
-              (v) => InputValidator.positiveNumber(context, v),
-            ]),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextFormField(
-            controller: _notesController,
-            decoration: InputDecoration(labelText: l10n.notes), maxLines: 2,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ),
-        ]),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _stitchesController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: l10n.stitchCount),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              maxLines: 2,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _save() {
     if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pop(ProductionFormResult(
-        productionId: widget.initialValue?.productionId,
-        date: _dateNotifier.value,
-        stitchCount: int.parse(_stitchesController.text.trim()),
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-      ));
+      Navigator.of(context).pop(
+        ProductionFormResult(
+          productionId: widget.initialValue?.productionId,
+          date: _dateNotifier.value,
+          stitchCount: int.parse(_stitchesController.text.trim()),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
     }
   }
 }

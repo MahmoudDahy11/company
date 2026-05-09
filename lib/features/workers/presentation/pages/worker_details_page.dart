@@ -43,7 +43,8 @@ class _WorkerDetailsView extends StatelessWidget {
           final details = state.details;
           final currency = NumberFormat.currency(
             locale: Localizations.localeOf(context).toLanguageTag(),
-            symbol: 'EGP ', decimalDigits: 2,
+            symbol: 'EGP ',
+            decimalDigits: 2,
           );
 
           return Scaffold(
@@ -60,35 +61,40 @@ class _WorkerDetailsView extends StatelessWidget {
             body: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : details == null
-                    ? Center(child: Text(state.errorMessage ?? l10n.failedToLoadData))
-                    : Column(
-                        children: [
-                          WorkerDetailsHeader(
-                            selectedMonth: state.selectedMonth,
-                            details: details,
-                            currency: currency,
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              children: [
-                                WorkerSummaryTab(state: state, currency: currency),
-                                WorkerProductionTab(
-                                  productions: details.productions, currency: currency,
-                                ),
-                                WorkerAdvancesTab(
-                                  advances: details.advances, currency: currency,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+                ? Center(
+                    child: Text(state.errorMessage ?? l10n.failedToLoadData),
+                  )
+                : Column(
+                    children: [
+                      WorkerDetailsHeader(
+                        selectedMonth: state.selectedMonth,
+                        details: details,
+                        currency: currency,
                       ),
+                      Expanded(
+                        child: TabBarView(
+                          children: [
+                            WorkerSummaryTab(state: state, currency: currency),
+                            WorkerProductionTab(
+                              productions: details.productions,
+                              currency: currency,
+                            ),
+                            WorkerAdvancesTab(
+                              advances: details.advances,
+                              currency: currency,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
             floatingActionButton: details == null
                 ? null
                 : WorkerDetailsFab(
                     onAddProduction: () => _onAddProduction(context),
                     onAddAdvance: () => _onAddAdvance(context),
-                    onAbsentDays: () => _onAbsentDays(context, details.summary.absentDays),
+                    onAbsentDays: () =>
+                        _onAbsentDays(context, details.summary.absentDays),
                   ),
           );
         },
@@ -100,19 +106,28 @@ class _WorkerDetailsView extends StatelessWidget {
     final result = await showProductionSheet(context);
     if (result == null || !context.mounted) return;
     await context.read<WorkerDetailsCubit>().saveProduction(
-      date: result.date, stitchCount: result.stitchCount, notes: result.notes,
+      date: result.date,
+      stitchCount: result.stitchCount,
+      notes: result.notes,
     );
   }
+
   Future<void> _onAddAdvance(BuildContext context) async {
     final result = await showAdvanceSheet(context);
     if (result == null || !context.mounted) return;
     await context.read<WorkerDetailsCubit>().saveAdvance(
-      advanceId: result.advanceId, amount: result.amount,
-      date: result.date, notes: result.notes,
+      advanceId: result.advanceId,
+      amount: result.amount,
+      date: result.date,
+      notes: result.notes,
     );
   }
+
   Future<void> _onAbsentDays(BuildContext context, int currentValue) async {
-    final result = await showAbsentDaysSheet(context, initialValue: currentValue);
+    final result = await showAbsentDaysSheet(
+      context,
+      initialValue: currentValue,
+    );
     if (result == null || !context.mounted) return;
     await context.read<WorkerDetailsCubit>().saveAbsentDays(result);
   }
