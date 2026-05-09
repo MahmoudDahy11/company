@@ -147,15 +147,17 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
                 errorMessage: null,
               ),
             );
-            if (completer != null && !completer.isCompleted)
+            if (completer != null && !completer.isCompleted) {
               completer.complete();
+            }
           },
           onError: (Object error) {
             emit(
               state.copyWith(isLoading: false, errorMessage: error.toString()),
             );
-            if (completer != null && !completer.isCompleted)
+            if (completer != null && !completer.isCompleted) {
               completer.complete();
+            }
           },
         );
   }
