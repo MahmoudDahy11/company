@@ -9,6 +9,7 @@ import '../../features/workers/data/models/workers_tables.dart';
 import '../../features/women_staff/data/models/women_staff_tables.dart';
 import '../../features/threads/data/models/threads_tables.dart';
 import '../../features/clients/data/models/clients_tables.dart';
+import '../../features/maintenance_fault_records/data/models/maintenance_fault_records_tables.dart';
 import '../sync/sync_queue_table.dart';
 
 part 'app_database.g.dart';
@@ -30,13 +31,14 @@ part 'app_database.g.dart';
     Clients,
     ClientModels,
     ClientPayments,
+    MaintenanceFaultRecords,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -67,6 +69,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 6) {
         await m.createTable(staffDeductions);
+      }
+      if (from < 7) {
+        await m.createTable(maintenanceFaultRecords);
       }
     },
   );

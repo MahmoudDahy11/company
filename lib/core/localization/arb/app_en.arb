@@ -312,5 +312,21 @@
   "addDeduction": "Add Deduction",
   "noDeductionsThisMonth": "No deductions for this month",
   "deleteDeductionTitle": "Delete Deduction",
-  "confirmDeleteDeduction": "Do you want to delete this deduction record?"
+  "confirmDeleteDeduction": "Do you want to delete this deduction record?",
+  "faultRecords": "Fault Records",
+  "maintenanceFaults": "Faults",
+  "addFaultRecord": "Add Fault Record",
+  "editFaultRecord": "Edit Fault Record",
+  "noFaultRecordsYet": "No fault records yet",
+  "deleteFaultRecordTitle": "Delete Record",
+  "confirmDeleteFaultRecord": "Delete fault record for {machine}?",
+  "@confirmDeleteFaultRecord": {
+    "placeholders": {
+      "machine": {}
+    }
+  },
+  "machineName": "Machine Name",
+  "faultName": "Fault Name",
+  "cost": "Cost",
+  "totalCost": "Total Cost"
 }

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../features/clients/domain/entities/client_list_item.dart';
 import '../../features/threads/domain/entities/supplier_list_item.dart';
 import '../../features/threads/domain/entities/thread_purchase.dart';
+import '../../features/maintenance_fault_records/domain/entities/maintenance_fault_record.dart';
 import '../../features/workers/domain/entities/worker_list_item.dart';
 import '../../features/women_staff/domain/entities/staff_list_item.dart';
 
@@ -298,6 +299,52 @@ class ExcelExportService {
     }
 
     await _saveAndOpen(excel, 'clients_$monthLabel.xlsx');
+  }
+
+  // ───────── Maintenance Fault Records ─────────
+
+  Future<void> exportMaintenanceFaultRecords({
+    required List<MaintenanceFaultRecord> records,
+    required bool isArabic,
+  }) async {
+    final excel = Excel.createExcel();
+    final sheet = excel['FaultRecords'];
+    excel.delete('Sheet1');
+
+    final headers = isArabic
+        ? ['اسم الآلة', 'اسم العطل', 'التكلفة', 'التكلفة الإجمالية']
+        : ['Machine', 'Fault', 'Cost', 'Total Cost'];
+
+    for (var col = 0; col < headers.length; col++) {
+      final cell = sheet.cell(
+        CellIndex.indexByColumnRow(columnIndex: col, rowIndex: 0),
+      );
+      cell.value = TextCellValue(headers[col]);
+      cell.cellStyle = _headerStyle;
+    }
+
+    var row = 1;
+    for (final record in records) {
+      final values = <CellValue>[
+        TextCellValue(record.machineName),
+        TextCellValue(record.faultName),
+        DoubleCellValue(record.cost),
+        DoubleCellValue(record.totalCost),
+      ];
+      for (var col = 0; col < values.length; col++) {
+        final cell = sheet.cell(
+          CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row),
+        );
+        cell.value = values[col];
+      }
+      row++;
+    }
+
+    for (var col = 0; col < headers.length; col++) {
+      sheet.setColumnWidth(col, 22);
+    }
+
+    await _saveAndOpen(excel, 'fault_records.xlsx');
   }
 
   // ───────── Helpers ─────────

@@ -1273,6 +1273,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Do you want to delete this deduction record?'**
   String get confirmDeleteDeduction;
+
+  /// No description provided for @faultRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Fault Records'**
+  String get faultRecords;
+
+  /// No description provided for @maintenanceFaults.
+  ///
+  /// In en, this message translates to:
+  /// **'Faults'**
+  String get maintenanceFaults;
+
+  /// No description provided for @addFaultRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Fault Record'**
+  String get addFaultRecord;
+
+  /// No description provided for @editFaultRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Fault Record'**
+  String get editFaultRecord;
+
+  /// No description provided for @noFaultRecordsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No fault records yet'**
+  String get noFaultRecordsYet;
+
+  /// No description provided for @deleteFaultRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Record'**
+  String get deleteFaultRecordTitle;
+
+  /// No description provided for @confirmDeleteFaultRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete fault record for {machine}?'**
+  String confirmDeleteFaultRecord(Object machine);
+
+  /// No description provided for @machineName.
+  ///
+  /// In en, this message translates to:
+  /// **'Machine Name'**
+  String get machineName;
+
+  /// No description provided for @faultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Fault Name'**
+  String get faultName;
+
+  /// No description provided for @cost.
+  ///
+  /// In en, this message translates to:
+  /// **'Cost'**
+  String get cost;
+
+  /// No description provided for @totalCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Cost'**
+  String get totalCost;
 }
 
 class _AppLocalizationsDelegate

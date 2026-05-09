@@ -5620,6 +5620,411 @@ class ClientPaymentsCompanion extends UpdateCompanion<ClientPayment> {
   }
 }
 
+class $MaintenanceFaultRecordsTable extends MaintenanceFaultRecords
+    with TableInfo<$MaintenanceFaultRecordsTable, MaintenanceFaultRecord> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MaintenanceFaultRecordsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _machineNameMeta = const VerificationMeta(
+    'machineName',
+  );
+  @override
+  late final GeneratedColumn<String> machineName = GeneratedColumn<String>(
+    'machine_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _faultNameMeta = const VerificationMeta(
+    'faultName',
+  );
+  @override
+  late final GeneratedColumn<String> faultName = GeneratedColumn<String>(
+    'fault_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+    'cost',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalCostMeta = const VerificationMeta(
+    'totalCost',
+  );
+  @override
+  late final GeneratedColumn<double> totalCost = GeneratedColumn<double>(
+    'total_cost',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    machineName,
+    faultName,
+    cost,
+    totalCost,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'maintenance_fault_records';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MaintenanceFaultRecord> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('machine_name')) {
+      context.handle(
+        _machineNameMeta,
+        machineName.isAcceptableOrUnknown(
+          data['machine_name']!,
+          _machineNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_machineNameMeta);
+    }
+    if (data.containsKey('fault_name')) {
+      context.handle(
+        _faultNameMeta,
+        faultName.isAcceptableOrUnknown(data['fault_name']!, _faultNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_faultNameMeta);
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+        _costMeta,
+        cost.isAcceptableOrUnknown(data['cost']!, _costMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_costMeta);
+    }
+    if (data.containsKey('total_cost')) {
+      context.handle(
+        _totalCostMeta,
+        totalCost.isAcceptableOrUnknown(data['total_cost']!, _totalCostMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_totalCostMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MaintenanceFaultRecord map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MaintenanceFaultRecord(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      machineName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}machine_name'],
+      )!,
+      faultName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fault_name'],
+      )!,
+      cost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}cost'],
+      )!,
+      totalCost: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}total_cost'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $MaintenanceFaultRecordsTable createAlias(String alias) {
+    return $MaintenanceFaultRecordsTable(attachedDatabase, alias);
+  }
+}
+
+class MaintenanceFaultRecord extends DataClass
+    implements Insertable<MaintenanceFaultRecord> {
+  final int id;
+  final String machineName;
+  final String faultName;
+  final double cost;
+  final double totalCost;
+  final DateTime createdAt;
+  const MaintenanceFaultRecord({
+    required this.id,
+    required this.machineName,
+    required this.faultName,
+    required this.cost,
+    required this.totalCost,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['machine_name'] = Variable<String>(machineName);
+    map['fault_name'] = Variable<String>(faultName);
+    map['cost'] = Variable<double>(cost);
+    map['total_cost'] = Variable<double>(totalCost);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  MaintenanceFaultRecordsCompanion toCompanion(bool nullToAbsent) {
+    return MaintenanceFaultRecordsCompanion(
+      id: Value(id),
+      machineName: Value(machineName),
+      faultName: Value(faultName),
+      cost: Value(cost),
+      totalCost: Value(totalCost),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory MaintenanceFaultRecord.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MaintenanceFaultRecord(
+      id: serializer.fromJson<int>(json['id']),
+      machineName: serializer.fromJson<String>(json['machineName']),
+      faultName: serializer.fromJson<String>(json['faultName']),
+      cost: serializer.fromJson<double>(json['cost']),
+      totalCost: serializer.fromJson<double>(json['totalCost']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'machineName': serializer.toJson<String>(machineName),
+      'faultName': serializer.toJson<String>(faultName),
+      'cost': serializer.toJson<double>(cost),
+      'totalCost': serializer.toJson<double>(totalCost),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  MaintenanceFaultRecord copyWith({
+    int? id,
+    String? machineName,
+    String? faultName,
+    double? cost,
+    double? totalCost,
+    DateTime? createdAt,
+  }) => MaintenanceFaultRecord(
+    id: id ?? this.id,
+    machineName: machineName ?? this.machineName,
+    faultName: faultName ?? this.faultName,
+    cost: cost ?? this.cost,
+    totalCost: totalCost ?? this.totalCost,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  MaintenanceFaultRecord copyWithCompanion(
+    MaintenanceFaultRecordsCompanion data,
+  ) {
+    return MaintenanceFaultRecord(
+      id: data.id.present ? data.id.value : this.id,
+      machineName: data.machineName.present
+          ? data.machineName.value
+          : this.machineName,
+      faultName: data.faultName.present ? data.faultName.value : this.faultName,
+      cost: data.cost.present ? data.cost.value : this.cost,
+      totalCost: data.totalCost.present ? data.totalCost.value : this.totalCost,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MaintenanceFaultRecord(')
+          ..write('id: $id, ')
+          ..write('machineName: $machineName, ')
+          ..write('faultName: $faultName, ')
+          ..write('cost: $cost, ')
+          ..write('totalCost: $totalCost, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, machineName, faultName, cost, totalCost, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MaintenanceFaultRecord &&
+          other.id == this.id &&
+          other.machineName == this.machineName &&
+          other.faultName == this.faultName &&
+          other.cost == this.cost &&
+          other.totalCost == this.totalCost &&
+          other.createdAt == this.createdAt);
+}
+
+class MaintenanceFaultRecordsCompanion
+    extends UpdateCompanion<MaintenanceFaultRecord> {
+  final Value<int> id;
+  final Value<String> machineName;
+  final Value<String> faultName;
+  final Value<double> cost;
+  final Value<double> totalCost;
+  final Value<DateTime> createdAt;
+  const MaintenanceFaultRecordsCompanion({
+    this.id = const Value.absent(),
+    this.machineName = const Value.absent(),
+    this.faultName = const Value.absent(),
+    this.cost = const Value.absent(),
+    this.totalCost = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  MaintenanceFaultRecordsCompanion.insert({
+    this.id = const Value.absent(),
+    required String machineName,
+    required String faultName,
+    required double cost,
+    required double totalCost,
+    this.createdAt = const Value.absent(),
+  }) : machineName = Value(machineName),
+       faultName = Value(faultName),
+       cost = Value(cost),
+       totalCost = Value(totalCost);
+  static Insertable<MaintenanceFaultRecord> custom({
+    Expression<int>? id,
+    Expression<String>? machineName,
+    Expression<String>? faultName,
+    Expression<double>? cost,
+    Expression<double>? totalCost,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (machineName != null) 'machine_name': machineName,
+      if (faultName != null) 'fault_name': faultName,
+      if (cost != null) 'cost': cost,
+      if (totalCost != null) 'total_cost': totalCost,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  MaintenanceFaultRecordsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? machineName,
+    Value<String>? faultName,
+    Value<double>? cost,
+    Value<double>? totalCost,
+    Value<DateTime>? createdAt,
+  }) {
+    return MaintenanceFaultRecordsCompanion(
+      id: id ?? this.id,
+      machineName: machineName ?? this.machineName,
+      faultName: faultName ?? this.faultName,
+      cost: cost ?? this.cost,
+      totalCost: totalCost ?? this.totalCost,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (machineName.present) {
+      map['machine_name'] = Variable<String>(machineName.value);
+    }
+    if (faultName.present) {
+      map['fault_name'] = Variable<String>(faultName.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    if (totalCost.present) {
+      map['total_cost'] = Variable<double>(totalCost.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MaintenanceFaultRecordsCompanion(')
+          ..write('id: $id, ')
+          ..write('machineName: $machineName, ')
+          ..write('faultName: $faultName, ')
+          ..write('cost: $cost, ')
+          ..write('totalCost: $totalCost, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5648,6 +6053,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ClientsTable clients = $ClientsTable(this);
   late final $ClientModelsTable clientModels = $ClientModelsTable(this);
   late final $ClientPaymentsTable clientPayments = $ClientPaymentsTable(this);
+  late final $MaintenanceFaultRecordsTable maintenanceFaultRecords =
+      $MaintenanceFaultRecordsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5668,6 +6075,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     clients,
     clientModels,
     clientPayments,
+    maintenanceFaultRecords,
   ];
 }
 
@@ -10830,6 +11238,240 @@ typedef $$ClientPaymentsTableProcessedTableManager =
       ClientPayment,
       PrefetchHooks Function({bool clientId})
     >;
+typedef $$MaintenanceFaultRecordsTableCreateCompanionBuilder =
+    MaintenanceFaultRecordsCompanion Function({
+      Value<int> id,
+      required String machineName,
+      required String faultName,
+      required double cost,
+      required double totalCost,
+      Value<DateTime> createdAt,
+    });
+typedef $$MaintenanceFaultRecordsTableUpdateCompanionBuilder =
+    MaintenanceFaultRecordsCompanion Function({
+      Value<int> id,
+      Value<String> machineName,
+      Value<String> faultName,
+      Value<double> cost,
+      Value<double> totalCost,
+      Value<DateTime> createdAt,
+    });
+
+class $$MaintenanceFaultRecordsTableFilterComposer
+    extends Composer<_$AppDatabase, $MaintenanceFaultRecordsTable> {
+  $$MaintenanceFaultRecordsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get machineName => $composableBuilder(
+    column: $table.machineName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get faultName => $composableBuilder(
+    column: $table.faultName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get totalCost => $composableBuilder(
+    column: $table.totalCost,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MaintenanceFaultRecordsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MaintenanceFaultRecordsTable> {
+  $$MaintenanceFaultRecordsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get machineName => $composableBuilder(
+    column: $table.machineName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get faultName => $composableBuilder(
+    column: $table.faultName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cost => $composableBuilder(
+    column: $table.cost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get totalCost => $composableBuilder(
+    column: $table.totalCost,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MaintenanceFaultRecordsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MaintenanceFaultRecordsTable> {
+  $$MaintenanceFaultRecordsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get machineName => $composableBuilder(
+    column: $table.machineName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get faultName =>
+      $composableBuilder(column: $table.faultName, builder: (column) => column);
+
+  GeneratedColumn<double> get cost =>
+      $composableBuilder(column: $table.cost, builder: (column) => column);
+
+  GeneratedColumn<double> get totalCost =>
+      $composableBuilder(column: $table.totalCost, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$MaintenanceFaultRecordsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MaintenanceFaultRecordsTable,
+          MaintenanceFaultRecord,
+          $$MaintenanceFaultRecordsTableFilterComposer,
+          $$MaintenanceFaultRecordsTableOrderingComposer,
+          $$MaintenanceFaultRecordsTableAnnotationComposer,
+          $$MaintenanceFaultRecordsTableCreateCompanionBuilder,
+          $$MaintenanceFaultRecordsTableUpdateCompanionBuilder,
+          (
+            MaintenanceFaultRecord,
+            BaseReferences<
+              _$AppDatabase,
+              $MaintenanceFaultRecordsTable,
+              MaintenanceFaultRecord
+            >,
+          ),
+          MaintenanceFaultRecord,
+          PrefetchHooks Function()
+        > {
+  $$MaintenanceFaultRecordsTableTableManager(
+    _$AppDatabase db,
+    $MaintenanceFaultRecordsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MaintenanceFaultRecordsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$MaintenanceFaultRecordsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$MaintenanceFaultRecordsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> machineName = const Value.absent(),
+                Value<String> faultName = const Value.absent(),
+                Value<double> cost = const Value.absent(),
+                Value<double> totalCost = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => MaintenanceFaultRecordsCompanion(
+                id: id,
+                machineName: machineName,
+                faultName: faultName,
+                cost: cost,
+                totalCost: totalCost,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String machineName,
+                required String faultName,
+                required double cost,
+                required double totalCost,
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => MaintenanceFaultRecordsCompanion.insert(
+                id: id,
+                machineName: machineName,
+                faultName: faultName,
+                cost: cost,
+                totalCost: totalCost,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MaintenanceFaultRecordsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MaintenanceFaultRecordsTable,
+      MaintenanceFaultRecord,
+      $$MaintenanceFaultRecordsTableFilterComposer,
+      $$MaintenanceFaultRecordsTableOrderingComposer,
+      $$MaintenanceFaultRecordsTableAnnotationComposer,
+      $$MaintenanceFaultRecordsTableCreateCompanionBuilder,
+      $$MaintenanceFaultRecordsTableUpdateCompanionBuilder,
+      (
+        MaintenanceFaultRecord,
+        BaseReferences<
+          _$AppDatabase,
+          $MaintenanceFaultRecordsTable,
+          MaintenanceFaultRecord
+        >,
+      ),
+      MaintenanceFaultRecord,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10867,4 +11509,9 @@ class $AppDatabaseManager {
       $$ClientModelsTableTableManager(_db, _db.clientModels);
   $$ClientPaymentsTableTableManager get clientPayments =>
       $$ClientPaymentsTableTableManager(_db, _db.clientPayments);
+  $$MaintenanceFaultRecordsTableTableManager get maintenanceFaultRecords =>
+      $$MaintenanceFaultRecordsTableTableManager(
+        _db,
+        _db.maintenanceFaultRecords,
+      );
 }

@@ -312,5 +312,21 @@
   "addDeduction": "خصم",
   "noDeductionsThisMonth": "لا توجد خصومات لهذا الشهر",
   "deleteDeductionTitle": "حذف الخصم",
-  "confirmDeleteDeduction": "هل تريد حذف سجل الخصم هذا؟"
+  "confirmDeleteDeduction": "هل تريد حذف سجل الخصم هذا؟",
+  "faultRecords": "سجلات الأعطال",
+  "maintenanceFaults": "الصيانة",
+  "addFaultRecord": "إضافة سجل عطل",
+  "editFaultRecord": "تعديل سجل العطل",
+  "noFaultRecordsYet": "لا توجد سجلات أعطال حتى الآن",
+  "deleteFaultRecordTitle": "حذف السجل",
+  "confirmDeleteFaultRecord": "هل تريد حذف سجل عطل {machine}؟",
+  "@confirmDeleteFaultRecord": {
+    "placeholders": {
+      "machine": {}
+    }
+  },
+  "machineName": "اسم الآلة",
+  "faultName": "اسم العطل",
+  "cost": "التكلفة",
+  "totalCost": "التكلفة الإجمالية"
 }

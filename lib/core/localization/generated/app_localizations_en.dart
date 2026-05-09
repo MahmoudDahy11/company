@@ -653,4 +653,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get confirmDeleteDeduction =>
       'Do you want to delete this deduction record?';
+
+  @override
+  String get faultRecords => 'Fault Records';
+
+  @override
+  String get maintenanceFaults => 'Faults';
+
+  @override
+  String get addFaultRecord => 'Add Fault Record';
+
+  @override
+  String get editFaultRecord => 'Edit Fault Record';
+
+  @override
+  String get noFaultRecordsYet => 'No fault records yet';
+
+  @override
+  String get deleteFaultRecordTitle => 'Delete Record';
+
+  @override
+  String confirmDeleteFaultRecord(Object machine) {
+    return 'Delete fault record for $machine?';
+  }
+
+  @override
+  String get machineName => 'Machine Name';
+
+  @override
+  String get faultName => 'Fault Name';
+
+  @override
+  String get cost => 'Cost';
+
+  @override
+  String get totalCost => 'Total Cost';
 }

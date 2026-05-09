@@ -66,6 +66,22 @@ import 'package:company/features/dashboard/domain/usecases/watch_dashboard_summa
     as _i504;
 import 'package:company/features/dashboard/presentation/bloc/dashboard_cubit.dart'
     as _i625;
+import 'package:company/features/maintenance_fault_records/data/datasources/maintenance_fault_records_local_data_source.dart'
+    as _i618;
+import 'package:company/features/maintenance_fault_records/data/repositories/maintenance_fault_records_repository_impl.dart'
+    as _i579;
+import 'package:company/features/maintenance_fault_records/domain/repositories/maintenance_fault_records_repository.dart'
+    as _i914;
+import 'package:company/features/maintenance_fault_records/domain/usecases/add_maintenance_fault_record_usecase.dart'
+    as _i408;
+import 'package:company/features/maintenance_fault_records/domain/usecases/delete_maintenance_fault_record_usecase.dart'
+    as _i146;
+import 'package:company/features/maintenance_fault_records/domain/usecases/update_maintenance_fault_record_usecase.dart'
+    as _i1059;
+import 'package:company/features/maintenance_fault_records/domain/usecases/watch_maintenance_fault_records_usecase.dart'
+    as _i444;
+import 'package:company/features/maintenance_fault_records/presentation/bloc/maintenance_fault_records_cubit.dart'
+    as _i965;
 import 'package:company/features/threads/data/datasources/threads_local_data_source.dart'
     as _i906;
 import 'package:company/features/threads/data/repositories/threads_repository_impl.dart'
@@ -216,6 +232,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i788.ClientsLocalDataSource>(
       () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
+    gh.lazySingleton<_i618.MaintenanceFaultRecordsLocalDataSource>(
+      () =>
+          _i618.MaintenanceFaultRecordsLocalDataSource(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i906.ThreadsLocalDataSource>(
       () => _i906.ThreadsLocalDataSource(gh<_i549.AppDatabase>()),
     );
@@ -232,6 +252,11 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i447.ConnectivityService>(
       () => _i447.ConnectivityService(gh<_i895.Connectivity>()),
+    );
+    gh.lazySingleton<_i914.MaintenanceFaultRecordsRepository>(
+      () => _i579.MaintenanceFaultRecordsRepositoryImpl(
+        gh<_i618.MaintenanceFaultRecordsLocalDataSource>(),
+      ),
     );
     gh.lazySingleton<_i875.AuthController>(
       () => _i875.AuthController(
@@ -302,6 +327,26 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i615.WatchClientsUseCase>(
       () => _i615.WatchClientsUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i408.AddMaintenanceFaultRecordUseCase>(
+      () => _i408.AddMaintenanceFaultRecordUseCase(
+        gh<_i914.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i146.DeleteMaintenanceFaultRecordUseCase>(
+      () => _i146.DeleteMaintenanceFaultRecordUseCase(
+        gh<_i914.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i1059.UpdateMaintenanceFaultRecordUseCase>(
+      () => _i1059.UpdateMaintenanceFaultRecordUseCase(
+        gh<_i914.MaintenanceFaultRecordsRepository>(),
+      ),
+    );
+    gh.factory<_i444.WatchMaintenanceFaultRecordsUseCase>(
+      () => _i444.WatchMaintenanceFaultRecordsUseCase(
+        gh<_i914.MaintenanceFaultRecordsRepository>(),
+      ),
     );
     gh.factory<_i852.AddOrUpdatePurchaseUseCase>(
       () => _i852.AddOrUpdatePurchaseUseCase(gh<_i552.ThreadsRepository>()),
@@ -406,6 +451,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i625.DashboardCubit>(
       () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
+    );
+    gh.factory<_i965.MaintenanceFaultRecordsCubit>(
+      () => _i965.MaintenanceFaultRecordsCubit(
+        gh<_i444.WatchMaintenanceFaultRecordsUseCase>(),
+        gh<_i408.AddMaintenanceFaultRecordUseCase>(),
+        gh<_i1059.UpdateMaintenanceFaultRecordUseCase>(),
+        gh<_i146.DeleteMaintenanceFaultRecordUseCase>(),
+      ),
     );
     gh.factory<_i454.AddAdvanceUseCase>(
       () => _i454.AddAdvanceUseCase(gh<_i1023.WorkersRepository>()),

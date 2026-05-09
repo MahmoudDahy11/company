@@ -647,4 +647,39 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get confirmDeleteDeduction => 'هل تريد حذف سجل الخصم هذا؟';
+
+  @override
+  String get faultRecords => 'سجلات الأعطال';
+
+  @override
+  String get maintenanceFaults => 'الصيانة';
+
+  @override
+  String get addFaultRecord => 'إضافة سجل عطل';
+
+  @override
+  String get editFaultRecord => 'تعديل سجل العطل';
+
+  @override
+  String get noFaultRecordsYet => 'لا توجد سجلات أعطال حتى الآن';
+
+  @override
+  String get deleteFaultRecordTitle => 'حذف السجل';
+
+  @override
+  String confirmDeleteFaultRecord(Object machine) {
+    return 'هل تريد حذف سجل عطل $machine؟';
+  }
+
+  @override
+  String get machineName => 'اسم الآلة';
+
+  @override
+  String get faultName => 'اسم العطل';
+
+  @override
+  String get cost => 'التكلفة';
+
+  @override
+  String get totalCost => 'التكلفة الإجمالية';
 }

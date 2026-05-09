@@ -39,6 +39,10 @@ class AppShell extends StatelessWidget {
         icon: const Icon(Icons.handshake_outlined),
         label: l10n.clients,
       ),
+      NavigationDestination(
+        icon: const Icon(Icons.miscellaneous_services_outlined),
+        label: l10n.maintenanceFaults,
+      ),
     ];
 
     return LayoutBuilder(
