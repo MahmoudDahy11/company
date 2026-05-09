@@ -77,6 +77,7 @@ class DashboardLocalDataSource {
         COUNT(*) as count,
         COALESCE(SUM(current_stitches), 0) as total_stitches,
         COALESCE(SUM(current_advances), 0.0) as total_advances,
+        COALESCE(SUM(current_deductions), 0.0) as total_deductions,
         COALESCE(SUM(current_earnings), 0.0) as total_earnings,
         COALESCE(SUM(carry_in), 0.0) as total_carry_in
       FROM (
@@ -109,7 +110,7 @@ class DashboardLocalDataSource {
     final wStitches = workerTotals.read<int?>('total_stitches') ?? 0;
     final wEarnings = workerTotals.read<double?>('total_earnings') ?? 0.0;
     final wAdvances = workerTotals.read<double?>('total_advances') ?? 0.0;
-    final wDeductions = workerTotals.read<double?>('current_deductions') ?? 0.0;
+    final wDeductions = workerTotals.read<double?>('total_deductions') ?? 0.0;
     final wCarryIn = workerTotals.read<double?>('total_carry_in') ?? 0.0;
     log(
       'DEBUG: Dashboard: Worker Totals -> Stitches: $wStitches, Earnings: $wEarnings, Advances: $wAdvances, Deductions: $wDeductions, CarryIn: $wCarryIn',
