@@ -274,6 +274,8 @@
   "totalDueToSuppliers": "Total Due To Suppliers",
 
   "totalMaintenanceCost": "Total Maintenance Cost",
+
+  "totalWorkerWagesYear": "Total Worker Wages (Year)",
   "clientsAnnualTable": "Clients Summary",
   "threadsAnnualTable": "Threads Summary",
   "totalWork": "Total Work",

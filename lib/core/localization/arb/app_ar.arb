@@ -274,6 +274,8 @@
   "totalDueToSuppliers": "إجمالي علينا (الخيوط)",
 
   "totalMaintenanceCost": "إجمالي مصاريف الصيانة",
+
+  "totalWorkerWagesYear": "إجمالي أجور العمال (السنة)",
   "clientsAnnualTable": "جدول الزبايين",
   "threadsAnnualTable": "جدول الخيوط",
   "totalWork": "إجمالي الشغل",

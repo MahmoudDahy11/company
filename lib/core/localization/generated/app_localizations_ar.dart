@@ -552,6 +552,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get totalMaintenanceCost => 'إجمالي مصاريف الصيانة';
 
   @override
+  String get totalWorkerWagesYear => 'إجمالي أجور العمال (السنة)';
+
+  @override
   String get clientsAnnualTable => 'جدول الزبايين';
 
   @override

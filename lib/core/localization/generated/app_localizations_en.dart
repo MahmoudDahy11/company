@@ -553,6 +553,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totalMaintenanceCost => 'Total Maintenance Cost';
 
   @override
+  String get totalWorkerWagesYear => 'Total Worker Wages (Year)';
+
+  @override
   String get clientsAnnualTable => 'Clients Summary';
 
   @override

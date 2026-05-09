@@ -804,6 +804,12 @@ class _FinancialSection extends StatelessWidget {
               icon: Icons.build_outlined,
               color: const Color(0xFF6366F1), // Indigo
             ),
+            _DashboardCard(
+              title: l10n.totalWorkerWagesYear,
+              value: currency.format(financial.totalWorkerWagesYear),
+              icon: Icons.people_outline,
+              color: const Color(0xFF1F2937),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.xl),

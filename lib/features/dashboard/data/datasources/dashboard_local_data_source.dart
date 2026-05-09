@@ -352,6 +352,68 @@ class DashboardLocalDataSource {
       'DEBUG: Dashboard: Total Maintenance Cost (Year): $totalMaintenanceCostYear',
     );
 
+    // Yearly worker wages
+    log('DEBUG: Dashboard: Fetching yearly worker wages...');
+    final yearRate = await _getRateForDate(financialRange.end);
+    final workerYearTotals = await _database
+        .customSelect(
+          '''
+      SELECT 
+        COALESCE(SUM(current_stitches), 0) as total_stitches,
+        COALESCE(SUM(current_advances), 0.0) as total_advances,
+        COALESCE(SUM(current_deductions), 0.0) as total_deductions,
+        COALESCE(SUM(current_earnings), 0.0) as total_earnings,
+        COALESCE(SUM(carry_in), 0.0) as total_carry_in
+      FROM (
+        SELECT 
+          w.id,
+          COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
+          COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0.0) as current_advances,
+          COALESCE((SELECT SUM(amount) FROM worker_deductions WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0.0) as current_deductions,
+          COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), 0.0) as carry_in,
+          ((COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) / 100000.0) * ?) as current_earnings
+        FROM workers w
+        WHERE w.is_active = 1
+      )
+      ''',
+          variables: [
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+            Variable.withReal(yearRate),
+          ],
+        )
+        .getSingle();
+
+    final wyStitches = workerYearTotals.read<int?>('total_stitches') ?? 0;
+    final wyEarnings = workerYearTotals.read<double?>('total_earnings') ?? 0.0;
+    final wyAdvances =
+        workerYearTotals.read<double?>('total_advances') ?? 0.0;
+    final wyDeductions =
+        workerYearTotals.read<double?>('total_deductions') ?? 0.0;
+    final wyCarryIn =
+        workerYearTotals.read<double?>('total_carry_in') ?? 0.0;
+
+    final totalWorkerWagesYear = _calculateWorkerSalaryUseCase(
+      month: month,
+      stitchCount: wyStitches,
+      earnings: wyEarnings,
+      advances: wyAdvances,
+      deductions: wyDeductions,
+      carryOver: wyCarryIn,
+      absentDays: 0,
+      appliedRate: yearRate,
+    ).netSalary;
+    log(
+      'DEBUG: Dashboard: Total Worker Wages (Year): $totalWorkerWagesYear',
+    );
+
     // 7. Final Dashboard Summary Construction
     log('DEBUG: Dashboard: Finalizing summary construction...');
     return DashboardSummary(
@@ -374,6 +436,7 @@ class DashboardLocalDataSource {
         totalDueFromClients: totalDueFromClients,
         totalDueToSuppliers: totalDueToSuppliers,
         totalMaintenanceCost: totalMaintenanceCostYear,
+        totalWorkerWagesYear: totalWorkerWagesYear,
         clientSummaries: clientAnnualSummaries,
         supplierSummaries: supplierAnnualSummaries,
       ),
@@ -390,9 +453,13 @@ class DashboardLocalDataSource {
       59,
       999,
     );
+    return _getRateForDate(endOfMonth);
+  }
+
+  Future<double> _getRateForDate(DateTime date) async {
     final row =
         await (_database.select(_database.stitchRates)
-              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(endOfMonth))
+              ..where((t) => t.effectiveFrom.isSmallerOrEqualValue(date))
               ..orderBy([(t) => OrderingTerm.desc(t.effectiveFrom)])
               ..limit(1))
             .getSingleOrNull();

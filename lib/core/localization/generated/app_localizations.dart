@@ -1088,6 +1088,12 @@ abstract class AppLocalizations {
   /// **'Total Maintenance Cost'**
   String get totalMaintenanceCost;
 
+  /// No description provided for @totalWorkerWagesYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Worker Wages (Year)'**
+  String get totalWorkerWagesYear;
+
   /// No description provided for @clientsAnnualTable.
   ///
   /// In en, this message translates to:

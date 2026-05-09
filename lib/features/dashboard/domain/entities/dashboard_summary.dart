@@ -37,6 +37,7 @@ class FinancialSummary {
     required this.totalDueFromClients,
     required this.totalDueToSuppliers,
     required this.totalMaintenanceCost,
+    required this.totalWorkerWagesYear,
     required this.clientSummaries,
     required this.supplierSummaries,
   });
@@ -44,6 +45,7 @@ class FinancialSummary {
   final double totalDueFromClients;
   final double totalDueToSuppliers;
   final double totalMaintenanceCost;
+  final double totalWorkerWagesYear;
   final List<ClientAnnualSummary> clientSummaries;
   final List<SupplierAnnualSummary> supplierSummaries;
 }
