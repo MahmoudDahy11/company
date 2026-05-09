@@ -10,7 +10,7 @@ import '../../features/threads/presentation/pages/threads_page.dart';
 import '../../features/women_staff/presentation/pages/staff_details_page.dart';
 import '../../features/women_staff/presentation/pages/women_staff_page.dart';
 import '../../features/workers/presentation/pages/worker_details_page.dart';
-import '../../features/maintenance_fault_records/presentation/pages/maintenance_fault_records_page.dart';
+import '../../features/maintenance/presentation/pages/maintenance_fault_records_page.dart';
 import '../../features/workers/presentation/pages/workers_page.dart';
 import '../auth/auth_controller.dart';
 import 'app_shell.dart';

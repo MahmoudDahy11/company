@@ -9,7 +9,7 @@ import '../../features/workers/data/models/workers_tables.dart';
 import '../../features/women_staff/data/models/women_staff_tables.dart';
 import '../../features/threads/data/models/threads_tables.dart';
 import '../../features/clients/data/models/clients_tables.dart';
-import '../../features/maintenance_fault_records/data/models/maintenance_fault_records_tables.dart';
+import '../../features/maintenance/data/models/maintenance_fault_records_tables.dart';
 import '../sync/sync_queue_table.dart';
 
 part 'app_database.g.dart';

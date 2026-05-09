@@ -10,7 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../features/clients/domain/entities/client_list_item.dart';
 import '../../features/threads/domain/entities/supplier_list_item.dart';
 import '../../features/threads/domain/entities/thread_purchase.dart';
-import '../../features/maintenance_fault_records/domain/entities/maintenance_fault_record.dart';
+import '../../features/maintenance/domain/entities/maintenance_fault_record.dart';
 import '../../features/workers/domain/entities/worker_list_item.dart';
 import '../../features/women_staff/domain/entities/staff_list_item.dart';
 

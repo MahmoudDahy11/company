@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
@@ -8,12 +7,15 @@ import '../../../../core/database/app_database.dart'
     hide MaintenanceFaultRecord;
 import '../../../../core/sync/sync_queue_table.dart';
 import '../../domain/entities/maintenance_fault_record.dart';
+import 'sync_queue_helper.dart';
 
 @lazySingleton
 class MaintenanceFaultRecordsLocalDataSource {
-  const MaintenanceFaultRecordsLocalDataSource(this._database);
+  MaintenanceFaultRecordsLocalDataSource(this._database)
+    : _syncQueue = SyncQueueHelper(_database);
 
   final AppDatabase _database;
+  final SyncQueueHelper _syncQueue;
 
   Stream<List<MaintenanceFaultRecord>> watchRecords() {
     return _watchTrigger().asyncMap((_) => _getAllRecords());
@@ -41,7 +43,7 @@ class MaintenanceFaultRecordsLocalDataSource {
         _database.maintenanceFaultRecords,
       )..where((t) => t.id.equals(id))).getSingle();
 
-      await _queueSync(
+      await _syncQueue.queueSync(
         operation: SyncQueueOperation.insert,
         tableName: 'maintenance_fault_records',
         recordId: id,
@@ -73,7 +75,7 @@ class MaintenanceFaultRecordsLocalDataSource {
         _database.maintenanceFaultRecords,
       )..where((t) => t.id.equals(id))).getSingle();
 
-      await _queueSync(
+      await _syncQueue.queueSync(
         operation: SyncQueueOperation.update,
         tableName: 'maintenance_fault_records',
         recordId: id,
@@ -88,7 +90,7 @@ class MaintenanceFaultRecordsLocalDataSource {
         _database.maintenanceFaultRecords,
       )..where((t) => t.id.equals(id))).go();
 
-      await _queueSync(
+      await _syncQueue.queueSync(
         operation: SyncQueueOperation.delete,
         tableName: 'maintenance_fault_records',
         recordId: id,
@@ -103,42 +105,19 @@ class MaintenanceFaultRecordsLocalDataSource {
     )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
     return rows
         .map(
-          (row) => MaintenanceFaultRecord(
-            id: row.id,
-            machineName: row.machineName,
-            faultName: row.faultName,
-            cost: row.cost,
-            totalCost: row.totalCost,
-            createdAt: row.createdAt,
+          (r) => MaintenanceFaultRecord(
+            id: r.id,
+            machineName: r.machineName,
+            faultName: r.faultName,
+            cost: r.cost,
+            totalCost: r.totalCost,
+            createdAt: r.createdAt,
           ),
         )
         .toList();
   }
 
-  Stream<List<QueryRow>> _watchTrigger() {
-    return _database
-        .customSelect(
-          'SELECT 1',
-          readsFrom: {_database.maintenanceFaultRecords},
-        )
-        .watch();
-  }
-
-  Future<void> _queueSync({
-    required SyncQueueOperation operation,
-    required String tableName,
-    required int recordId,
-    required Map<String, dynamic> payload,
-  }) async {
-    await _database
-        .into(_database.syncQueue)
-        .insert(
-          SyncQueueCompanion.insert(
-            operation: operation,
-            targetTableName: tableName,
-            recordId: recordId,
-            payload: jsonEncode(payload),
-          ),
-        );
-  }
+  Stream<List<QueryRow>> _watchTrigger() => _database
+      .customSelect('SELECT 1', readsFrom: {_database.maintenanceFaultRecords})
+      .watch();
 }
