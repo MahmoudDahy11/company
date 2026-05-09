@@ -37,6 +37,15 @@ abstract class WorkersRepository {
 
   Future<void> deleteAdvance(int advanceId);
 
+  Future<void> addDeduction({
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  });
+
+  Future<void> deleteDeduction(int deductionId);
+
   Future<void> upsertAbsentDays({
     required int workerId,
     required DateTime month,

@@ -10,8 +10,7 @@ import '../../domain/usecases/watch_maintenance_fault_records_usecase.dart';
 import 'maintenance_fault_records_state.dart';
 
 @injectable
-class MaintenanceFaultRecordsCubit
-    extends Cubit<MaintenanceFaultRecordsState> {
+class MaintenanceFaultRecordsCubit extends Cubit<MaintenanceFaultRecordsState> {
   MaintenanceFaultRecordsCubit(
     this._watchRecordsUseCase,
     this._addRecordUseCase,
@@ -34,21 +33,12 @@ class MaintenanceFaultRecordsCubit
     _subscription = _watchRecordsUseCase().listen(
       (items) {
         emit(
-          state.copyWith(
-            items: items,
-            isLoading: false,
-            errorMessage: null,
-          ),
+          state.copyWith(items: items, isLoading: false, errorMessage: null),
         );
         if (!completer.isCompleted) completer.complete();
       },
       onError: (Object error) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            errorMessage: error.toString(),
-          ),
-        );
+        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
         if (!completer.isCompleted) completer.complete();
       },
     );

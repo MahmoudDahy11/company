@@ -84,7 +84,7 @@ class ExcelExportService {
         TextCellValue(isArabic ? 'عامل' : 'Worker'),
         DoubleCellValue(worker.totalEarnings),
         DoubleCellValue(worker.totalAdvances),
-        DoubleCellValue(0), // workers don't have deductions yet
+        DoubleCellValue(worker.totalDeductions),
         DoubleCellValue(0), // carry-over not available in list item
         DoubleCellValue(worker.netSalary),
       ];

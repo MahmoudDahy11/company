@@ -36,6 +36,18 @@ class WorkerAdvances extends Table {
   BoolColumn get carriedOver => boolean().withDefault(const Constant(false))();
 }
 
+class WorkerDeductions extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  IntColumn get workerId => integer().references(Workers, #id)();
+
+  RealColumn get amount => real()();
+
+  DateTimeColumn get date => dateTime()();
+
+  TextColumn get notes => text().nullable()();
+}
+
 class StitchRates extends Table {
   IntColumn get id => integer().autoIncrement()();
 

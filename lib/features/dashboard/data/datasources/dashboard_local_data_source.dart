@@ -83,6 +83,7 @@ class DashboardLocalDataSource {
           w.id,
           COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
           COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0.0) as current_advances,
+          COALESCE((SELECT SUM(amount) FROM worker_deductions WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0.0) as current_deductions,
           COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), 0.0) as carry_in,
           ((COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) / 100000.0) * ?) as current_earnings
         FROM workers w
@@ -90,6 +91,8 @@ class DashboardLocalDataSource {
       )
       ''',
           variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
             Variable.withDateTime(monthRange.start),
             Variable.withDateTime(monthRange.end),
             Variable.withDateTime(monthRange.start),
@@ -105,9 +108,10 @@ class DashboardLocalDataSource {
     final wStitches = workerTotals.read<int?>('total_stitches') ?? 0;
     final wEarnings = workerTotals.read<double?>('total_earnings') ?? 0.0;
     final wAdvances = workerTotals.read<double?>('total_advances') ?? 0.0;
+    final wDeductions = workerTotals.read<double?>('current_deductions') ?? 0.0;
     final wCarryIn = workerTotals.read<double?>('total_carry_in') ?? 0.0;
     log(
-      'DEBUG: Dashboard: Worker Totals -> Stitches: $wStitches, Earnings: $wEarnings, Advances: $wAdvances, CarryIn: $wCarryIn',
+      'DEBUG: Dashboard: Worker Totals -> Stitches: $wStitches, Earnings: $wEarnings, Advances: $wAdvances, Deductions: $wDeductions, CarryIn: $wCarryIn',
     );
 
     final totalWorkerWages = _calculateWorkerSalaryUseCase(
@@ -115,6 +119,7 @@ class DashboardLocalDataSource {
       stitchCount: wStitches,
       earnings: wEarnings,
       advances: wAdvances,
+      deductions: wDeductions,
       carryOver: wCarryIn,
       absentDays: 0,
       appliedRate: rate,

@@ -4,6 +4,7 @@ class WorkerListItem {
     required this.name,
     required this.totalEarnings,
     required this.totalAdvances,
+    required this.totalDeductions,
     required this.netSalary,
   });
 
@@ -11,5 +12,6 @@ class WorkerListItem {
   final String name;
   final double totalEarnings;
   final double totalAdvances;
+  final double totalDeductions;
   final double netSalary;
 }

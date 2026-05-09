@@ -4,10 +4,12 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
-import '../../../../core/database/app_database.dart' hide Worker, WorkerAdvance;
+import '../../../../core/database/app_database.dart'
+    hide Worker, WorkerAdvance, WorkerDeduction;
 import '../../../../core/sync/sync_queue_table.dart';
 import '../../domain/entities/worker.dart';
 import '../../domain/entities/worker_advance.dart';
+import '../../domain/entities/worker_deduction.dart';
 import '../../domain/entities/worker_details_data.dart';
 import '../../domain/entities/worker_list_item.dart';
 import '../../domain/entities/worker_month_summary.dart';
@@ -308,6 +310,52 @@ class WorkersLocalDataSource {
     });
   }
 
+  Future<void> addDeduction({
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) async {
+    await _database.transaction(() async {
+      final id = await _database
+          .into(_database.workerDeductions)
+          .insert(
+            WorkerDeductionsCompanion.insert(
+              workerId: workerId,
+              amount: amount,
+              date: date,
+              notes: Value(notes),
+            ),
+          );
+
+      final row = await (_database.select(
+        _database.workerDeductions,
+      )..where((t) => t.id.equals(id))).getSingle();
+
+      await _queueSync(
+        operation: SyncQueueOperation.insert,
+        tableName: 'worker_deductions',
+        recordId: id,
+        payload: row.toJson(),
+      );
+    });
+  }
+
+  Future<void> deleteDeduction(int deductionId) async {
+    await _database.transaction(() async {
+      await (_database.delete(
+        _database.workerDeductions,
+      )..where((t) => t.id.equals(deductionId))).go();
+
+      await _queueSync(
+        operation: SyncQueueOperation.delete,
+        tableName: 'worker_deductions',
+        recordId: deductionId,
+        payload: {},
+      );
+    });
+  }
+
   Future<void> upsertAbsentDays({
     required int workerId,
     required DateTime month,
@@ -391,6 +439,7 @@ class WorkersLocalDataSource {
             _database.workerAdvances,
             _database.stitchRates,
             _database.workerAbsentDays,
+            _database.workerDeductions,
           },
         )
         .watch();
@@ -407,6 +456,7 @@ class WorkersLocalDataSource {
         w.name,
         COALESCE((SELECT SUM(stitch_count) FROM worker_production_entries WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_stitches,
         COALESCE((SELECT SUM(amount) FROM worker_advances WHERE worker_id = w.id AND date BETWEEN ? AND ? AND carried_over = 0), 0) as current_advances,
+        COALESCE((SELECT SUM(amount) FROM worker_deductions WHERE worker_id = w.id AND date BETWEEN ? AND ?), 0) as current_deductions,
         COALESCE((SELECT amount FROM worker_advances WHERE worker_id = w.id AND date = ? AND carried_over = 1 LIMIT 1), -1.0) as carry_in
       FROM workers w
       WHERE w.is_active = 1
@@ -418,11 +468,14 @@ class WorkersLocalDataSource {
         Variable.withDateTime(range.start),
         Variable.withDateTime(range.end),
         Variable.withDateTime(range.start),
+        Variable.withDateTime(range.end),
+        Variable.withDateTime(range.start),
       ],
       readsFrom: {
         _database.workers,
         _database.workerProductionEntries,
         _database.workerAdvances,
+        _database.workerDeductions,
       },
     );
 
@@ -434,6 +487,7 @@ class WorkersLocalDataSource {
       final name = row.read<String>('name');
       final currentStitches = row.read<int>('current_stitches');
       final currentAdvances = row.read<double>('current_advances');
+      final currentDeductions = row.read<double>('current_deductions');
       var carryIn = row.read<double>('carry_in');
 
       // If no carry-over record found (-1.0), calculate and potentially persist it
@@ -447,6 +501,7 @@ class WorkersLocalDataSource {
         stitchCount: currentStitches,
         earnings: earnings,
         advances: currentAdvances,
+        deductions: currentDeductions,
         carryOver: carryIn,
         absentDays: 0, // Not needed for list item
         appliedRate: rate,
@@ -458,6 +513,7 @@ class WorkersLocalDataSource {
           name: name,
           totalEarnings: summary.totalEarnings,
           totalAdvances: summary.totalAdvances,
+          totalDeductions: summary.totalDeductions,
           netSalary: summary.netSalary,
         ),
       );
@@ -541,6 +597,31 @@ class WorkersLocalDataSource {
       ),
     ];
 
+    final deductionRows =
+        await (_database.select(_database.workerDeductions)
+              ..where(
+                (table) =>
+                    table.workerId.equals(workerId) &
+                    table.date.isBetweenValues(
+                      monthRange.start,
+                      monthRange.end,
+                    ),
+              )
+              ..orderBy([(table) => OrderingTerm.desc(table.date)]))
+            .get();
+
+    final deductions = deductionRows
+        .map(
+          (row) => WorkerDeduction(
+            id: row.id,
+            workerId: row.workerId,
+            amount: row.amount,
+            date: row.date,
+            notes: row.notes,
+          ),
+        )
+        .toList();
+
     return WorkerDetailsData(
       worker: Worker(
         id: workerRow.id,
@@ -551,6 +632,7 @@ class WorkersLocalDataSource {
       summary: summary,
       productions: productions,
       advances: advances,
+      deductions: deductions,
     );
   }
 
@@ -573,6 +655,14 @@ class WorkersLocalDataSource {
                   table.workerId.equals(workerId) &
                   table.date.isBetweenValues(range.start, range.end) &
                   table.carriedOver.equals(false),
+            ))
+            .get();
+
+    final deductionRows =
+        await (_database.select(_database.workerDeductions)..where(
+              (table) =>
+                  table.workerId.equals(workerId) &
+                  table.date.isBetweenValues(range.start, range.end),
             ))
             .get();
 
@@ -600,6 +690,11 @@ class WorkersLocalDataSource {
       advances += advance.amount;
     }
 
+    double deductions = 0;
+    for (final deduction in deductionRows) {
+      deductions += deduction.amount;
+    }
+
     // 2. Get Carry-over from previous month (optimized)
     final carryIn = await _getOrCalculateCarryIn(workerId, normalizedMonth);
 
@@ -611,6 +706,7 @@ class WorkersLocalDataSource {
       stitchCount: totalStitches,
       earnings: earnings,
       advances: advances,
+      deductions: deductions,
       carryOver: carryIn,
       absentDays: absentRow?.absentDays ?? 0,
       appliedRate: rate,

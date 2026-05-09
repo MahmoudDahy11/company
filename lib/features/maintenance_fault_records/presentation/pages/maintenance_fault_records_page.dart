@@ -31,16 +31,17 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<MaintenanceFaultRecordsCubit,
-        MaintenanceFaultRecordsState>(
+    return BlocBuilder<
+      MaintenanceFaultRecordsCubit,
+      MaintenanceFaultRecordsState
+    >(
       builder: (context, state) {
         final l10n = AppLocalizations.of(context)!;
         return Scaffold(
           body: SafeArea(
             child: RefreshIndicator(
-              onRefresh: () => context
-                  .read<MaintenanceFaultRecordsCubit>()
-                  .start(),
+              onRefresh: () =>
+                  context.read<MaintenanceFaultRecordsCubit>().start(),
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(AppSpacing.lg),
@@ -95,17 +96,13 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                                     );
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(l10n.exportSuccess),
-                                    ),
+                                    SnackBar(content: Text(l10n.exportSuccess)),
                                   );
                                 }
                               } catch (_) {
                                 if (context.mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(l10n.exportError),
-                                    ),
+                                    SnackBar(content: Text(l10n.exportError)),
                                   );
                                 }
                               }
@@ -121,9 +118,7 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                             children: [
                               Text(
                                 l10n.faultRecords,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineSmall
+                                style: Theme.of(context).textTheme.headlineSmall
                                     ?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: const Color(0xFF1F2937),
@@ -144,9 +139,7 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                             Row(children: actionButtons),
                             Text(
                               l10n.faultRecords,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium
+                              style: Theme.of(context).textTheme.headlineMedium
                                   ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: const Color(0xFF1F2937),
@@ -167,18 +160,13 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                             margin: EdgeInsets.zero,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
-                              side: BorderSide(
-                                color: Colors.grey.shade200,
-                              ),
+                              side: BorderSide(color: Colors.grey.shade200),
                             ),
                             child: Column(
-                              crossAxisAlignment:
-                                  CrossAxisAlignment.stretch,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(
-                                    AppSpacing.lg,
-                                  ),
+                                  padding: const EdgeInsets.all(AppSpacing.lg),
                                   child: Text(
                                     l10n.faultRecords,
                                     style: Theme.of(context)
@@ -197,8 +185,7 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                                       color: Colors.grey.shade200,
                                       width: 1,
                                     ),
-                                    headingRowColor:
-                                        WidgetStateProperty.all(
+                                    headingRowColor: WidgetStateProperty.all(
                                       Colors.grey.shade50,
                                     ),
                                     headingTextStyle: TextStyle(
@@ -208,39 +195,25 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                                     dataRowMaxHeight: 64,
                                     dataRowMinHeight: 64,
                                     columns: [
-                                      DataColumn(
-                                        label: Text(l10n.machineName),
-                                      ),
-                                      DataColumn(
-                                        label: Text(l10n.faultName),
-                                      ),
-                                      DataColumn(
-                                        label: Text(l10n.cost),
-                                      ),
-                                      DataColumn(
-                                        label: Text(l10n.totalCost),
-                                      ),
-                                      DataColumn(
-                                        label: Text(l10n.actions),
-                                      ),
+                                      DataColumn(label: Text(l10n.machineName)),
+                                      DataColumn(label: Text(l10n.faultName)),
+                                      DataColumn(label: Text(l10n.cost)),
+                                      DataColumn(label: Text(l10n.totalCost)),
+                                      DataColumn(label: Text(l10n.actions)),
                                     ],
                                     rows: state.items.map((item) {
                                       final currencyFormat =
                                           NumberFormat.currency(
-                                        locale: Localizations.localeOf(
-                                          context,
-                                        ).toLanguageTag(),
-                                        symbol: '',
-                                        decimalDigits: 2,
-                                      );
+                                            locale: Localizations.localeOf(
+                                              context,
+                                            ).toLanguageTag(),
+                                            symbol: '',
+                                            decimalDigits: 2,
+                                          );
                                       return DataRow(
                                         cells: [
-                                          DataCell(
-                                            Text(item.machineName),
-                                          ),
-                                          DataCell(
-                                            Text(item.faultName),
-                                          ),
+                                          DataCell(Text(item.machineName)),
+                                          DataCell(Text(item.faultName)),
                                           DataCell(
                                             Text(
                                               currencyFormat
@@ -257,121 +230,97 @@ class _MaintenanceFaultRecordsView extends StatelessWidget {
                                           ),
                                           DataCell(
                                             Row(
-                                              mainAxisSize:
-                                                  MainAxisSize.min,
+                                              mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 IconButton(
-                                                  onPressed:
-                                                      () async {
+                                                  onPressed: () async {
                                                     final result =
                                                         await showFaultRecordSheet(
-                                                      context,
-                                                      initialValue:
-                                                          FaultRecordFormResult(
-                                                        id: item.id,
-                                                        machineName:
-                                                            item
-                                                                .machineName,
-                                                        faultName:
-                                                            item
-                                                                .faultName,
-                                                        cost: item.cost,
-                                                        totalCost:
-                                                            item
-                                                                .totalCost,
-                                                      ),
-                                                    );
-                                                    if (result !=
-                                                            null &&
-                                                        context
-                                                            .mounted) {
+                                                          context,
+                                                          initialValue:
+                                                              FaultRecordFormResult(
+                                                                id: item.id,
+                                                                machineName: item
+                                                                    .machineName,
+                                                                faultName: item
+                                                                    .faultName,
+                                                                cost: item.cost,
+                                                                totalCost: item
+                                                                    .totalCost,
+                                                              ),
+                                                        );
+                                                    if (result != null &&
+                                                        context.mounted) {
                                                       await context
                                                           .read<
-                                                              MaintenanceFaultRecordsCubit>()
+                                                            MaintenanceFaultRecordsCubit
+                                                          >()
                                                           .updateRecord(
-                                                        id: result.id!,
-                                                        machineName:
-                                                            result
+                                                            id: result.id!,
+                                                            machineName: result
                                                                 .machineName,
-                                                        faultName:
-                                                            result
+                                                            faultName: result
                                                                 .faultName,
-                                                        cost:
-                                                            result.cost,
-                                                        totalCost:
-                                                            result
+                                                            cost: result.cost,
+                                                            totalCost: result
                                                                 .totalCost,
-                                                      );
+                                                          );
                                                     }
                                                   },
                                                   icon: const Icon(
                                                     Icons.edit_outlined,
                                                   ),
-                                                  tooltip:
-                                                      l10n.editFaultRecord,
+                                                  tooltip: l10n.editFaultRecord,
                                                 ),
                                                 IconButton(
-                                                  onPressed:
-                                                      () async {
-                                                    final confirm =
-                                                        await showDialog<
-                                                            bool>(
+                                                  onPressed: () async {
+                                                    final confirm = await showDialog<bool>(
                                                       context: context,
-                                                      builder:
-                                                          (context) =>
-                                                              AlertDialog(
+                                                      builder: (context) => AlertDialog(
                                                         title: Text(
-                                                          l10n
-                                                              .deleteFaultRecordTitle,
+                                                          l10n.deleteFaultRecordTitle,
                                                         ),
                                                         content: Text(
-                                                          l10n
-                                                              .confirmDeleteFaultRecord(
-                                                            item
-                                                                .machineName,
+                                                          l10n.confirmDeleteFaultRecord(
+                                                            item.machineName,
                                                           ),
                                                         ),
                                                         actions: [
                                                           TextButton(
-                                                            onPressed:
-                                                                () =>
-                                                                    Navigator.pop(
-                                                              context,
-                                                              false,
-                                                            ),
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                  context,
+                                                                  false,
+                                                                ),
                                                             child: Text(
-                                                              l10n
-                                                                  .cancel,
+                                                              l10n.cancel,
                                                             ),
                                                           ),
                                                           TextButton(
-                                                            onPressed:
-                                                                () =>
-                                                                    Navigator.pop(
-                                                              context,
-                                                              true,
-                                                            ),
+                                                            onPressed: () =>
+                                                                Navigator.pop(
+                                                                  context,
+                                                                  true,
+                                                                ),
                                                             style:
                                                                 TextButton.styleFrom(
-                                                              foregroundColor:
-                                                                  Colors
-                                                                      .red,
-                                                            ),
+                                                                  foregroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                ),
                                                             child: Text(
-                                                              l10n
-                                                                  .delete,
+                                                              l10n.delete,
                                                             ),
                                                           ),
                                                         ],
                                                       ),
                                                     );
-                                                    if (confirm ==
-                                                            true &&
-                                                        context
-                                                            .mounted) {
+                                                    if (confirm == true &&
+                                                        context.mounted) {
                                                       await context
                                                           .read<
-                                                              MaintenanceFaultRecordsCubit>()
+                                                            MaintenanceFaultRecordsCubit
+                                                          >()
                                                           .deleteRecord(
                                                             item.id,
                                                           );

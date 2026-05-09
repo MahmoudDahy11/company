@@ -91,6 +91,26 @@ class WorkersRepositoryImpl implements WorkersRepository {
   }
 
   @override
+  Future<void> addDeduction({
+    required int workerId,
+    required double amount,
+    required DateTime date,
+    String? notes,
+  }) {
+    return _localDataSource.addDeduction(
+      workerId: workerId,
+      amount: amount,
+      date: date,
+      notes: notes,
+    );
+  }
+
+  @override
+  Future<void> deleteDeduction(int deductionId) {
+    return _localDataSource.deleteDeduction(deductionId);
+  }
+
+  @override
   Future<void> upsertAbsentDays({
     required int workerId,
     required DateTime month,

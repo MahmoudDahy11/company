@@ -23,7 +23,9 @@ class MaintenanceFaultRecordsLocalDataSource {
     required double cost,
     required double totalCost,
   }) async {
-    await _database.into(_database.maintenanceFaultRecords).insert(
+    await _database
+        .into(_database.maintenanceFaultRecords)
+        .insert(
           MaintenanceFaultRecordsCompanion.insert(
             machineName: machineName.trim(),
             faultName: faultName.trim(),
@@ -40,28 +42,28 @@ class MaintenanceFaultRecordsLocalDataSource {
     required double cost,
     required double totalCost,
   }) async {
-    await (_database.update(_database.maintenanceFaultRecords)
-          ..where((t) => t.id.equals(id)))
-        .write(
-          MaintenanceFaultRecordsCompanion(
-            machineName: Value(machineName.trim()),
-            faultName: Value(faultName.trim()),
-            cost: Value(cost),
-            totalCost: Value(totalCost),
-          ),
-        );
+    await (_database.update(
+      _database.maintenanceFaultRecords,
+    )..where((t) => t.id.equals(id))).write(
+      MaintenanceFaultRecordsCompanion(
+        machineName: Value(machineName.trim()),
+        faultName: Value(faultName.trim()),
+        cost: Value(cost),
+        totalCost: Value(totalCost),
+      ),
+    );
   }
 
   Future<void> deleteRecord(int id) async {
-    await (_database.delete(_database.maintenanceFaultRecords)
-          ..where((t) => t.id.equals(id)))
-        .go();
+    await (_database.delete(
+      _database.maintenanceFaultRecords,
+    )..where((t) => t.id.equals(id))).go();
   }
 
   Future<List<MaintenanceFaultRecord>> _getAllRecords() async {
-    final rows = await (_database.select(_database.maintenanceFaultRecords)
-          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
-        .get();
+    final rows = await (_database.select(
+      _database.maintenanceFaultRecords,
+    )..orderBy([(t) => OrderingTerm.desc(t.createdAt)])).get();
     return rows
         .map(
           (row) => MaintenanceFaultRecord(
@@ -77,9 +79,11 @@ class MaintenanceFaultRecordsLocalDataSource {
   }
 
   Stream<List<QueryRow>> _watchTrigger() {
-    return _database.customSelect(
-      'SELECT 1',
-      readsFrom: {_database.maintenanceFaultRecords},
-    ).watch();
+    return _database
+        .customSelect(
+          'SELECT 1',
+          readsFrom: {_database.maintenanceFaultRecords},
+        )
+        .watch();
   }
 }

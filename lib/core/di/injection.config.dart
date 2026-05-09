@@ -158,6 +158,8 @@ import 'package:company/features/workers/domain/usecases/add_or_update_advance_u
     as _i230;
 import 'package:company/features/workers/domain/usecases/add_or_update_production_usecase.dart'
     as _i663;
+import 'package:company/features/workers/domain/usecases/add_worker_deduction_usecase.dart'
+    as _i686;
 import 'package:company/features/workers/domain/usecases/add_worker_usecase.dart'
     as _i537;
 import 'package:company/features/workers/domain/usecases/calculate_worker_salary_usecase.dart'
@@ -166,6 +168,8 @@ import 'package:company/features/workers/domain/usecases/delete_advance_usecase.
     as _i1064;
 import 'package:company/features/workers/domain/usecases/delete_production_usecase.dart'
     as _i970;
+import 'package:company/features/workers/domain/usecases/delete_worker_deduction_usecase.dart'
+    as _i81;
 import 'package:company/features/workers/domain/usecases/delete_worker_usecase.dart'
     as _i526;
 import 'package:company/features/workers/domain/usecases/update_stitch_rate_usecase.dart'
@@ -469,6 +473,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i663.AddOrUpdateProductionUseCase>(
       () => _i663.AddOrUpdateProductionUseCase(gh<_i1023.WorkersRepository>()),
     );
+    gh.factory<_i686.AddWorkerDeductionUseCase>(
+      () => _i686.AddWorkerDeductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
     gh.factory<_i537.AddWorkerUseCase>(
       () => _i537.AddWorkerUseCase(gh<_i1023.WorkersRepository>()),
     );
@@ -477,6 +484,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i970.DeleteProductionUseCase>(
       () => _i970.DeleteProductionUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i81.DeleteWorkerDeductionUseCase>(
+      () => _i81.DeleteWorkerDeductionUseCase(gh<_i1023.WorkersRepository>()),
     );
     gh.factory<_i526.DeleteWorkerUseCase>(
       () => _i526.DeleteWorkerUseCase(gh<_i1023.WorkersRepository>()),
@@ -492,6 +502,19 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i511.WatchWorkersUseCase>(
       () => _i511.WatchWorkersUseCase(gh<_i1023.WorkersRepository>()),
+    );
+    gh.factory<_i105.WorkerDetailsCubit>(
+      () => _i105.WorkerDetailsCubit(
+        gh<_i455.WatchWorkerDetailsUseCase>(),
+        gh<_i663.AddOrUpdateProductionUseCase>(),
+        gh<_i970.DeleteProductionUseCase>(),
+        gh<_i454.AddAdvanceUseCase>(),
+        gh<_i230.AddOrUpdateAdvanceUseCase>(),
+        gh<_i1064.DeleteAdvanceUseCase>(),
+        gh<_i686.AddWorkerDeductionUseCase>(),
+        gh<_i81.DeleteWorkerDeductionUseCase>(),
+        gh<_i704.UpsertAbsentDaysUseCase>(),
+      ),
     );
     gh.factory<_i109.WorkersCubit>(
       () => _i109.WorkersCubit(
@@ -526,17 +549,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i166.DeleteStaffUseCase>(),
         gh<_i478.AddStaffAdvanceUseCase>(),
         gh<_i977.AddStaffDeductionUseCase>(),
-      ),
-    );
-    gh.factory<_i105.WorkerDetailsCubit>(
-      () => _i105.WorkerDetailsCubit(
-        gh<_i455.WatchWorkerDetailsUseCase>(),
-        gh<_i663.AddOrUpdateProductionUseCase>(),
-        gh<_i970.DeleteProductionUseCase>(),
-        gh<_i454.AddAdvanceUseCase>(),
-        gh<_i230.AddOrUpdateAdvanceUseCase>(),
-        gh<_i1064.DeleteAdvanceUseCase>(),
-        gh<_i704.UpsertAbsentDaysUseCase>(),
       ),
     );
     return this;

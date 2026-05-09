@@ -243,6 +243,7 @@ class _WorkersView extends StatelessWidget {
                                       DataColumn(
                                         label: Text(l10n.advancesHeader),
                                       ),
+                                      DataColumn(label: Text(l10n.deductions)),
                                       DataColumn(
                                         label: Text(l10n.absentDaysHeader),
                                       ),
@@ -274,6 +275,20 @@ class _WorkersView extends StatelessWidget {
                                                     decimalDigits: 2,
                                                   )
                                                   .format(item.totalAdvances)
+                                                  .trim(),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              NumberFormat.currency(
+                                                    locale:
+                                                        Localizations.localeOf(
+                                                          context,
+                                                        ).toLanguageTag(),
+                                                    symbol: '',
+                                                    decimalDigits: 2,
+                                                  )
+                                                  .format(item.totalDeductions)
                                                   .trim(),
                                             ),
                                           ),

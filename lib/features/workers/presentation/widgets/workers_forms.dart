@@ -63,6 +63,25 @@ Future<AdvanceFormResult?> showAdvanceSheet(
   );
 }
 
+class DeductionFormResult {
+  const DeductionFormResult({
+    required this.date,
+    required this.amount,
+    this.notes,
+  });
+
+  final DateTime date;
+  final double amount;
+  final String? notes;
+}
+
+Future<DeductionFormResult?> showDeductionSheet(BuildContext context) {
+  return showAdaptiveWorkersSheet<DeductionFormResult>(
+    context: context,
+    child: const _DeductionSheet(),
+  );
+}
+
 Future<int?> showAbsentDaysSheet(
   BuildContext context, {
   required int initialValue,
@@ -429,6 +448,109 @@ class _AdvanceSheetState extends State<_AdvanceSheet> {
       Navigator.of(context).pop(
         AdvanceFormResult(
           advanceId: widget.initialValue?.advanceId,
+          date: _dateNotifier.value,
+          amount: double.parse(_amountController.text.trim()),
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
+    }
+  }
+}
+
+class _DeductionSheet extends StatefulWidget {
+  const _DeductionSheet();
+
+  @override
+  State<_DeductionSheet> createState() => _DeductionSheetState();
+}
+
+class _DeductionSheetState extends State<_DeductionSheet> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _notesController = TextEditingController();
+  late final ValueNotifier<DateTime> _dateNotifier;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateNotifier = ValueNotifier<DateTime>(DateTime.now());
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _notesController.dispose();
+    _dateNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    return _SheetScaffold(
+      title: l10n.addDeduction,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) {
+                      _dateNotifier.value = picked;
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(labelText: l10n.amount),
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              maxLines: 2,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _save() {
+    if (_formKey.currentState!.validate()) {
+      Navigator.of(context).pop(
+        DeductionFormResult(
           date: _dateNotifier.value,
           amount: double.parse(_amountController.text.trim()),
           notes: _notesController.text.trim().isEmpty

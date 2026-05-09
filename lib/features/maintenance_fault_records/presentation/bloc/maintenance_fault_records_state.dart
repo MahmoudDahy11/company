@@ -8,10 +8,7 @@ class MaintenanceFaultRecordsState {
   });
 
   factory MaintenanceFaultRecordsState.initial() =>
-      const MaintenanceFaultRecordsState(
-        items: [],
-        isLoading: true,
-      );
+      const MaintenanceFaultRecordsState(items: [], isLoading: true);
 
   final List<MaintenanceFaultRecord> items;
   final bool isLoading;

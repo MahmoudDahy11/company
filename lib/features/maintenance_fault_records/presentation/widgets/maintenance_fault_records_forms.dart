@@ -180,10 +180,7 @@ class _FaultRecordSheetState extends State<_FaultRecordSheet> {
             const SizedBox(height: AppSpacing.lg),
             Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: FilledButton(
-                onPressed: _save,
-                child: Text(l10n.save),
-              ),
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
             ),
           ],
         ),
@@ -192,8 +189,7 @@ class _FaultRecordSheetState extends State<_FaultRecordSheet> {
   }
 
   void _syncTotalCost() {
-    if (_costController.text.isNotEmpty &&
-        _totalCostController.text.isEmpty) {
+    if (_costController.text.isNotEmpty && _totalCostController.text.isEmpty) {
       _totalCostController.text = _costController.text;
     }
   }
