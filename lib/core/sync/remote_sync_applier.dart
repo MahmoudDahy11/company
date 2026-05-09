@@ -24,6 +24,8 @@ class RemoteSyncApplier {
             await _applyWorkerProductionChange(change);
           case 'worker_advances':
             await _applyWorkerAdvanceChange(change);
+          case 'worker_deductions':
+            await _applyWorkerDeductionChange(change);
           case 'stitch_rate':
             await _applyStitchRateChange(change);
           case 'stitch_rates':
@@ -32,8 +34,12 @@ class RemoteSyncApplier {
             await _applyWorkerAbsentChange(change);
           case 'women_staff_members':
             await _applyWomenStaffChange(change);
+          case 'women_staff':
+            await _applyWomenStaffChange(change);
           case 'staff_advances':
             await _applyStaffAdvanceChange(change);
+          case 'staff_deductions':
+            await _applyStaffDeductionChange(change);
           case 'suppliers':
             await _applySupplierChange(change);
           case 'thread_purchases':
@@ -46,6 +52,8 @@ class RemoteSyncApplier {
             await _applyClientModelChange(change);
           case 'client_payments':
             await _applyClientPaymentChange(change);
+          case 'maintenance_fault_records':
+            await _applyMaintenanceFaultRecordChange(change);
         }
       });
     } catch (e) {
@@ -641,6 +649,140 @@ class RemoteSyncApplier {
             ),
           );
         }
+      }
+    }
+  }
+
+  Future<void> _applyWorkerDeductionChange(RemoteChangeEvent change) async {
+    if (change.operation == SyncQueueOperation.delete) {
+      await (_database.delete(
+        _database.workerDeductions,
+      )..where((t) => t.id.equals(change.recordId))).go();
+    } else {
+      final payload = change.payload;
+      final workerId = payload['workerId'] as int?;
+      final amount = (payload['amount'] as num?)?.toDouble() ?? 0;
+      final date = DateTime.tryParse(payload['date'] as String? ?? '');
+      final notes = payload['notes'] as String?;
+
+      if (workerId != null && date != null) {
+        final existing = await (_database.select(
+          _database.workerDeductions,
+        )..where((t) => t.id.equals(change.recordId))).getSingleOrNull();
+
+        if (existing == null) {
+          await _database
+              .into(_database.workerDeductions)
+              .insert(
+                WorkerDeductionsCompanion(
+                  id: Value(change.recordId),
+                  workerId: Value(workerId),
+                  amount: Value(amount),
+                  date: Value(date),
+                  notes: Value(notes),
+                ),
+              );
+        } else {
+          await (_database.update(
+            _database.workerDeductions,
+          )..where((t) => t.id.equals(change.recordId))).write(
+            WorkerDeductionsCompanion(
+              workerId: Value(workerId),
+              amount: Value(amount),
+              date: Value(date),
+              notes: Value(notes),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _applyStaffDeductionChange(RemoteChangeEvent change) async {
+    if (change.operation == SyncQueueOperation.delete) {
+      await (_database.delete(
+        _database.staffDeductions,
+      )..where((t) => t.id.equals(change.recordId))).go();
+    } else {
+      final payload = change.payload;
+      final staffId = payload['staffId'] as int?;
+      final amount = (payload['amount'] as num?)?.toDouble() ?? 0;
+      final date = DateTime.tryParse(payload['date'] as String? ?? '');
+      final notes = payload['notes'] as String?;
+
+      if (staffId != null && date != null) {
+        final existing = await (_database.select(
+          _database.staffDeductions,
+        )..where((t) => t.id.equals(change.recordId))).getSingleOrNull();
+
+        if (existing == null) {
+          await _database
+              .into(_database.staffDeductions)
+              .insert(
+                StaffDeductionsCompanion(
+                  id: Value(change.recordId),
+                  staffId: Value(staffId),
+                  amount: Value(amount),
+                  date: Value(date),
+                  notes: Value(notes),
+                ),
+              );
+        } else {
+          await (_database.update(
+            _database.staffDeductions,
+          )..where((t) => t.id.equals(change.recordId))).write(
+            StaffDeductionsCompanion(
+              staffId: Value(staffId),
+              amount: Value(amount),
+              date: Value(date),
+              notes: Value(notes),
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _applyMaintenanceFaultRecordChange(
+      RemoteChangeEvent change) async {
+    if (change.operation == SyncQueueOperation.delete) {
+      await (_database.delete(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(change.recordId))).go();
+    } else {
+      final payload = change.payload;
+      final machineName = payload['machineName'] as String? ?? '';
+      final faultName = payload['faultName'] as String? ?? '';
+      final cost = (payload['cost'] as num?)?.toDouble() ?? 0;
+      final totalCost = (payload['totalCost'] as num?)?.toDouble() ?? 0;
+
+      final existing = await (_database.select(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(change.recordId))).getSingleOrNull();
+
+      if (existing == null) {
+        await _database
+            .into(_database.maintenanceFaultRecords)
+            .insert(
+              MaintenanceFaultRecordsCompanion(
+                id: Value(change.recordId),
+                machineName: Value(machineName),
+                faultName: Value(faultName),
+                cost: Value(cost),
+                totalCost: Value(totalCost),
+              ),
+            );
+      } else {
+        await (_database.update(
+          _database.maintenanceFaultRecords,
+        )..where((t) => t.id.equals(change.recordId))).write(
+          MaintenanceFaultRecordsCompanion(
+            machineName: Value(machineName),
+            faultName: Value(faultName),
+            cost: Value(cost),
+            totalCost: Value(totalCost),
+          ),
+        );
       }
     }
   }

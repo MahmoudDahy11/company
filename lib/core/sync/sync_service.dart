@@ -34,16 +34,20 @@ class SyncService {
     'workers',
     'worker_production_entries',
     'worker_advances',
+    'worker_deductions',
     'stitch_rates',
     'worker_absent_days',
     'women_staff_members',
+    'women_staff',
     'staff_advances',
+    'staff_deductions',
     'suppliers',
     'thread_purchases',
     'supplier_payments',
     'clients',
     'client_models',
     'client_payments',
+    'maintenance_fault_records',
   ];
 
   StreamSubscription<List<SyncQueueData>>? _localQueueSubscription;

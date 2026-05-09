@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/database/app_database.dart'
     hide MaintenanceFaultRecord;
+import '../../../../core/sync/sync_queue_table.dart';
 import '../../domain/entities/maintenance_fault_record.dart';
 
 @lazySingleton
@@ -23,16 +25,29 @@ class MaintenanceFaultRecordsLocalDataSource {
     required double cost,
     required double totalCost,
   }) async {
-    await _database
-        .into(_database.maintenanceFaultRecords)
-        .insert(
-          MaintenanceFaultRecordsCompanion.insert(
-            machineName: machineName.trim(),
-            faultName: faultName.trim(),
-            cost: cost,
-            totalCost: totalCost,
-          ),
-        );
+    await _database.transaction(() async {
+      final id = await _database
+          .into(_database.maintenanceFaultRecords)
+          .insert(
+            MaintenanceFaultRecordsCompanion.insert(
+              machineName: machineName.trim(),
+              faultName: faultName.trim(),
+              cost: cost,
+              totalCost: totalCost,
+            ),
+          );
+
+      final row = await (_database.select(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(id))).getSingle();
+
+      await _queueSync(
+        operation: SyncQueueOperation.insert,
+        tableName: 'maintenance_fault_records',
+        recordId: id,
+        payload: row.toJson(),
+      );
+    });
   }
 
   Future<void> updateRecord({
@@ -42,22 +57,44 @@ class MaintenanceFaultRecordsLocalDataSource {
     required double cost,
     required double totalCost,
   }) async {
-    await (_database.update(
-      _database.maintenanceFaultRecords,
-    )..where((t) => t.id.equals(id))).write(
-      MaintenanceFaultRecordsCompanion(
-        machineName: Value(machineName.trim()),
-        faultName: Value(faultName.trim()),
-        cost: Value(cost),
-        totalCost: Value(totalCost),
-      ),
-    );
+    await _database.transaction(() async {
+      await (_database.update(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(id))).write(
+        MaintenanceFaultRecordsCompanion(
+          machineName: Value(machineName.trim()),
+          faultName: Value(faultName.trim()),
+          cost: Value(cost),
+          totalCost: Value(totalCost),
+        ),
+      );
+
+      final row = await (_database.select(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(id))).getSingle();
+
+      await _queueSync(
+        operation: SyncQueueOperation.update,
+        tableName: 'maintenance_fault_records',
+        recordId: id,
+        payload: row.toJson(),
+      );
+    });
   }
 
   Future<void> deleteRecord(int id) async {
-    await (_database.delete(
-      _database.maintenanceFaultRecords,
-    )..where((t) => t.id.equals(id))).go();
+    await _database.transaction(() async {
+      await (_database.delete(
+        _database.maintenanceFaultRecords,
+      )..where((t) => t.id.equals(id))).go();
+
+      await _queueSync(
+        operation: SyncQueueOperation.delete,
+        tableName: 'maintenance_fault_records',
+        recordId: id,
+        payload: {},
+      );
+    });
   }
 
   Future<List<MaintenanceFaultRecord>> _getAllRecords() async {
@@ -85,5 +122,23 @@ class MaintenanceFaultRecordsLocalDataSource {
           readsFrom: {_database.maintenanceFaultRecords},
         )
         .watch();
+  }
+
+  Future<void> _queueSync({
+    required SyncQueueOperation operation,
+    required String tableName,
+    required int recordId,
+    required Map<String, dynamic> payload,
+  }) async {
+    await _database
+        .into(_database.syncQueue)
+        .insert(
+          SyncQueueCompanion.insert(
+            operation: operation,
+            targetTableName: tableName,
+            recordId: recordId,
+            payload: jsonEncode(payload),
+          ),
+        );
   }
 }
