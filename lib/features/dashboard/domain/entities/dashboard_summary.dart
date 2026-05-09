@@ -4,6 +4,7 @@ class DashboardSummary {
     required this.totalWomenStaffWages,
     required this.totalThreadPurchases,
     required this.totalClientOutstanding,
+    required this.totalMaintenanceCost,
     required this.registeredWorkersCount,
     required this.absentDaysCount,
     required this.pendingClientBalancesCount,
@@ -19,6 +20,7 @@ class DashboardSummary {
   final double totalWomenStaffWages;
   final double totalThreadPurchases;
   final double totalClientOutstanding;
+  final double totalMaintenanceCost;
   final int registeredWorkersCount;
   final int absentDaysCount;
   final int pendingClientBalancesCount;
@@ -34,12 +36,14 @@ class FinancialSummary {
   const FinancialSummary({
     required this.totalDueFromClients,
     required this.totalDueToSuppliers,
+    required this.totalMaintenanceCost,
     required this.clientSummaries,
     required this.supplierSummaries,
   });
 
   final double totalDueFromClients;
   final double totalDueToSuppliers;
+  final double totalMaintenanceCost;
   final List<ClientAnnualSummary> clientSummaries;
   final List<SupplierAnnualSummary> supplierSummaries;
 }

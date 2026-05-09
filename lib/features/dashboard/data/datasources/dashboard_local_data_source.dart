@@ -52,6 +52,7 @@ class DashboardLocalDataSource {
             _database.clients,
             _database.clientModels,
             _database.clientPayments,
+            _database.maintenanceFaultRecords,
           },
         )
         .watch()
@@ -320,13 +321,45 @@ class DashboardLocalDataSource {
     }
     log('DEBUG: Dashboard: Total Due to Suppliers: $totalDueToSuppliers');
 
-    // 6. Final Dashboard Summary Construction
+    // 6. Maintenance Cost
+    log('DEBUG: Dashboard: Fetching maintenance cost...');
+    final maintenanceRow = await _database
+        .customSelect(
+          'SELECT COALESCE(SUM(total_cost), 0.0) as total_cost FROM maintenance_fault_records WHERE created_at BETWEEN ? AND ?',
+          variables: [
+            Variable.withDateTime(monthRange.start),
+            Variable.withDateTime(monthRange.end),
+          ],
+        )
+        .getSingle();
+    final totalMaintenanceCost =
+        maintenanceRow.read<double?>('total_cost') ?? 0.0;
+    log('DEBUG: Dashboard: Total Maintenance Cost: $totalMaintenanceCost');
+
+    // Yearly maintenance cost
+    final maintenanceYearRow = await _database
+        .customSelect(
+          'SELECT COALESCE(SUM(total_cost), 0.0) as total_cost FROM maintenance_fault_records WHERE created_at BETWEEN ? AND ?',
+          variables: [
+            Variable.withDateTime(financialRange.start),
+            Variable.withDateTime(financialRange.end),
+          ],
+        )
+        .getSingle();
+    final totalMaintenanceCostYear =
+        maintenanceYearRow.read<double?>('total_cost') ?? 0.0;
+    log(
+      'DEBUG: Dashboard: Total Maintenance Cost (Year): $totalMaintenanceCostYear',
+    );
+
+    // 7. Final Dashboard Summary Construction
     log('DEBUG: Dashboard: Finalizing summary construction...');
     return DashboardSummary(
       totalWorkerWages: totalWorkerWages,
       totalWomenStaffWages: totalWomenStaffWages,
       totalThreadPurchases: threadLines[month.month - 1].value,
       totalClientOutstanding: totalDueFromClients,
+      totalMaintenanceCost: totalMaintenanceCost,
       registeredWorkersCount: workerTotals.read<int?>('count') ?? 0,
       absentDaysCount: await _getAbsentDaysCount(month),
       pendingClientBalancesCount: clientPiePoints.length,
@@ -340,6 +373,7 @@ class DashboardLocalDataSource {
       financialSummary: FinancialSummary(
         totalDueFromClients: totalDueFromClients,
         totalDueToSuppliers: totalDueToSuppliers,
+        totalMaintenanceCost: totalMaintenanceCostYear,
         clientSummaries: clientAnnualSummaries,
         supplierSummaries: supplierAnnualSummaries,
       ),

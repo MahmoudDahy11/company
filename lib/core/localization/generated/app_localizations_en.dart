@@ -151,6 +151,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardSummaryClientOutstanding => 'Client debts';
 
   @override
+  String get dashboardSummaryMaintenanceCost => 'Maintenance cost';
+
+  @override
   String workersAndAbsence(Object workers, Object absence) {
     return '$workers workers, $absence absent days';
   }
@@ -545,6 +548,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get totalDueToSuppliers => 'Total Due To Suppliers';
+
+  @override
+  String get totalMaintenanceCost => 'Total Maintenance Cost';
 
   @override
   String get clientsAnnualTable => 'Clients Summary';

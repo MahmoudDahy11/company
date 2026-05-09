@@ -55,6 +55,8 @@
   "dashboardSummaryWomenWages": "أجور الحريم",
   "dashboardSummaryThreadPurchases": "مشتريات الخيط",
   "dashboardSummaryClientOutstanding": "ديون الزبائن",
+
+  "dashboardSummaryMaintenanceCost": "مصروفات الصيانة",
   "workersAndAbsence": "{workers} عمال، {absence} أيام غياب",
   "@workersAndAbsence": {
     "placeholders": {
@@ -270,6 +272,8 @@
   "financialOverview": "المركز المالي",
   "totalDueFromClients": "إجمالي عندنا (الزبايين)",
   "totalDueToSuppliers": "إجمالي علينا (الخيوط)",
+
+  "totalMaintenanceCost": "إجمالي مصاريف الصيانة",
   "clientsAnnualTable": "جدول الزبايين",
   "threadsAnnualTable": "جدول الخيوط",
   "totalWork": "إجمالي الشغل",

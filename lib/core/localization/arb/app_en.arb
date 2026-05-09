@@ -55,6 +55,8 @@
   "dashboardSummaryWomenWages": "Women staff wages",
   "dashboardSummaryThreadPurchases": "Thread purchases",
   "dashboardSummaryClientOutstanding": "Client debts",
+
+  "dashboardSummaryMaintenanceCost": "Maintenance cost",
   "workersAndAbsence": "{workers} workers, {absence} absent days",
   "@workersAndAbsence": {
     "placeholders": {
@@ -270,6 +272,8 @@
   "financialOverview": "Financial Overview",
   "totalDueFromClients": "Total Due From Clients",
   "totalDueToSuppliers": "Total Due To Suppliers",
+
+  "totalMaintenanceCost": "Total Maintenance Cost",
   "clientsAnnualTable": "Clients Summary",
   "threadsAnnualTable": "Threads Summary",
   "totalWork": "Total Work",

@@ -368,6 +368,12 @@ abstract class AppLocalizations {
   /// **'Client debts'**
   String get dashboardSummaryClientOutstanding;
 
+  /// No description provided for @dashboardSummaryMaintenanceCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance cost'**
+  String get dashboardSummaryMaintenanceCost;
+
   /// No description provided for @workersAndAbsence.
   ///
   /// In en, this message translates to:
@@ -1075,6 +1081,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total Due To Suppliers'**
   String get totalDueToSuppliers;
+
+  /// No description provided for @totalMaintenanceCost.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Maintenance Cost'**
+  String get totalMaintenanceCost;
 
   /// No description provided for @clientsAnnualTable.
   ///

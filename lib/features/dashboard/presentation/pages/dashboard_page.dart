@@ -191,6 +191,16 @@ class _DashboardCardsSection extends StatelessWidget {
           icon: Icons.work_outline,
           color: const Color(0xFFEF4444), // Red for debts
         ),
+        _DashboardCard(
+          title: l10n.dashboardSummaryMaintenanceCost,
+          value: currency
+              .format(summary.totalMaintenanceCost)
+              .replaceAll('EGP', '')
+              .trim(),
+          subtitle: null,
+          icon: Icons.build_outlined,
+          color: const Color(0xFF1F2937),
+        ),
       ],
     );
   }
@@ -787,6 +797,12 @@ class _FinancialSection extends StatelessWidget {
               value: currency.format(financial.totalDueToSuppliers),
               icon: Icons.shopping_cart,
               color: const Color(0xFFF59E0B), // Orange/Amber
+            ),
+            _DashboardCard(
+              title: l10n.totalMaintenanceCost,
+              value: currency.format(financial.totalMaintenanceCost),
+              icon: Icons.build_outlined,
+              color: const Color(0xFF6366F1), // Indigo
             ),
           ],
         ),
