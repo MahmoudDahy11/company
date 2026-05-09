@@ -1,101 +1,58 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/database/app_database.dart'
     hide Supplier, ThreadPurchase;
-import '../../../../core/sync/sync_queue_table.dart';
-import '../../domain/entities/supplier.dart';
-import '../../domain/entities/supplier_details_data.dart';
 import '../../domain/entities/supplier_list_item.dart';
-import '../../domain/entities/supplier_payment.dart';
-import '../../domain/entities/supplier_summary.dart';
 import '../../domain/entities/thread_purchase.dart';
+import '../../domain/entities/supplier_details_data.dart';
 import '../../domain/entities/threads_overview.dart';
+import 'overview_queries.dart';
+import 'payments_local_data_source.dart';
+import 'purchases_local_data_source.dart';
+import 'supplier_details_queries.dart';
+import 'suppliers_local_data_source.dart';
+import 'threads_db_helpers.dart';
 
 @lazySingleton
 class ThreadsLocalDataSource {
-  ThreadsLocalDataSource(this._database);
+  ThreadsLocalDataSource(
+    this._database,
+    this._suppliers,
+    this._purchases,
+    this._payments,
+  );
 
   final AppDatabase _database;
+  final SuppliersLocalDataSource _suppliers;
+  final PurchasesLocalDataSource _purchases;
+  final PaymentsLocalDataSource _payments;
 
-  Stream<List<SupplierListItem>> watchSuppliers(DateTime month) {
-    return _watchTrigger().asyncMap((_) => _buildSupplierList(month));
-  }
+  Stream<List<SupplierListItem>> watchSuppliers(DateTime month) =>
+      _suppliers.watchSuppliers(month);
+
+  Stream<List<ThreadPurchase>> watchAllPurchases(DateTime month) =>
+      _purchases.watchAllPurchases(month);
 
   Stream<SupplierDetailsData> watchSupplierDetails(
     int supplierId,
     DateTime month,
-  ) {
-    return _watchTrigger().asyncMap(
-      (_) => _buildSupplierDetails(supplierId, month),
-    );
-  }
+  ) => watchTrigger(_database).asyncMap(
+    (_) => buildSupplierDetailsData(
+      database: _database,
+      supplierId: supplierId,
+      month: month,
+    ),
+  );
 
-  Stream<ThreadsOverview> watchOverview(DateTime month) {
-    return _watchTrigger().asyncMap((_) => _buildOverview(month));
-  }
+  Stream<ThreadsOverview> watchOverview(DateTime month) => watchTrigger(
+    _database,
+  ).asyncMap((_) => buildThreadsOverview(database: _database, month: month));
 
-  Stream<List<ThreadPurchase>> watchAllPurchases(DateTime month) {
-    return _watchTrigger().asyncMap((_) => _buildAllPurchases(month));
-  }
+  Future<void> addSupplier({required String name, String? phone}) =>
+      _suppliers.addSupplier(name: name, phone: phone);
 
-  Future<void> addSupplier({required String name, String? phone}) async {
-    await _database.transaction(() async {
-      final id = await _database
-          .into(_database.suppliers)
-          .insert(
-            SuppliersCompanion.insert(
-              name: name.trim(),
-              phone: Value(
-                phone?.trim().isEmpty == true ? null : phone?.trim(),
-              ),
-            ),
-          );
-
-      await _queueSync(
-        operation: SyncQueueOperation.insert,
-        tableName: 'suppliers',
-        recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'name': name.trim(),
-          'phone': phone?.trim(),
-          'createdAt': DateTime.now().toIso8601String(),
-        },
-      );
-    });
-  }
-
-  Future<void> deleteSupplier(int supplierId) async {
-    await _database.transaction(() async {
-      // 1. Delete all related thread purchases locally
-      await (_database.delete(
-        _database.threadPurchases,
-      )..where((t) => t.supplierId.equals(supplierId))).go();
-
-      // 2. Delete all related supplier payments locally
-      await (_database.delete(
-        _database.supplierPayments,
-      )..where((t) => t.supplierId.equals(supplierId))).go();
-
-      // 3. Delete the supplier locally
-      await (_database.delete(
-        _database.suppliers,
-      )..where((t) => t.id.equals(supplierId))).go();
-
-      // 4. Queue a single sync event for the supplier.
-      // The RemoteSyncApplier and server-side logic should handle cascading deletions.
-      await _queueSync(
-        operation: SyncQueueOperation.delete,
-        tableName: 'suppliers',
-        recordId: supplierId,
-        payload: <String, dynamic>{'id': supplierId},
-      );
-    });
-  }
+  Future<void> deleteSupplier(int supplierId) =>
+      _suppliers.deleteSupplier(supplierId);
 
   Future<void> addPurchase({
     required int supplierId,
@@ -106,40 +63,16 @@ class ThreadsLocalDataSource {
     required double quantity,
     required String unit,
     String? notes,
-  }) async {
-    await _database.transaction(() async {
-      final id = await _database
-          .into(_database.threadPurchases)
-          .insert(
-            ThreadPurchasesCompanion.insert(
-              supplierId: supplierId,
-              itemName: itemName.trim(),
-              colorNumber: colorNumber.trim(),
-              purchaseDate: purchaseDate,
-              price: price,
-              quantity: quantity,
-              unit: unit.trim(),
-              notes: Value(notes),
-            ),
-          );
-      await _queueSync(
-        operation: SyncQueueOperation.insert,
-        tableName: 'thread_purchases',
-        recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'supplierId': supplierId,
-          'itemName': itemName.trim(),
-          'colorNumber': colorNumber.trim(),
-          'purchaseDate': purchaseDate.toIso8601String(),
-          'price': price,
-          'quantity': quantity,
-          'unit': unit.trim(),
-          'notes': notes,
-        },
-      );
-    });
-  }
+  }) => _purchases.addPurchase(
+    supplierId: supplierId,
+    itemName: itemName,
+    colorNumber: colorNumber,
+    purchaseDate: purchaseDate,
+    price: price,
+    quantity: quantity,
+    unit: unit,
+    notes: notes,
+  );
 
   Future<void> addOrUpdatePurchase({
     int? purchaseId,
@@ -151,119 +84,32 @@ class ThreadsLocalDataSource {
     required double quantity,
     required String unit,
     String? notes,
-  }) async {
-    await _database.transaction(() async {
-      late final int id;
-      late final SyncQueueOperation operation;
+  }) => _purchases.addOrUpdatePurchase(
+    purchaseId: purchaseId,
+    supplierId: supplierId,
+    itemName: itemName,
+    colorNumber: colorNumber,
+    purchaseDate: purchaseDate,
+    price: price,
+    quantity: quantity,
+    unit: unit,
+    notes: notes,
+  );
 
-      if (purchaseId == null) {
-        id = await _database
-            .into(_database.threadPurchases)
-            .insert(
-              ThreadPurchasesCompanion.insert(
-                supplierId: supplierId,
-                itemName: itemName.trim(),
-                colorNumber: colorNumber.trim(),
-                purchaseDate: purchaseDate,
-                price: price,
-                quantity: quantity,
-                unit: unit.trim(),
-                notes: Value(notes),
-              ),
-            );
-        operation = SyncQueueOperation.insert;
-      } else {
-        await (_database.update(
-          _database.threadPurchases,
-        )..where((table) => table.id.equals(purchaseId))).write(
-          ThreadPurchasesCompanion(
-            supplierId: Value(supplierId),
-            itemName: Value(itemName.trim()),
-            colorNumber: Value(colorNumber.trim()),
-            purchaseDate: Value(purchaseDate),
-            price: Value(price),
-            quantity: Value(quantity),
-            unit: Value(unit.trim()),
-            notes: Value(notes),
-          ),
-        );
-        id = purchaseId;
-        operation = SyncQueueOperation.update;
-      }
-
-      await _queueSync(
-        operation: operation,
-        tableName: 'thread_purchases',
-        recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'supplierId': supplierId,
-          'itemName': itemName.trim(),
-          'colorNumber': colorNumber.trim(),
-          'purchaseDate': purchaseDate.toIso8601String(),
-          'price': price,
-          'quantity': quantity,
-          'unit': unit.trim(),
-          'notes': notes,
-        },
-      );
-    });
-  }
-
-  Future<void> deletePurchase(int purchaseId) async {
-    await _database.transaction(() async {
-      final row = await (_database.select(
-        _database.threadPurchases,
-      )..where((t) => t.id.equals(purchaseId))).getSingleOrNull();
-      if (row == null) {
-        return;
-      }
-      await (_database.delete(
-        _database.threadPurchases,
-      )..where((t) => t.id.equals(purchaseId))).go();
-      await _queueSync(
-        operation: SyncQueueOperation.delete,
-        tableName: 'thread_purchases',
-        recordId: purchaseId,
-        payload: <String, dynamic>{
-          'id': purchaseId,
-          'supplierId': row.supplierId,
-        },
-      );
-    });
-  }
+  Future<void> deletePurchase(int purchaseId) =>
+      _purchases.deletePurchase(purchaseId);
 
   Future<void> addPayment({
     required int supplierId,
     required double amount,
     required DateTime paymentDate,
     String? notes,
-  }) async {
-    await _database.transaction(() async {
-      final id = await _database
-          .into(_database.supplierPayments)
-          .insert(
-            SupplierPaymentsCompanion.insert(
-              supplierId: supplierId,
-              amount: amount,
-              paymentDate: paymentDate,
-              notes: Value(notes),
-            ),
-          );
-      await _queueSync(
-        operation: SyncQueueOperation.insert,
-        tableName: 'supplier_payments',
-        recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'supplierId': supplierId,
-          'amount': amount,
-          'paymentDate': paymentDate.toIso8601String(),
-          'notes': notes,
-        },
-      );
-    });
-  }
+  }) => _payments.addPayment(
+    supplierId: supplierId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
 
   Future<void> addOrUpdatePayment({
     int? paymentId,
@@ -271,353 +117,14 @@ class ThreadsLocalDataSource {
     required double amount,
     required DateTime paymentDate,
     String? notes,
-  }) async {
-    await _database.transaction(() async {
-      late final int id;
-      late final SyncQueueOperation operation;
+  }) => _payments.addOrUpdatePayment(
+    paymentId: paymentId,
+    supplierId: supplierId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
 
-      if (paymentId == null) {
-        id = await _database
-            .into(_database.supplierPayments)
-            .insert(
-              SupplierPaymentsCompanion.insert(
-                supplierId: supplierId,
-                amount: amount,
-                paymentDate: paymentDate,
-                notes: Value(notes),
-              ),
-            );
-        operation = SyncQueueOperation.insert;
-      } else {
-        await (_database.update(
-          _database.supplierPayments,
-        )..where((table) => table.id.equals(paymentId))).write(
-          SupplierPaymentsCompanion(
-            supplierId: Value(supplierId),
-            amount: Value(amount),
-            paymentDate: Value(paymentDate),
-            notes: Value(notes),
-          ),
-        );
-        id = paymentId;
-        operation = SyncQueueOperation.update;
-      }
-
-      await _queueSync(
-        operation: operation,
-        tableName: 'supplier_payments',
-        recordId: id,
-        payload: <String, dynamic>{
-          'id': id,
-          'supplierId': supplierId,
-          'amount': amount,
-          'paymentDate': paymentDate.toIso8601String(),
-          'notes': notes,
-        },
-      );
-    });
-  }
-
-  Future<void> deletePayment(int paymentId) async {
-    await _database.transaction(() async {
-      final row = await (_database.select(
-        _database.supplierPayments,
-      )..where((t) => t.id.equals(paymentId))).getSingleOrNull();
-      if (row == null) {
-        return;
-      }
-      await (_database.delete(
-        _database.supplierPayments,
-      )..where((t) => t.id.equals(paymentId))).go();
-      await _queueSync(
-        operation: SyncQueueOperation.delete,
-        tableName: 'supplier_payments',
-        recordId: paymentId,
-        payload: <String, dynamic>{
-          'id': paymentId,
-          'supplierId': row.supplierId,
-        },
-      );
-    });
-  }
-
-  Stream<List<QueryRow>> _watchTrigger() {
-    return _database
-        .customSelect(
-          'SELECT 1',
-          readsFrom: {
-            _database.suppliers,
-            _database.threadPurchases,
-            _database.supplierPayments,
-          },
-        )
-        .watch();
-  }
-
-  Future<List<SupplierListItem>> _buildSupplierList(DateTime month) async {
-    final monthRange = _monthRange(month);
-    final query = '''
-      SELECT 
-        s.id, 
-        s.name,
-        (SELECT SUM(price) FROM thread_purchases WHERE supplier_id = s.id AND purchase_date BETWEEN ? AND ?) as total_purchased,
-        (SELECT SUM(amount) FROM supplier_payments WHERE supplier_id = s.id AND payment_date BETWEEN ? AND ?) as total_paid
-      FROM suppliers s
-      ORDER BY s.name
-    ''';
-
-    final rows = await _database
-        .customSelect(
-          query,
-          variables: [
-            Variable.withDateTime(monthRange.start),
-            Variable.withDateTime(monthRange.end),
-            Variable.withDateTime(monthRange.start),
-            Variable.withDateTime(monthRange.end),
-          ],
-        )
-        .get();
-
-    return rows.map((row) {
-      final totalPurchased = row.read<double?>('total_purchased') ?? 0.0;
-      final totalPaid = row.read<double?>('total_paid') ?? 0.0;
-      return SupplierListItem(
-        id: row.read<int>('id'),
-        name: row.read<String>('name'),
-        totalPurchased: totalPurchased,
-        totalPaid: totalPaid,
-        outstandingBalance: totalPurchased - totalPaid,
-      );
-    }).toList();
-  }
-
-  Future<SupplierDetailsData> _buildSupplierDetails(
-    int supplierId,
-    DateTime month,
-  ) async {
-    final supplierRow = await (_database.select(
-      _database.suppliers,
-    )..where((t) => t.id.equals(supplierId))).getSingle();
-    final summary = await _buildSupplierSummary(supplierId, month);
-    final monthRange = _monthRange(month);
-
-    final purchaseRows =
-        await (_database.select(_database.threadPurchases)
-              ..where(
-                (t) =>
-                    t.supplierId.equals(supplierId) &
-                    t.purchaseDate.isBetweenValues(
-                      monthRange.start,
-                      monthRange.end,
-                    ),
-              )
-              ..orderBy([(t) => OrderingTerm.desc(t.purchaseDate)]))
-            .get();
-    final paymentRows =
-        await (_database.select(_database.supplierPayments)
-              ..where(
-                (t) =>
-                    t.supplierId.equals(supplierId) &
-                    t.paymentDate.isBetweenValues(
-                      monthRange.start,
-                      monthRange.end,
-                    ),
-              )
-              ..orderBy([(t) => OrderingTerm.desc(t.paymentDate)]))
-            .get();
-
-    return SupplierDetailsData(
-      supplier: Supplier(
-        id: supplierRow.id,
-        name: supplierRow.name,
-        phone: supplierRow.phone,
-        createdAt: supplierRow.createdAt,
-      ),
-      summary: summary,
-      purchases: purchaseRows
-          .map(
-            (row) => ThreadPurchase(
-              id: row.id,
-              supplierId: row.supplierId,
-              itemName: row.itemName,
-              colorNumber: row.colorNumber,
-              purchaseDate: row.purchaseDate,
-              price: row.price,
-              quantity: row.quantity,
-              unit: row.unit,
-              notes: row.notes,
-            ),
-          )
-          .toList(),
-      payments: paymentRows
-          .map(
-            (row) => SupplierPaymentEntry(
-              id: row.id,
-              supplierId: row.supplierId,
-              amount: row.amount,
-              paymentDate: row.paymentDate,
-              notes: row.notes,
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  Future<SupplierSummary> _buildSupplierSummary(
-    int supplierId,
-    DateTime month,
-  ) async {
-    final monthRange = _monthRange(month);
-    final purchaseRows =
-        await (_database.select(_database.threadPurchases)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.purchaseDate.isBetweenValues(
-                    monthRange.start,
-                    monthRange.end,
-                  ),
-            ))
-            .get();
-    final paymentRows =
-        await (_database.select(_database.supplierPayments)..where(
-              (t) =>
-                  t.supplierId.equals(supplierId) &
-                  t.paymentDate.isBetweenValues(
-                    monthRange.start,
-                    monthRange.end,
-                  ),
-            ))
-            .get();
-    final totalPurchased = purchaseRows.fold<double>(
-      0,
-      (sum, row) => sum + row.price,
-    );
-    final totalPaid = paymentRows.fold<double>(
-      0,
-      (sum, row) => sum + row.amount,
-    );
-    return SupplierSummary(
-      totalPurchased: totalPurchased,
-      totalPaid: totalPaid,
-      outstandingBalance: totalPurchased - totalPaid,
-    );
-  }
-
-  Future<ThreadsOverview> _buildOverview(DateTime month) async {
-    final monthRange = _monthRange(month);
-    final yearStart = DateTime(month.year);
-    final yearEnd = DateTime(month.year, 12, 31, 23, 59, 59, 999);
-    final supplierIds = (await _database.select(_database.suppliers).get())
-        .map((supplier) => supplier.id)
-        .toSet();
-
-    final monthPurchases =
-        await (_database.select(_database.threadPurchases)..where(
-              (t) => t.purchaseDate.isBetweenValues(
-                monthRange.start,
-                monthRange.end,
-              ),
-            ))
-            .get();
-    final yearPurchases = await (_database.select(
-      _database.threadPurchases,
-    )..where((t) => t.purchaseDate.isBetweenValues(yearStart, yearEnd))).get();
-    final yearPayments = await (_database.select(
-      _database.supplierPayments,
-    )..where((t) => t.paymentDate.isBetweenValues(yearStart, yearEnd))).get();
-    final allPurchases = await _database
-        .select(_database.threadPurchases)
-        .get();
-    final allPayments = await _database
-        .select(_database.supplierPayments)
-        .get();
-
-    final activeMonthPurchases = monthPurchases
-        .where((row) => supplierIds.contains(row.supplierId))
-        .toList();
-    final activeYearPurchases = yearPurchases
-        .where((row) => supplierIds.contains(row.supplierId))
-        .toList();
-    final activeYearPayments = yearPayments
-        .where((row) => supplierIds.contains(row.supplierId))
-        .toList();
-    final activeAllPurchases = allPurchases
-        .where((row) => supplierIds.contains(row.supplierId))
-        .toList();
-    final activeAllPayments = allPayments
-        .where((row) => supplierIds.contains(row.supplierId))
-        .toList();
-
-    return ThreadsOverview(
-      monthlyPurchased: activeMonthPurchases.fold<double>(
-        0,
-        (sum, row) => sum + row.price,
-      ),
-      yearlyPurchased: activeYearPurchases.fold<double>(
-        0,
-        (sum, row) => sum + row.price,
-      ),
-      yearlyPaid: activeYearPayments.fold<double>(
-        0,
-        (sum, row) => sum + row.amount,
-      ),
-      totalOutstanding:
-          activeAllPurchases.fold<double>(0, (sum, row) => sum + row.price) -
-          activeAllPayments.fold<double>(0, (sum, row) => sum + row.amount),
-    );
-  }
-
-  Future<void> _queueSync({
-    required SyncQueueOperation operation,
-    required String tableName,
-    required int recordId,
-    required Map<String, dynamic> payload,
-  }) {
-    return _database
-        .into(_database.syncQueue)
-        .insert(
-          SyncQueueCompanion.insert(
-            operation: operation,
-            targetTableName: tableName,
-            recordId: recordId,
-            payload: jsonEncode(payload),
-          ),
-        );
-  }
-
-  Future<List<ThreadPurchase>> _buildAllPurchases(DateTime month) async {
-    final monthRange = _monthRange(month);
-    final rows =
-        await (_database.select(_database.threadPurchases)
-              ..where(
-                (t) => t.purchaseDate.isBetweenValues(
-                  monthRange.start,
-                  monthRange.end,
-                ),
-              )
-              ..orderBy([(t) => OrderingTerm.desc(t.purchaseDate)]))
-            .get();
-
-    return rows
-        .map(
-          (row) => ThreadPurchase(
-            id: row.id,
-            supplierId: row.supplierId,
-            itemName: row.itemName,
-            colorNumber: row.colorNumber,
-            purchaseDate: row.purchaseDate,
-            price: row.price,
-            quantity: row.quantity,
-            unit: row.unit,
-            notes: row.notes,
-          ),
-        )
-        .toList();
-  }
-
-  ({DateTime start, DateTime end}) _monthRange(DateTime month) {
-    final start = DateTime(month.year, month.month);
-    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59, 999);
-    return (start: start, end: end);
-  }
+  Future<void> deletePayment(int paymentId) =>
+      _payments.deletePayment(paymentId);
 }

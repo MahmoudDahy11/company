@@ -8,8 +8,6 @@ import '../../../../core/sync/sync_service.dart';
 import '../../domain/entities/supplier_details_data.dart';
 import '../../domain/usecases/add_or_update_purchase_usecase.dart';
 import '../../domain/usecases/add_or_update_supplier_payment_usecase.dart';
-import '../../domain/usecases/add_purchase_usecase.dart';
-import '../../domain/usecases/add_supplier_payment_usecase.dart';
 import '../../domain/usecases/delete_purchase_usecase.dart';
 import '../../domain/usecases/delete_supplier_payment_usecase.dart';
 import '../../domain/usecases/watch_supplier_details_usecase.dart';
@@ -19,19 +17,15 @@ import 'supplier_details_state.dart';
 class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
   SupplierDetailsCubit(
     this._watchSupplierDetailsUseCase,
-    this._addPurchaseUseCase,
     this._addOrUpdatePurchaseUseCase,
     this._deletePurchaseUseCase,
-    this._addSupplierPaymentUseCase,
     this._addOrUpdateSupplierPaymentUseCase,
     this._deleteSupplierPaymentUseCase,
   ) : super(SupplierDetailsState.initial(0));
 
   final WatchSupplierDetailsUseCase _watchSupplierDetailsUseCase;
-  final AddPurchaseUseCase _addPurchaseUseCase;
   final AddOrUpdatePurchaseUseCase _addOrUpdatePurchaseUseCase;
   final DeletePurchaseUseCase _deletePurchaseUseCase;
-  final AddSupplierPaymentUseCase _addSupplierPaymentUseCase;
   final AddOrUpdateSupplierPaymentUseCase _addOrUpdateSupplierPaymentUseCase;
   final DeleteSupplierPaymentUseCase _deleteSupplierPaymentUseCase;
 
@@ -77,27 +71,8 @@ class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
     _subscribe();
   }
 
-  Future<void> addPurchase({
-    required String itemName,
-    required String colorNumber,
-    required DateTime purchaseDate,
-    required double price,
-    required double quantity,
-    required String unit,
-    String? notes,
-  }) => _addPurchaseUseCase(
-    supplierId: state.supplierId,
-    itemName: itemName,
-    colorNumber: colorNumber,
-    purchaseDate: purchaseDate,
-    price: price,
-    quantity: quantity,
-    unit: unit,
-    notes: notes,
-  );
-
-  Future<void> updatePurchase({
-    required int purchaseId,
+  Future<void> savePurchase({
+    int? purchaseId,
     required String itemName,
     required String colorNumber,
     required DateTime purchaseDate,
@@ -120,19 +95,8 @@ class SupplierDetailsCubit extends Cubit<SupplierDetailsState> {
   Future<void> deletePurchase(int purchaseId) =>
       _deletePurchaseUseCase(purchaseId);
 
-  Future<void> addPayment({
-    required double amount,
-    required DateTime paymentDate,
-    String? notes,
-  }) => _addSupplierPaymentUseCase(
-    supplierId: state.supplierId,
-    amount: amount,
-    paymentDate: paymentDate,
-    notes: notes,
-  );
-
-  Future<void> updatePayment({
-    required int paymentId,
+  Future<void> savePayment({
+    int? paymentId,
     required double amount,
     required DateTime paymentDate,
     String? notes,
