@@ -55,21 +55,23 @@ class ClientsListTable extends StatelessWidget {
                 DataColumn(label: Text(l10n.actions)),
               ],
               rows: items.map((item) {
-                return DataRow(cells: [
-                  DataCell(Text(item.name)),
-                  DataCell(Text(_formatCurrency(context, item.totalAmount))),
-                  DataCell(Text(_formatCurrency(context, item.totalPaid))),
-                  DataCell(
-                    Text(
-                      _formatCurrency(context, item.outstanding),
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
+                return DataRow(
+                  cells: [
+                    DataCell(Text(item.name)),
+                    DataCell(Text(_formatCurrency(context, item.totalAmount))),
+                    DataCell(Text(_formatCurrency(context, item.totalPaid))),
+                    DataCell(
+                      Text(
+                        _formatCurrency(context, item.outstanding),
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(ClientListItemActions(item: item)),
-                ]);
+                    DataCell(ClientListItemActions(item: item)),
+                  ],
+                );
               }).toList(),
             ),
           ),

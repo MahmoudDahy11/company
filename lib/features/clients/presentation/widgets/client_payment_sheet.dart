@@ -34,9 +34,15 @@ class _ClientPaymentSheetState extends State<_ClientPaymentSheet> {
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: widget.initialValue?.amount.toString() ?? '');
-    _notesController = TextEditingController(text: widget.initialValue?.notes ?? '');
-    _dateNotifier = ValueNotifier<DateTime>(widget.initialValue?.paymentDate ?? DateTime.now());
+    _amountController = TextEditingController(
+      text: widget.initialValue?.amount.toString() ?? '',
+    );
+    _notesController = TextEditingController(
+      text: widget.initialValue?.notes ?? '',
+    );
+    _dateNotifier = ValueNotifier<DateTime>(
+      widget.initialValue?.paymentDate ?? DateTime.now(),
+    );
   }
 
   @override
@@ -54,61 +60,70 @@ class _ClientPaymentSheetState extends State<_ClientPaymentSheet> {
       title: widget.initialValue == null ? l10n.addPayment : l10n.editPayment,
       child: Form(
         key: _formKey,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _dateNotifier,
-            builder: (context, value, _) {
-              return OutlinedButton.icon(
-                onPressed: () async {
-                  final picked = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                    initialDate: value,
-                  );
-                  if (picked != null) _dateNotifier.value = picked;
-                },
-                icon: const Icon(Icons.calendar_today_outlined),
-                label: Text(DateFormat.yMd().format(value)),
-              );
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextFormField(
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(labelText: l10n.amount),
-            textInputAction: TextInputAction.next,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            validator: InputValidator.multiple([
-              (v) => InputValidator.required(context, v),
-              (v) => InputValidator.positiveNumber(context, v),
-            ]),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          TextFormField(
-            controller: _notesController,
-            decoration: InputDecoration(labelText: l10n.notes),
-            onFieldSubmitted: (_) => _save(),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: FilledButton(onPressed: _save, child: Text(l10n.save)),
-          ),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _dateNotifier,
+              builder: (context, value, _) {
+                return OutlinedButton.icon(
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      initialDate: value,
+                    );
+                    if (picked != null) _dateNotifier.value = picked;
+                  },
+                  icon: const Icon(Icons.calendar_today_outlined),
+                  label: Text(DateFormat.yMd().format(value)),
+                );
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(labelText: l10n.amount),
+              textInputAction: TextInputAction.next,
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              validator: InputValidator.multiple([
+                (v) => InputValidator.required(context, v),
+                (v) => InputValidator.positiveNumber(context, v),
+              ]),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextFormField(
+              controller: _notesController,
+              decoration: InputDecoration(labelText: l10n.notes),
+              onFieldSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: FilledButton(onPressed: _save, child: Text(l10n.save)),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _save() {
     if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pop(ClientPaymentFormResult(
-        paymentId: widget.initialValue?.paymentId,
-        amount: double.parse(_amountController.text.trim()),
-        paymentDate: _dateNotifier.value,
-        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
-      ));
+      Navigator.of(context).pop(
+        ClientPaymentFormResult(
+          paymentId: widget.initialValue?.paymentId,
+          amount: double.parse(_amountController.text.trim()),
+          paymentDate: _dateNotifier.value,
+          notes: _notesController.text.trim().isEmpty
+              ? null
+              : _notesController.text.trim(),
+        ),
+      );
     }
   }
 }

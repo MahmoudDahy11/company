@@ -70,15 +70,22 @@ class ClientDbOperations {
           }).toList();
         });
   }
+
   Future<void> addClient({required String name, String? phone}) async {
     await _database.transaction(() async {
       final id = await _database
           .into(_database.clients)
-          .insert(ClientsCompanion.insert(
-            name: name.trim(),
-            phone: Value(phone?.trim().isEmpty == true ? null : phone?.trim()),
-          ));
-      final client = await (_database.select(_database.clients)..where((t) => t.id.equals(id))).getSingle();
+          .insert(
+            ClientsCompanion.insert(
+              name: name.trim(),
+              phone: Value(
+                phone?.trim().isEmpty == true ? null : phone?.trim(),
+              ),
+            ),
+          );
+      final client = await (_database.select(
+        _database.clients,
+      )..where((t) => t.id.equals(id))).getSingle();
       await queueSyncEntry(
         _database,
         operation: SyncQueueOperation.insert,

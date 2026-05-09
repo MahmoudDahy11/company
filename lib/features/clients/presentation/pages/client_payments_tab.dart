@@ -51,20 +51,24 @@ class ClientPaymentsTab extends StatelessWidget {
                 DataColumn(label: Text(l10n.actions)),
               ],
               rows: payments.map((item) {
-                return DataRow(cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
-                  DataCell(Text(currency.format(item.amount))),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.paymentDate))),
+                    DataCell(Text(currency.format(item.amount))),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(ClientPaymentActions(item: item, currency: currency)),
-                ]);
+                    DataCell(
+                      ClientPaymentActions(item: item, currency: currency),
+                    ),
+                  ],
+                );
               }).toList(),
             ),
           ),

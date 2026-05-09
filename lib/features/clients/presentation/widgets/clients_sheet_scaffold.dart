@@ -27,7 +27,8 @@ Future<T?> showAdaptiveClientsSheet<T>({
 }
 
 class ClientsSheetScaffold extends StatelessWidget {
-  const ClientsSheetScaffold({super.key, 
+  const ClientsSheetScaffold({
+    super.key,
     required this.title,
     required this.child,
   });

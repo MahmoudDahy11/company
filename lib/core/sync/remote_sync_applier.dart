@@ -744,7 +744,8 @@ class RemoteSyncApplier {
   }
 
   Future<void> _applyMaintenanceFaultRecordChange(
-      RemoteChangeEvent change) async {
+    RemoteChangeEvent change,
+  ) async {
     if (change.operation == SyncQueueOperation.delete) {
       await (_database.delete(
         _database.maintenanceFaultRecords,

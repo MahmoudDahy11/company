@@ -9,7 +9,11 @@ import '../widgets/client_form_results.dart';
 import '../widgets/client_payment_sheet.dart';
 
 class ClientPaymentActions extends StatelessWidget {
-  const ClientPaymentActions({super.key, required this.item, required this.currency});
+  const ClientPaymentActions({
+    super.key,
+    required this.item,
+    required this.currency,
+  });
 
   final ClientPaymentEntry item;
   final NumberFormat currency;
@@ -50,9 +54,9 @@ class ClientPaymentActions extends StatelessWidget {
               context: context,
               builder: (context) => AlertDialog(
                 title: Text(l10n.deletePaymentTitle),
-                content: Text(l10n.confirmDeletePayment(
-                  currency.format(item.amount),
-                )),
+                content: Text(
+                  l10n.confirmDeletePayment(currency.format(item.amount)),
+                ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),

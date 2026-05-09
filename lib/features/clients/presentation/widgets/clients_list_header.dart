@@ -50,15 +50,15 @@ class ClientsListHeader extends StatelessWidget {
               isArabic: Localizations.localeOf(context).languageCode == 'ar',
             );
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.exportSuccess)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.exportSuccess)));
             }
           } catch (_) {
             if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.exportError)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(l10n.exportError)));
             }
           }
         },
@@ -85,13 +85,14 @@ class ClientsListHeader extends StatelessWidget {
     );
     final title = Text(
       l10n.clients,
-      style: (isMobile
-              ? Theme.of(context).textTheme.headlineSmall
-              : Theme.of(context).textTheme.headlineMedium)
-          ?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: const Color(0xFF1F2937),
-          ),
+      style:
+          (isMobile
+                  ? Theme.of(context).textTheme.headlineSmall
+                  : Theme.of(context).textTheme.headlineMedium)
+              ?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF1F2937),
+              ),
     );
 
     if (isMobile) {
@@ -113,7 +114,14 @@ class ClientsListHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(children: actionButtons),
-        Row(mainAxisSize: MainAxisSize.min, children: [searchField, const SizedBox(width: AppSpacing.lg), title]),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            searchField,
+            const SizedBox(width: AppSpacing.lg),
+            title,
+          ],
+        ),
       ],
     );
   }

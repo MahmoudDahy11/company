@@ -382,9 +382,7 @@ class DashboardLocalDataSource {
         workerYearTotals.read<double?>('total_deductions') ?? 0.0;
 
     final totalWorkerWagesYear = wyEarnings - wyDeductions;
-    log(
-      'DEBUG: Dashboard: Total Worker Wages (Year): $totalWorkerWagesYear',
-    );
+    log('DEBUG: Dashboard: Total Worker Wages (Year): $totalWorkerWagesYear');
 
     // 7. Final Dashboard Summary Construction
     log('DEBUG: Dashboard: Finalizing summary construction...');

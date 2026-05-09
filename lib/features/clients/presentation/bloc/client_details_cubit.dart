@@ -51,49 +51,113 @@ class ClientDetailsCubit extends Cubit<ClientDetailsState> {
   }
 
   void previousMonth() {
-    emit(state.copyWith(
-      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month - 1),
-      isLoading: true,
-    ));
+    emit(
+      state.copyWith(
+        selectedMonth: DateTime(
+          state.selectedMonth.year,
+          state.selectedMonth.month - 1,
+        ),
+        isLoading: true,
+      ),
+    );
     _subscribe();
   }
 
   void nextMonth() {
-    emit(state.copyWith(
-      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month + 1),
-      isLoading: true,
-    ));
+    emit(
+      state.copyWith(
+        selectedMonth: DateTime(
+          state.selectedMonth.year,
+          state.selectedMonth.month + 1,
+        ),
+        isLoading: true,
+      ),
+    );
     _subscribe();
   }
 
-  Future<void> addModel({required String modelName, required int pieceCount, required double pricePerPiece, required DateTime date, String? notes}) =>
-      _addClientModelUseCase(clientId: state.clientId, modelName: modelName, pieceCount: pieceCount, pricePerPiece: pieceCount > 0 ? pricePerPiece : 0, date: date, notes: notes);
+  Future<void> addModel({
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  }) => _addClientModelUseCase(
+    clientId: state.clientId,
+    modelName: modelName,
+    pieceCount: pieceCount,
+    pricePerPiece: pieceCount > 0 ? pricePerPiece : 0,
+    date: date,
+    notes: notes,
+  );
 
-  Future<void> updateModel({required int modelId, required String modelName, required int pieceCount, required double pricePerPiece, required DateTime date, String? notes}) =>
-      _updateClientModelUseCase(modelId: modelId, modelName: modelName, pieceCount: pieceCount, pricePerPiece: pieceCount > 0 ? pricePerPiece : 0, date: date, notes: notes);
+  Future<void> updateModel({
+    required int modelId,
+    required String modelName,
+    required int pieceCount,
+    required double pricePerPiece,
+    required DateTime date,
+    String? notes,
+  }) => _updateClientModelUseCase(
+    modelId: modelId,
+    modelName: modelName,
+    pieceCount: pieceCount,
+    pricePerPiece: pieceCount > 0 ? pricePerPiece : 0,
+    date: date,
+    notes: notes,
+  );
 
   Future<void> deleteModel(int modelId) => _deleteClientModelUseCase(modelId);
 
-  Future<void> addPayment({required double amount, required DateTime paymentDate, String? notes}) =>
-      _addClientPaymentUseCase(clientId: state.clientId, amount: amount, paymentDate: paymentDate, notes: notes);
+  Future<void> addPayment({
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) => _addClientPaymentUseCase(
+    clientId: state.clientId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
 
-  Future<void> updatePayment({required int paymentId, required double amount, required DateTime paymentDate, String? notes}) =>
-      _updateClientPaymentUseCase(paymentId: paymentId, amount: amount, paymentDate: paymentDate, notes: notes);
+  Future<void> updatePayment({
+    required int paymentId,
+    required double amount,
+    required DateTime paymentDate,
+    String? notes,
+  }) => _updateClientPaymentUseCase(
+    paymentId: paymentId,
+    amount: amount,
+    paymentDate: paymentDate,
+    notes: notes,
+  );
 
-  Future<void> deletePayment(int paymentId) => _deleteClientPaymentUseCase(paymentId);
+  Future<void> deletePayment(int paymentId) =>
+      _deleteClientPaymentUseCase(paymentId);
 
   void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
-    _subscription = _watchClientDetailsUseCase(state.clientId, state.selectedMonth).listen(
-      (details) {
-        emit(state.copyWith(details: details, isLoading: false, errorMessage: null));
-        if (completer != null && !completer.isCompleted) completer.complete();
-      },
-      onError: (Object error) {
-        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
-        if (completer != null && !completer.isCompleted) completer.complete();
-      },
-    );
+    _subscription =
+        _watchClientDetailsUseCase(state.clientId, state.selectedMonth).listen(
+          (details) {
+            emit(
+              state.copyWith(
+                details: details,
+                isLoading: false,
+                errorMessage: null,
+              ),
+            );
+            if (completer != null && !completer.isCompleted)
+              completer.complete();
+          },
+          onError: (Object error) {
+            emit(
+              state.copyWith(isLoading: false, errorMessage: error.toString()),
+            );
+            if (completer != null && !completer.isCompleted)
+              completer.complete();
+          },
+        );
   }
 
   @override

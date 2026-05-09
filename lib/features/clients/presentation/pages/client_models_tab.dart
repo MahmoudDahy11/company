@@ -54,23 +54,25 @@ class ClientModelsTab extends StatelessWidget {
                 DataColumn(label: Text(l10n.actions)),
               ],
               rows: models.map((item) {
-                return DataRow(cells: [
-                  DataCell(Text(DateFormat.yMd().format(item.date))),
-                  DataCell(Text(item.modelName)),
-                  DataCell(Text(item.pieceCount.toString())),
-                  DataCell(Text(currency.format(item.pricePerPiece))),
-                  DataCell(Text(currency.format(item.total))),
-                  DataCell(
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 200),
-                      child: Text(
-                        item.notes ?? '',
-                        overflow: TextOverflow.ellipsis,
+                return DataRow(
+                  cells: [
+                    DataCell(Text(DateFormat.yMd().format(item.date))),
+                    DataCell(Text(item.modelName)),
+                    DataCell(Text(item.pieceCount.toString())),
+                    DataCell(Text(currency.format(item.pricePerPiece))),
+                    DataCell(Text(currency.format(item.total))),
+                    DataCell(
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 200),
+                        child: Text(
+                          item.notes ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-                  DataCell(ClientModelActions(item: item)),
-                ]);
+                    DataCell(ClientModelActions(item: item)),
+                  ],
+                );
               }).toList(),
             ),
           ),
