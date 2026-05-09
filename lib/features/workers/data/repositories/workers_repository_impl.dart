@@ -7,88 +7,58 @@ import '../datasources/workers_local_data_source.dart';
 
 @LazySingleton(as: WorkersRepository)
 class WorkersRepositoryImpl implements WorkersRepository {
-  WorkersRepositoryImpl(this._localDataSource);
+  WorkersRepositoryImpl(this._dataSource);
 
-  final WorkersLocalDataSource _localDataSource;
-
-  @override
-  Stream<List<WorkerListItem>> watchWorkers(DateTime month) {
-    return _localDataSource.watchWorkers(month);
-  }
+  final WorkersLocalDataSource _dataSource;
 
   @override
-  Stream<WorkerDetailsData> watchWorkerDetails(int workerId, DateTime month) {
-    return _localDataSource.watchWorkerDetails(workerId, month);
-  }
+  Stream<List<WorkerListItem>> watchWorkers(DateTime month) =>
+      _dataSource.watchWorkers(month);
 
   @override
-  Future<void> addWorker(String name) {
-    return _localDataSource.addWorker(name);
-  }
+  Stream<WorkerDetailsData> watchWorkerDetails(int workerId, DateTime month) =>
+      _dataSource.watchWorkerDetails(workerId, month);
 
   @override
-  Future<void> deleteWorker(int workerId) {
-    return _localDataSource.deleteWorker(workerId);
-  }
+  Future<void> addWorker(String name) => _dataSource.addWorker(name);
+
+  @override
+  Future<void> deleteWorker(int workerId) =>
+      _dataSource.deleteWorker(workerId);
 
   @override
   Future<void> addOrUpdateProduction({
-    int? productionId,
-    required int workerId,
-    required DateTime date,
-    required int stitchCount,
-    String? notes,
-  }) {
-    return _localDataSource.addOrUpdateProduction(
-      productionId: productionId,
-      workerId: workerId,
-      date: date,
-      stitchCount: stitchCount,
-      notes: notes,
-    );
-  }
+    int? productionId, required int workerId,
+    required DateTime date, required int stitchCount, String? notes,
+  }) => _dataSource.addOrUpdateProduction(
+    productionId: productionId, workerId: workerId,
+    date: date, stitchCount: stitchCount, notes: notes,
+  );
 
   @override
-  Future<void> deleteProduction(int productionId) {
-    return _localDataSource.deleteProduction(productionId);
-  }
+  Future<void> deleteProduction(int productionId) =>
+      _dataSource.deleteProduction(productionId);
 
   @override
   Future<void> addAdvance({
-    required int workerId,
-    required double amount,
-    required DateTime date,
-    String? notes,
-  }) {
-    return _localDataSource.addAdvance(
-      workerId: workerId,
-      amount: amount,
-      date: date,
-      notes: notes,
-    );
-  }
+    required int workerId, required double amount,
+    required DateTime date, String? notes,
+  }) => _dataSource.addAdvance(
+    workerId: workerId, amount: amount, date: date, notes: notes,
+  );
 
   @override
   Future<void> addOrUpdateAdvance({
-    int? advanceId,
-    required int workerId,
-    required double amount,
-    required DateTime date,
-    String? notes,
-  }) {
-    return _localDataSource.addOrUpdateAdvance(
-      advanceId: advanceId,
-      workerId: workerId,
-      amount: amount,
-      date: date,
-      notes: notes,
-    );
-  }
+    int? advanceId, required int workerId, required double amount,
+    required DateTime date, String? notes,
+  }) => _dataSource.addOrUpdateAdvance(
+    advanceId: advanceId, workerId: workerId,
+    amount: amount, date: date, notes: notes,
+  );
 
   @override
-  Future<void> deleteAdvance(int advanceId) {
-    return _localDataSource.deleteAdvance(advanceId);
-  }
+  Future<void> deleteAdvance(int advanceId) =>
+      _dataSource.deleteAdvance(advanceId);
 
   @override
   Future<void> addDeduction({
@@ -112,25 +82,14 @@ class WorkersRepositoryImpl implements WorkersRepository {
 
   @override
   Future<void> upsertAbsentDays({
-    required int workerId,
-    required DateTime month,
+    required int workerId, required DateTime month,
     required int absentDays,
-  }) {
-    return _localDataSource.upsertAbsentDays(
-      workerId: workerId,
-      month: month,
-      absentDays: absentDays,
-    );
-  }
+  }) => _dataSource.upsertAbsentDays(
+    workerId: workerId, month: month, absentDays: absentDays,
+  );
 
   @override
   Future<void> updateStitchRate({
-    required double rate,
-    required DateTime effectiveFrom,
-  }) {
-    return _localDataSource.updateStitchRate(
-      rate: rate,
-      effectiveFrom: effectiveFrom,
-    );
-  }
+    required double rate, required DateTime effectiveFrom,
+  }) => _dataSource.updateStitchRate(rate: rate, effectiveFrom: effectiveFrom);
 }
