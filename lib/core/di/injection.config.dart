@@ -146,8 +146,22 @@ import 'package:company/features/women_staff/presentation/bloc/staff_details_cub
     as _i922;
 import 'package:company/features/women_staff/presentation/bloc/women_staff_cubit.dart'
     as _i411;
+import 'package:company/features/workers/data/datasources/worker_advance_data_source.dart'
+    as _i623;
+import 'package:company/features/workers/data/datasources/worker_production_data_source.dart'
+    as _i724;
+import 'package:company/features/workers/data/datasources/worker_rate_data_source.dart'
+    as _i266;
 import 'package:company/features/workers/data/datasources/workers_local_data_source.dart'
     as _i493;
+import 'package:company/features/workers/data/helpers/worker_earnings_helper.dart'
+    as _i600;
+import 'package:company/features/workers/data/query_builders/worker_details_builder.dart'
+    as _i691;
+import 'package:company/features/workers/data/query_builders/worker_list_builder.dart'
+    as _i378;
+import 'package:company/features/workers/data/query_builders/worker_summary_builder.dart'
+    as _i591;
 import 'package:company/features/workers/data/repositories/workers_repository_impl.dart'
     as _i741;
 import 'package:company/features/workers/domain/repositories/workers_repository.dart'
@@ -223,14 +237,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i671.SyncRemoteDataSource>(
       () => _i671.SyncRemoteDataSource(gh<_i80.FirebaseProvider>()),
     );
+    gh.factory<_i600.WorkerEarningsHelper>(
+      () => _i600.WorkerEarningsHelper(gh<_i549.AppDatabase>()),
+    );
     gh.lazySingleton<_i216.RemoteSyncApplier>(
       () => _i216.RemoteSyncApplier(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i359.SyncStatusCubit>(
       () => _i359.SyncStatusCubit(gh<_i549.AppDatabase>()),
-    );
-    gh.lazySingleton<_i788.ClientsLocalDataSource>(
-      () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i618.MaintenanceFaultRecordsLocalDataSource>(
       () =>
@@ -241,6 +255,15 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
       () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.lazySingleton<_i623.WorkerAdvanceDataSource>(
+      () => _i623.WorkerAdvanceDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.lazySingleton<_i724.WorkerProductionDataSource>(
+      () => _i724.WorkerProductionDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.lazySingleton<_i266.WorkerRateDataSource>(
+      () => _i266.WorkerRateDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i406.DashboardLocalDataSource>(
       () => _i406.DashboardLocalDataSource(
@@ -264,9 +287,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
-    gh.lazySingleton<_i836.ClientsRepository>(
-      () => _i598.ClientsRepositoryImpl(gh<_i788.ClientsLocalDataSource>()),
-    );
     gh.lazySingleton<_i640.WomenStaffRepository>(
       () =>
           _i74.WomenStaffRepositoryImpl(gh<_i387.WomenStaffLocalDataSource>()),
@@ -277,11 +297,15 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i552.ThreadsRepository>(
       () => _i424.ThreadsRepositoryImpl(gh<_i906.ThreadsLocalDataSource>()),
     );
-    gh.lazySingleton<_i493.WorkersLocalDataSource>(
-      () => _i493.WorkersLocalDataSource(
+    gh.factory<_i591.WorkerSummaryBuilder>(
+      () => _i591.WorkerSummaryBuilder(
         gh<_i549.AppDatabase>(),
+        gh<_i600.WorkerEarningsHelper>(),
         gh<_i787.CalculateWorkerSalaryUseCase>(),
       ),
+    );
+    gh.lazySingleton<_i788.ClientsLocalDataSource>(
+      () => _i788.ClientsLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i512.AppRouter>(
       () => _i512.AppRouter(gh<_i875.AuthController>()),
@@ -298,35 +322,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i861.DashboardRepository>(
       () => _i860.DashboardRepositoryImpl(gh<_i406.DashboardLocalDataSource>()),
     );
-    gh.factory<_i238.AddClientModelUseCase>(
-      () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i971.AddClientPaymentUseCase>(
-      () => _i971.AddClientPaymentUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i914.AddClientUseCase>(
-      () => _i914.AddClientUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i686.DeleteClientModelUseCase>(
-      () => _i686.DeleteClientModelUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i740.DeleteClientPaymentUseCase>(
-      () => _i740.DeleteClientPaymentUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i502.DeleteClientUseCase>(
-      () => _i502.DeleteClientUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i924.UpdateClientModelUseCase>(
-      () => _i924.UpdateClientModelUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i213.UpdateClientPaymentUseCase>(
-      () => _i213.UpdateClientPaymentUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i222.WatchClientDetailsUseCase>(
-      () => _i222.WatchClientDetailsUseCase(gh<_i836.ClientsRepository>()),
-    );
-    gh.factory<_i615.WatchClientsUseCase>(
-      () => _i615.WatchClientsUseCase(gh<_i836.ClientsRepository>()),
+    gh.factory<_i691.WorkerDetailsBuilder>(
+      () => _i691.WorkerDetailsBuilder(
+        gh<_i549.AppDatabase>(),
+        gh<_i600.WorkerEarningsHelper>(),
+        gh<_i591.WorkerSummaryBuilder>(),
+      ),
     );
     gh.factory<_i408.AddMaintenanceFaultRecordUseCase>(
       () => _i408.AddMaintenanceFaultRecordUseCase(
@@ -409,6 +410,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i504.WatchDashboardSummaryUseCase>(
       () => _i504.WatchDashboardSummaryUseCase(gh<_i861.DashboardRepository>()),
     );
+    gh.factory<_i378.WorkerListBuilder>(
+      () => _i378.WorkerListBuilder(
+        gh<_i549.AppDatabase>(),
+        gh<_i600.WorkerEarningsHelper>(),
+        gh<_i787.CalculateWorkerSalaryUseCase>(),
+        gh<_i591.WorkerSummaryBuilder>(),
+      ),
+    );
     gh.factory<_i478.AddStaffAdvanceUseCase>(
       () => _i478.AddStaffAdvanceUseCase(gh<_i640.WomenStaffRepository>()),
     );
@@ -436,6 +445,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i829.WatchStaffUseCase>(
       () => _i829.WatchStaffUseCase(gh<_i640.WomenStaffRepository>()),
     );
+    gh.lazySingleton<_i836.ClientsRepository>(
+      () => _i598.ClientsRepositoryImpl(gh<_i788.ClientsLocalDataSource>()),
+    );
     gh.factory<_i922.StaffDetailsCubit>(
       () => _i922.StaffDetailsCubit(
         gh<_i81.WatchStaffDetailsUseCase>(),
@@ -446,9 +458,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i282.UpdateSalaryUseCase>(),
       ),
     );
-    gh.lazySingleton<_i1023.WorkersRepository>(
-      () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
-    );
     gh.factory<_i625.DashboardCubit>(
       () => _i625.DashboardCubit(gh<_i504.WatchDashboardSummaryUseCase>()),
     );
@@ -458,6 +467,76 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i408.AddMaintenanceFaultRecordUseCase>(),
         gh<_i1059.UpdateMaintenanceFaultRecordUseCase>(),
         gh<_i146.DeleteMaintenanceFaultRecordUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i493.WorkersLocalDataSource>(
+      () => _i493.WorkersLocalDataSource(
+        gh<_i549.AppDatabase>(),
+        gh<_i378.WorkerListBuilder>(),
+        gh<_i691.WorkerDetailsBuilder>(),
+        gh<_i724.WorkerProductionDataSource>(),
+        gh<_i623.WorkerAdvanceDataSource>(),
+        gh<_i266.WorkerRateDataSource>(),
+      ),
+    );
+    gh.factory<_i238.AddClientModelUseCase>(
+      () => _i238.AddClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i971.AddClientPaymentUseCase>(
+      () => _i971.AddClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i914.AddClientUseCase>(
+      () => _i914.AddClientUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i686.DeleteClientModelUseCase>(
+      () => _i686.DeleteClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i740.DeleteClientPaymentUseCase>(
+      () => _i740.DeleteClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i502.DeleteClientUseCase>(
+      () => _i502.DeleteClientUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i924.UpdateClientModelUseCase>(
+      () => _i924.UpdateClientModelUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i213.UpdateClientPaymentUseCase>(
+      () => _i213.UpdateClientPaymentUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i222.WatchClientDetailsUseCase>(
+      () => _i222.WatchClientDetailsUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i615.WatchClientsUseCase>(
+      () => _i615.WatchClientsUseCase(gh<_i836.ClientsRepository>()),
+    );
+    gh.factory<_i411.WomenStaffCubit>(
+      () => _i411.WomenStaffCubit(
+        gh<_i829.WatchStaffUseCase>(),
+        gh<_i361.AddStaffUseCase>(),
+        gh<_i166.DeleteStaffUseCase>(),
+        gh<_i478.AddStaffAdvanceUseCase>(),
+        gh<_i977.AddStaffDeductionUseCase>(),
+      ),
+    );
+    gh.lazySingleton<_i1023.WorkersRepository>(
+      () => _i741.WorkersRepositoryImpl(gh<_i493.WorkersLocalDataSource>()),
+    );
+    gh.factory<_i416.ClientsCubit>(
+      () => _i416.ClientsCubit(
+        gh<_i615.WatchClientsUseCase>(),
+        gh<_i914.AddClientUseCase>(),
+        gh<_i502.DeleteClientUseCase>(),
+      ),
+    );
+    gh.factory<_i177.ClientDetailsCubit>(
+      () => _i177.ClientDetailsCubit(
+        gh<_i222.WatchClientDetailsUseCase>(),
+        gh<_i238.AddClientModelUseCase>(),
+        gh<_i924.UpdateClientModelUseCase>(),
+        gh<_i686.DeleteClientModelUseCase>(),
+        gh<_i971.AddClientPaymentUseCase>(),
+        gh<_i213.UpdateClientPaymentUseCase>(),
+        gh<_i740.DeleteClientPaymentUseCase>(),
       ),
     );
     gh.factory<_i454.AddAdvanceUseCase>(
@@ -501,39 +580,11 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i134.UpdateStitchRateUseCase>(),
       ),
     );
-    gh.factory<_i416.ClientsCubit>(
-      () => _i416.ClientsCubit(
-        gh<_i615.WatchClientsUseCase>(),
-        gh<_i914.AddClientUseCase>(),
-        gh<_i502.DeleteClientUseCase>(),
-      ),
-    );
-    gh.factory<_i177.ClientDetailsCubit>(
-      () => _i177.ClientDetailsCubit(
-        gh<_i222.WatchClientDetailsUseCase>(),
-        gh<_i238.AddClientModelUseCase>(),
-        gh<_i924.UpdateClientModelUseCase>(),
-        gh<_i686.DeleteClientModelUseCase>(),
-        gh<_i971.AddClientPaymentUseCase>(),
-        gh<_i213.UpdateClientPaymentUseCase>(),
-        gh<_i740.DeleteClientPaymentUseCase>(),
-      ),
-    );
-    gh.factory<_i411.WomenStaffCubit>(
-      () => _i411.WomenStaffCubit(
-        gh<_i829.WatchStaffUseCase>(),
-        gh<_i361.AddStaffUseCase>(),
-        gh<_i166.DeleteStaffUseCase>(),
-        gh<_i478.AddStaffAdvanceUseCase>(),
-        gh<_i977.AddStaffDeductionUseCase>(),
-      ),
-    );
     gh.factory<_i105.WorkerDetailsCubit>(
       () => _i105.WorkerDetailsCubit(
         gh<_i455.WatchWorkerDetailsUseCase>(),
         gh<_i663.AddOrUpdateProductionUseCase>(),
         gh<_i970.DeleteProductionUseCase>(),
-        gh<_i454.AddAdvanceUseCase>(),
         gh<_i230.AddOrUpdateAdvanceUseCase>(),
         gh<_i1064.DeleteAdvanceUseCase>(),
         gh<_i704.UpsertAbsentDaysUseCase>(),
