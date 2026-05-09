@@ -54,6 +54,7 @@ class ExcelExportService {
             'إجمالي الغرز / الراتب',
             'السلف',
             'الخصومات',
+            'أيام الغياب',
             'الترحيل',
             'الصافي',
           ]
@@ -63,6 +64,7 @@ class ExcelExportService {
             'Earnings / Salary',
             'Advances',
             'Deductions',
+            'Absent Days',
             'Carry-over',
             'Net Salary',
           ];
@@ -85,6 +87,7 @@ class ExcelExportService {
         DoubleCellValue(worker.totalEarnings),
         DoubleCellValue(worker.totalAdvances),
         DoubleCellValue(worker.totalDeductions),
+        IntCellValue(worker.absentDays),
         DoubleCellValue(0), // carry-over not available in list item
         DoubleCellValue(worker.netSalary),
       ];

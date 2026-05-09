@@ -213,7 +213,7 @@ class _SummaryTab extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 260,
-          mainAxisExtent: 120,
+          mainAxisExtent: 140,
           crossAxisSpacing: AppSpacing.md,
           mainAxisSpacing: AppSpacing.md,
         ),

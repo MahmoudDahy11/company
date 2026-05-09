@@ -5,6 +5,7 @@ class WorkerListItem {
     required this.totalEarnings,
     required this.totalAdvances,
     required this.totalDeductions,
+    required this.absentDays,
     required this.netSalary,
   });
 
@@ -13,5 +14,6 @@ class WorkerListItem {
   final double totalEarnings;
   final double totalAdvances;
   final double totalDeductions;
+  final int absentDays;
   final double netSalary;
 }

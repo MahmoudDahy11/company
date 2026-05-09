@@ -292,7 +292,9 @@ class _WorkersView extends StatelessWidget {
                                                   .trim(),
                                             ),
                                           ),
-                                          DataCell(const Text('0')),
+                                          DataCell(
+                                            Text(item.absentDays.toString()),
+                                          ),
                                           DataCell(
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
