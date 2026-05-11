@@ -31,7 +31,33 @@ The application targets **6 platforms** from a single Flutter codebase: Android,
 
 ## Screenshots
 
-> _Screenshots to be added. The application supports both light and dark themes with an adaptive layout for mobile and desktop form factors._
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/d8c471b4-ca3a-4201-a643-d34392a6d413" alt="Dashboard Overview"/><br/><em>Dashboard — financial summary and charts</em></td>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/f3bae7cd-a584-4920-a0cc-65be9f738493" alt="Dashboard Annual Tables"/><br/><em>Dashboard — annual client and thread tables</em></td>
+    </tr>
+    <tr>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/d631e967-e3c3-4f83-8c98-673cab8b7eb1" alt="Dashboard Charts"/><br/><em>Dashboard — bar and pie chart visualizations</em></td>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/50191b17-75a4-4129-913f-d9baf9d072f2" alt="Dashboard Financial Section"/><br/><em>Dashboard — detailed financial breakdown</em></td>
+    </tr>
+    <tr>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/47c7faf1-cc89-483b-85f2-9d96a3346fce" alt="Workers"/><br/><em>Workers — production tracking and payroll</em></td>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/82655aa1-f144-486b-a4b4-85ac42e3d723" alt="Women Staff"/><br/><em>Women Staff — salary and advance management</em></td>
+    </tr>
+    <tr>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/21d0dc28-450f-4c3a-9972-1ecd9bb526a6" alt="Threads & Suppliers"/><br/><em>Threads & Suppliers — inventory and payments</em></td>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/4ebfe7eb-f3e4-4d61-b9d7-75cabbfa7cf0" alt="Clients"/><br/><em>Clients — order models and payment tracking</em></td>
+    </tr>
+    <tr>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/ac6f387e-b191-40a7-baef-b3eda73e8b55" alt="Maintenance"/><br/><em>Maintenance — machine fault records</em></td>
+      <td width="50%"><img src="https://github.com/user-attachments/assets/0e1e1302-76cb-4eb1-8871-fc37fcca5c60" alt="Authentication"/><br/><em>Authentication — admin login screen</em></td>
+    </tr>
+    <tr>
+      <td colspan="2"><img src="https://github.com/user-attachments/assets/b4eeca06-a827-4c3e-9e9d-043a9d54a1aa" alt="Mobile View"/><br/><em>Mobile layout — responsive bottom navigation</em></td>
+    </tr>
+  </table>
+</div>
 
 ---
 
