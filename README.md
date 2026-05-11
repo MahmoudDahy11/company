@@ -53,9 +53,6 @@ The application targets **6 platforms** from a single Flutter codebase: Android,
       <td width="50%"><img src="https://github.com/user-attachments/assets/ac6f387e-b191-40a7-baef-b3eda73e8b55" alt="Maintenance"/><br/><em>Maintenance — machine fault records</em></td>
       <td width="50%"><img src="https://github.com/user-attachments/assets/0e1e1302-76cb-4eb1-8871-fc37fcca5c60" alt="Authentication"/><br/><em>Authentication — admin login screen</em></td>
     </tr>
-    <tr>
-      <td colspan="2"><img src="https://github.com/user-attachments/assets/b4eeca06-a827-4c3e-9e9d-043a9d54a1aa" alt="Mobile View"/><br/><em>Mobile layout — responsive bottom navigation</em></td>
-    </tr>
   </table>
 </div>
 
