@@ -27,18 +27,14 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
   final DeleteStaffUseCase _deleteStaffUseCase;
   final AddStaffAdvanceUseCase _addStaffAdvanceUseCase;
   final AddStaffDeductionUseCase _addStaffDeductionUseCase;
-
   StreamSubscription<List<StaffListItem>>? _subscription;
 
   Future<void> start() async {
     _subscription?.cancel();
     emit(state.copyWith(isLoading: true, errorMessage: null));
-
-    // Perform a forced sync from the server
     try {
       await GetIt.I<SyncService>().forceSync();
     } catch (_) {}
-
     final completer = Completer<void>();
     _subscription = _watchStaffUseCase(state.selectedMonth).listen(
       (items) {
@@ -59,9 +55,7 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
     return _addStaffUseCase(name: name, monthlySalary: monthlySalary);
   }
 
-  Future<void> deleteStaff(int staffId) {
-    return _deleteStaffUseCase(staffId);
-  }
+  Future<void> deleteStaff(int staffId) => _deleteStaffUseCase(staffId);
 
   Future<void> addAdvance({
     required int staffId,
@@ -91,9 +85,8 @@ class WomenStaffCubit extends Cubit<WomenStaffState> {
     );
   }
 
-  void updateSearchQuery(String value) {
-    emit(state.copyWith(searchQuery: value));
-  }
+  void updateSearchQuery(String value) =>
+      emit(state.copyWith(searchQuery: value));
 
   void previousMonth() {
     emit(

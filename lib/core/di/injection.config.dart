@@ -122,6 +122,14 @@ import 'package:company/features/threads/presentation/bloc/supplier_details_cubi
     as _i850;
 import 'package:company/features/threads/presentation/bloc/threads_cubit.dart'
     as _i136;
+import 'package:company/features/women_staff/data/datasources/staff_details_assembler.dart'
+    as _i656;
+import 'package:company/features/women_staff/data/datasources/staff_finance_data_source.dart'
+    as _i181;
+import 'package:company/features/women_staff/data/datasources/staff_month_calculator.dart'
+    as _i549;
+import 'package:company/features/women_staff/data/datasources/staff_summary_builder.dart'
+    as _i168;
 import 'package:company/features/women_staff/data/datasources/women_staff_local_data_source.dart'
     as _i387;
 import 'package:company/features/women_staff/data/repositories/women_staff_repository_impl.dart'
@@ -247,6 +255,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i671.SyncRemoteDataSource>(
       () => _i671.SyncRemoteDataSource(gh<_i80.FirebaseProvider>()),
     );
+    gh.factory<_i181.StaffFinanceDataSource>(
+      () => _i181.StaffFinanceDataSource(gh<_i549.AppDatabase>()),
+    );
+    gh.factory<_i549.StaffMonthCalculator>(
+      () => _i549.StaffMonthCalculator(gh<_i549.AppDatabase>()),
+    );
     gh.factory<_i600.WorkerEarningsHelper>(
       () => _i600.WorkerEarningsHelper(gh<_i549.AppDatabase>()),
     );
@@ -268,9 +282,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i983.SuppliersLocalDataSource>(
       () => _i983.SuppliersLocalDataSource(gh<_i549.AppDatabase>()),
-    );
-    gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
-      () => _i387.WomenStaffLocalDataSource(gh<_i549.AppDatabase>()),
     );
     gh.lazySingleton<_i623.WorkerAdvanceDataSource>(
       () => _i623.WorkerAdvanceDataSource(gh<_i549.AppDatabase>()),
@@ -336,10 +347,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i460.SharedPreferences>(),
       ),
     );
-    gh.lazySingleton<_i640.WomenStaffRepository>(
-      () =>
-          _i74.WomenStaffRepositoryImpl(gh<_i387.WomenStaffLocalDataSource>()),
-    );
     gh.factory<_i47.LoginCubit>(
       () => _i47.LoginCubit(gh<_i875.AuthController>()),
     );
@@ -370,6 +377,12 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i512.AppRouter>(
       () => _i512.AppRouter(gh<_i875.AuthController>()),
     );
+    gh.factory<_i656.StaffDetailsAssembler>(
+      () => _i656.StaffDetailsAssembler(
+        gh<_i549.AppDatabase>(),
+        gh<_i549.StaffMonthCalculator>(),
+      ),
+    );
     gh.lazySingleton<_i807.SyncService>(
       () => _i807.SyncService(
         gh<_i549.AppDatabase>(),
@@ -379,11 +392,30 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i216.RemoteSyncApplier>(),
       ),
     );
+    gh.factory<_i168.StaffSummaryBuilder>(
+      () => _i168.StaffSummaryBuilder(
+        gh<_i549.AppDatabase>(),
+        gh<_i549.StaffMonthCalculator>(),
+        gh<_i656.StaffDetailsAssembler>(),
+      ),
+    );
+    gh.lazySingleton<_i387.WomenStaffLocalDataSource>(
+      () => _i387.WomenStaffLocalDataSource(
+        gh<_i549.AppDatabase>(),
+        gh<_i168.StaffSummaryBuilder>(),
+      ),
+    );
     gh.factory<_i691.WorkerDetailsBuilder>(
       () => _i691.WorkerDetailsBuilder(
         gh<_i549.AppDatabase>(),
         gh<_i600.WorkerEarningsHelper>(),
         gh<_i591.WorkerSummaryBuilder>(),
+      ),
+    );
+    gh.lazySingleton<_i640.WomenStaffRepository>(
+      () => _i74.WomenStaffRepositoryImpl(
+        gh<_i387.WomenStaffLocalDataSource>(),
+        gh<_i181.StaffFinanceDataSource>(),
       ),
     );
     gh.factory<_i852.AddOrUpdatePurchaseUseCase>(

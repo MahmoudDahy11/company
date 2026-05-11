@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
@@ -30,7 +29,6 @@ class StaffDetailsCubit extends Cubit<StaffDetailsState> {
   final AddStaffDeductionUseCase _addStaffDeductionUseCase;
   final DeleteStaffDeductionUseCase _deleteStaffDeductionUseCase;
   final UpdateSalaryUseCase _updateSalaryUseCase;
-
   StreamSubscription<StaffDetailsData>? _subscription;
 
   void init(int staffId) {
@@ -39,106 +37,56 @@ class StaffDetailsCubit extends Cubit<StaffDetailsState> {
   }
 
   Future<void> refresh() async {
-    try {
-      await GetIt.I<SyncService>().forceSync();
-    } catch (_) {}
+    try { await GetIt.I<SyncService>().forceSync(); } catch (_) {}
     final completer = Completer<void>();
     _subscribe(completer: completer);
     return completer.future;
   }
 
   void previousMonth() {
-    emit(
-      state.copyWith(
-        selectedMonth: DateTime(
-          state.selectedMonth.year,
-          state.selectedMonth.month - 1,
-        ),
-        isLoading: true,
-      ),
-    );
+    emit(state.copyWith(
+      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month - 1),
+      isLoading: true,
+    ));
     _subscribe();
   }
 
   void nextMonth() {
-    emit(
-      state.copyWith(
-        selectedMonth: DateTime(
-          state.selectedMonth.year,
-          state.selectedMonth.month + 1,
-        ),
-        isLoading: true,
-      ),
-    );
+    emit(state.copyWith(
+      selectedMonth: DateTime(state.selectedMonth.year, state.selectedMonth.month + 1),
+      isLoading: true,
+    ));
     _subscribe();
   }
 
-  Future<void> addAdvance({
-    required double amount,
-    required DateTime date,
-    String? notes,
-  }) {
-    return _addStaffAdvanceUseCase(
-      staffId: state.staffId,
-      amount: amount,
-      date: date,
-      notes: notes,
-    );
+  Future<void> addAdvance({required double amount, required DateTime date, String? notes}) {
+    return _addStaffAdvanceUseCase(staffId: state.staffId, amount: amount, date: date, notes: notes);
   }
 
-  Future<void> deleteAdvance(int advanceId) {
-    return _deleteStaffAdvanceUseCase(advanceId);
+  Future<void> deleteAdvance(int advanceId) => _deleteStaffAdvanceUseCase(advanceId);
+
+  Future<void> addDeduction({required double amount, required DateTime date, String? notes}) {
+    return _addStaffDeductionUseCase(staffId: state.staffId, amount: amount, date: date, notes: notes);
   }
 
-  Future<void> addDeduction({
-    required double amount,
-    required DateTime date,
-    String? notes,
-  }) {
-    return _addStaffDeductionUseCase(
-      staffId: state.staffId,
-      amount: amount,
-      date: date,
-      notes: notes,
-    );
-  }
-
-  Future<void> deleteDeduction(int deductionId) {
-    return _deleteStaffDeductionUseCase(deductionId);
-  }
+  Future<void> deleteDeduction(int deductionId) => _deleteStaffDeductionUseCase(deductionId);
 
   Future<void> updateSalary(double monthlySalary) {
-    return _updateSalaryUseCase(
-      staffId: state.staffId,
-      monthlySalary: monthlySalary,
-    );
+    return _updateSalaryUseCase(staffId: state.staffId, monthlySalary: monthlySalary);
   }
 
   void _subscribe({Completer<void>? completer}) {
     _subscription?.cancel();
-    _subscription =
-        _watchStaffDetailsUseCase(state.staffId, state.selectedMonth).listen(
-          (details) {
-            emit(
-              state.copyWith(
-                details: details,
-                isLoading: false,
-                errorMessage: null,
-              ),
-            );
-            if (completer != null && !completer.isCompleted) {
-              completer.complete();
-            }
-          },
-          onError: (Object error) {
-            emit(
-              state.copyWith(isLoading: false, errorMessage: error.toString()),
-            );
-            if (completer != null && !completer.isCompleted) {
-              completer.complete();
-            }
-          },
-        );
+    _subscription = _watchStaffDetailsUseCase(state.staffId, state.selectedMonth).listen(
+      (details) {
+        emit(state.copyWith(details: details, isLoading: false, errorMessage: null));
+        if (completer != null && !completer.isCompleted) completer.complete();
+      },
+      onError: (Object error) {
+        emit(state.copyWith(isLoading: false, errorMessage: error.toString()));
+        if (completer != null && !completer.isCompleted) completer.complete();
+      },
+    );
   }
 
   @override
