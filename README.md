@@ -2,10 +2,10 @@
   <img src="assets/dahycompany.png" alt="Dahy Factory Logo" width="120"/>
 </p>
 
-<h1 align="center">Dahy Factory Management System</h1>
+<h1 align="center">Factory Management System</h1>
 
 <p align="center">
-  Offline-first factory ERP for production tracking, payroll, inventory, and financial oversight.
+  A production-grade, offline-first ERP built with Flutter — managing payroll, inventory, client orders, and financials across 6 platforms from a single codebase.
 </p>
 
 <p align="center">
@@ -21,11 +21,13 @@
 
 ---
 
-## Overview
+## About This Project
 
-Dahy Factory Management System is an **offline-first** cross-platform application built for internal factory operations. It manages the full lifecycle of worker piecework payroll, fixed-salary staff, supplier thread inventory, client order fulfillment, and machine maintenance — all backed by a local SQLite database with automatic Firestore sync.
+This is a **real-world client project** I designed and built end-to-end for a garment manufacturing factory. The client needed to replace a fully manual, paper-based workflow covering worker payroll, thread inventory, client orders, and machine maintenance — with a reliable digital system that works without internet.
 
-The application targets **6 platforms** from a single Flutter codebase: Android, iOS, Web, Windows, Linux, and macOS.
+The core challenge was building something that **non-technical factory staff could operate daily**, while maintaining production-grade code quality behind the scenes.
+
+> ⚠️ Source code is private (proprietary client work). This README documents architecture, technical decisions, and outcomes for portfolio purposes.
 
 ---
 
@@ -55,6 +57,19 @@ The application targets **6 platforms** from a single Flutter codebase: Android,
     </tr>
   </table>
 </div>
+
+---
+
+## Key Technical Decisions
+
+### Why Offline-First?
+The factory floor has unreliable connectivity. A network-dependent app would be unusable. The decision was to make **local SQLite the source of truth** and treat Firestore as a passive backup — not the primary data layer. This means zero latency on reads/writes and full functionality with no internet.
+
+### Why Clean Architecture?
+This was a conscious decision to future-proof the codebase. The domain layer has zero Flutter/Firebase dependencies — business logic is entirely framework-agnostic. This made it straightforward to, for example, swap the local DB from Drift to another SQLite wrapper without touching a single use case.
+
+### Why Bloc + ValueNotifier (not just Bloc)?
+Not everything needs the full Bloc overhead. Theme mode and locale are simple, synchronous, app-wide values — `ValueNotifier` is the right tool. Bloc is reserved for async feature state (data loading, mutations, errors). `setState` is **not used anywhere** in the codebase.
 
 ---
 
@@ -152,21 +167,24 @@ feature/
 
 ---
 
-## State Management
+## Offline-First Sync
 
-The project uses a **dual-strategy** approach:
+All data operations write to the local Drift database immediately. The sync layer operates asynchronously:
 
-1. **flutter_bloc (Cubit)** — All feature-level state that crosses widget boundaries or involves async data loading. Each major feature has one or more Cubits (e.g., `WorkersCubit`, `WorkerDetailsCubit`, `DashboardCubit`).
+1. Every write is recorded in a `sync_queue` table with operation type, table name, record ID, and JSON payload.
+2. `ConnectivityService` monitors network state via `connectivity_plus`.
+3. When online, `SyncService` processes the queue FIFO, pushing to Firestore under `factory_backup/{tableName}/records/{recordId}`.
+4. Failed operations retry up to 3 times, then are marked as `failed`.
+5. A visual indicator in the app bar shows sync state: green (synced), spinning (syncing), orange (pending), red (failed).
+6. On first launch, a one-time pull restores data from Firestore to the local database.
 
-2. **ValueNotifier + ValueListenableBuilder** — Local UI state such as theme mode toggles, locale selection, and simple visibility flags. `setState` is **not used** anywhere in the codebase.
-
-The `AppLocaleController` manages both locale and theme mode via `ValueNotifier`, enabling app-wide reactivity without coupling to Bloc for simple UI concerns.
+> **No custom backend.** Firebase Auth handles authentication; Firestore is used exclusively as a remote backup target.
 
 ---
 
-## Database
+## Database Schema
 
-The local database uses **Drift** (SQLite) with 16 tables covering all application entities:
+Local database uses **Drift** (SQLite) with 17 tables across schema version **8** (incremental migrations):
 
 | Table | Purpose |
 |-------|---------|
@@ -188,139 +206,27 @@ The local database uses **Drift** (SQLite) with 16 tables covering all applicati
 | `maintenance_fault_records` | Machine fault logs |
 | `sync_queue` | Offline sync operation queue |
 
-Current schema version: **8** (with incremental migration strategy).
-
----
-
-## Offline-First Sync
-
-All data operations write to the local Drift database immediately. The sync layer operates asynchronously:
-
-1. Every write is recorded in a `sync_queue` table with operation type, table name, record ID, and JSON payload.
-2. `ConnectivityService` monitors network state via `connectivity_plus`.
-3. When online, `SyncService` processes the queue FIFO, pushing to Firestore under `factory_backup/{tableName}/records/{recordId}`.
-4. Failed operations retry up to 3 times, then are marked as `failed`.
-5. A visual indicator in the app bar shows sync state: green (synced), spinning (syncing), orange (pending), red (failed).
-6. On first launch, a one-time pull restores data from Firestore to the local database.
-
-**Important:** There is no custom backend API. Firebase Auth handles authentication; Firestore is used exclusively as a remote backup target.
-
----
-
-## Environment Variables
-
-Create a `.env` file in the project root or configure via Firebase CLI:
-
-```env
-# Firebase configuration is auto-generated via `flutterfire configure`
-# Run the following command to regenerate:
-flutterfire configure --project=dahy-company
-
-# For Android, ensure google-services.json exists in android/app/
-# For iOS, ensure GoogleService-Info.plist exists in ios/Runner/
-```
-
-The project uses `flutterfire configure` output (`lib/firebase_options.dart`) for platform-specific Firebase initialization.
-
----
-
-## Installation
-
-### Prerequisites
-
-- Flutter SDK >=3.38.4
-- Dart >=3.11.4
-- Firebase project (`dahy-company`) with Authentication and Firestore enabled
-
-### Setup
-
-```bash
-# Clone the repository
-git clone <repository-url>
-cd company
-
-# Install dependencies
-flutter pub get
-
-# Generate code (Drift DAOs, Injectable DI, Localization)
-dart run build_runner build --delete-conflicting-outputs
-flutter gen-l10n
-
-# Generate native splash
-flutter pub run flutter_native_splash:create
-
-# Configure Firebase
-flutterfire configure --project=dahy-company
-```
-
-### Running
-
-```bash
-# Android
-flutter run -d android
-
-# iOS
-flutter run -d ios
-
-# Web
-flutter run -d chrome
-
-# Linux
-flutter run -d linux
-
-# macOS
-flutter run -d macos
-
-# Windows
-flutter run -d windows
-```
-
-> **Note:** Firebase is not supported on Linux. The app falls back to mock auth and disables sync with debug logging.
-
-### Build
-
-```bash
-# Android APK (split by ABI)
-flutter build apk --release --split-per-abi
-
-# Android App Bundle
-flutter build appbundle --release
-
-# iOS
-flutter build ios --release
-
-# Web
-flutter build web --release
-
-# Desktop platforms
-flutter build linux --release
-flutter build macos --release
-flutter build windows --release
-```
-
 ---
 
 ## Responsive Design
 
-The UI adapts to three breakpoints using `LayoutBuilder`:
-
 | Breakpoint | Range | Layout |
 |------------|-------|--------|
 | Mobile | < 600px | BottomNavigationBar |
-| Tablet | 600–1024px | Adaptive (condensed NavigationRail) |
+| Tablet | 600–1024px | Adaptive condensed NavigationRail |
 | Desktop | > 1024px | Persistent NavigationRail sidebar |
 
 All form sheets and dialogs use adaptive presentation (bottom sheet on mobile, centered dialog on desktop).
 
 ---
 
-## Performance
+## Performance Highlights
 
-- **Offline-first architecture** eliminates network latency for all read operations.
-- **Drift** provides compiled, type-safe SQL queries with Stream-based reactive updates.
-- **Bloc** ensures widgets rebuild only when their specific state changes.
-- **`StatefulShellRoute.indexedStack`** preserves tab state and prevents unnecessary rebuilds on navigation.
-- Code-generated DI (`injectable`) avoids reflection and resolves dependencies at compile time.
+- Offline-first eliminates network latency for all reads.
+- Drift provides compiled, type-safe SQL with Stream-based reactive updates.
+- Bloc ensures widgets rebuild only on their specific state slice.
+- `StatefulShellRoute.indexedStack` preserves tab state across navigation.
+- Code-generated DI (`injectable`) resolves dependencies at compile time — no reflection.
 
 ---
 
@@ -337,32 +243,13 @@ All form sheets and dialogs use adaptive presentation (bottom sheet on mobile, c
 
 ---
 
-## Contributing
-
-This is an internal project. External contributions are not currently accepted.
-
-For internal contributors:
-
-1. Follow the existing architecture and code conventions documented in `plan.md`.
-2. Do **not** use `setState` — prefer Bloc or ValueNotifier.
-3. Run `dart run build_runner build` after modifying Drift tables or Injectable modules.
-4. Run `flutter gen-l10n` after modifying ARB files in `lib/core/localization/arb/`.
-5. Ensure the project analyzes cleanly: `flutter analyze`.
-
----
-
 ## License
 
-Proprietary — All rights reserved. This software is for internal use only and is not publicly licensed for distribution or modification.
+Proprietary — All rights reserved. Built for a private client; not licensed for public distribution or modification.
 
 ---
 
 ## Contact
 
-**Dahy Company**  
-Maintained by the internal development team.
-
-For questions or support, refer to the project planning documents:
-
-- [`plan.md`](plan.md) — Full technical specification and architecture guide
-- [`dash.md`](dash.md) — Dashboard design and financial reporting spec
+Built by **Mahmoud Dahy**
+📧 dahym2028@gmail.com | 💼 [linkedin.com/in/mahmoud-dahy](https://www.linkedin.com/in/mahmoud-dahy/) | 🐙 [github.com/MahmoudDahy11](https://github.com/MahmoudDahy11)
