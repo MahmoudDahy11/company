@@ -237,7 +237,6 @@ All form sheets and dialogs use adaptive presentation (bottom sheet on mobile, c
 - [ ] Rich notifications for sync failures
 - [ ] Data export via email/cloud share
 - [ ] Multi-user support with role-based access
-- [ ] Barcode/QR scanning for inventory items
 - [ ] Automated backup to additional cloud providers
 - [ ] Performance profiling for large datasets (10K+ records)
 
